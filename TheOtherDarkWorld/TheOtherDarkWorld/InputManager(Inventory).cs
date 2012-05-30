@@ -68,7 +68,8 @@ namespace TheOtherDarkWorld
             {
                 UI.DisableTooltip(); //If the player is clicking, the tooltip should be removed
 
-                if (ItemHoveringOver != -1)
+                if (ItemHoveringOver != -1 
+                    && Player.PlayerList[0].Inventory[ItemHoveringOver] != null) //Can only pick up non null items
                     ItemHeld = ItemHoveringOver;
             }
             else if (mouseState[0].LeftButton == ButtonState.Released) //We'll assume this means the player is holding down the mouse button
@@ -108,7 +109,7 @@ namespace TheOtherDarkWorld
 
         private static void CheckTooltip()
         {
-            if (ItemHoveringOver != -1)
+            if (ItemHoveringOver != -1 && Player.PlayerList[0].Inventory[ItemHoveringOver] != null)
             {
                 TooltipCounter++;
 

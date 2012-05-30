@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <main>
   <Weapons>
-    <Weapon Type="0" Name="AK-47" UseRate="20" Consumes="101" MaxAmount="30" Power="50" Penetration="4" BulletColour="Black" BulletSpeed="10" IsAutomatic="True" Description="An old, yet reliable machine-gun"/>
+    <Weapon Type="0" Name="AK-47" UseRate="100" Consumes="101" MaxAmount="3000000" Power="5000" Penetration="4" BulletColour="Black" BulletSpeed="10" IsAutomatic="True" Description="An old, yet reliable machine-gun"/>
     <Weapon Type="1" Name="Glock-9mm" UseRate="15" Consumes="100" MaxAmount="7" Power="30" Penetration="5" BulletColour="White" BulletSpeed="7" IsAutomatic="False" Description="An old handgun. I can feel a dark energy resonating from it."/>
   </Weapons>
 
@@ -10,8 +10,10 @@
     <Item Type="101" Name="Machinegun Ammo" IsConsumable="False" MaxAmount="30"/>
   </Items>
   <Blocks>
-    <Block Type="0" Name="Wooden-Wall" Health="2000" Resistance="2" Colour="Orange"/>
-    <Block Type="1" Name="Concrete-Wall" Health="8000" Resistance="10" Colour="White"/>
+    <Block Type="0" Name="ConcreteA" Health="99999999" Resistance="100000" Colour="Cream"/>
+    <Block Type="1" Name="ConcreteB" Health="99999999" Resistance="100000" Colour="White"/>
+    <Block Type="2" Name="Plaster" Health="5000" Resistance="5" Colour="Cream"/>
+    <Block Type="3" Name="Brick" Health="40000" Resistance="20" Colour="Red"/>
   </Blocks>
   
 </main>

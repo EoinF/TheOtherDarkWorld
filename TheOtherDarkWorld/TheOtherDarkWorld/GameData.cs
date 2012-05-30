@@ -200,8 +200,12 @@ namespace TheOtherDarkWorld
             {
                 case "White":
                     return Color.White;
+                case "Cream":
+                    return Color.AntiqueWhite;
                 case "Black":
                     return Color.Black;
+                case "Red":
+                    return Color.Red;
                 case "Orange":
                     return Color.Orange;
                 default:

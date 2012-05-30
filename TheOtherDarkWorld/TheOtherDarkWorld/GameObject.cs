@@ -23,9 +23,15 @@ namespace TheOtherDarkWorld
             Velocity = startVelocity;
         }
 
-        
+
         public void CheckCollisions()
         {
+            //
+            //The square in the array that the object is contained in with 3 subtracted
+            //
+            int arrayPositionX = (int)(Position.X / 10) - 3; 
+            int arrayPositionY = (int)(Position.Y / 10) - 3;
+
             Block blk;
             for (int checks = 0; checks < 2 && Velocity != Vector2.Zero; checks++)
             {
@@ -34,9 +40,22 @@ namespace TheOtherDarkWorld
                 //This rectangle is initialised here because it doesn't change until all the blocks have been checked
                 Rectangle RoughRect = new Rectangle(Rect.X + (Velocity.X < 0 ? (int)Velocity.X : 0), Rect.Y + (Velocity.Y < 0 ? (int)Velocity.Y : 0), Rect.Width + (Velocity.X > 0 ? (int)Velocity.X : 0), Rect.Height + (Velocity.Y > 0 ? (int)Velocity.Y : 0));
 
-                for (int i = 0; i < Level.CurrentLevel.BlockList.GetLength(0); i++)
-                    for (int j = 0; j < Level.CurrentLevel.BlockList.GetLength(1); j++)
+                for (int i = arrayPositionX; i < arrayPositionX + 6; i++)
+                {
+                    //Check if the index is out of bounds
+                    if (i >= Level.CurrentLevel.Width)
+                        break;
+                    if (i < 0)
+                        continue;
+
+                    for (int j = arrayPositionY; j < arrayPositionY + 6; j++)
                     {
+                        //Check if the index is out of bounds
+                        if (j >= Level.CurrentLevel.Height)
+                            break;
+                        if (j < 0)
+                            continue;
+
                         blk = Level.CurrentLevel.BlockList[i, j];
 
                         if (blk == null) //If there is no block here,
@@ -76,16 +95,17 @@ namespace TheOtherDarkWorld
                                 else
                                     pct = Math.Min(Math.Abs(px), Math.Abs(py));
 
-                                
+
                                 if (float.IsNaN(pct) || float.IsInfinity(pct) || (pct > 3.9f && pct < 5))// || (Velocity.Y < 0))
                                     pct += 0;
 
                                 //if (Math.Abs(pct) <= Math.Abs(Velocity.X) || Math.Abs(pct) <= Math.Abs(Velocity.Y))
-                                   collisions.Add(new Collision(new Point(i, j), pct, px == pct));
+                                collisions.Add(new Collision(new Point(i, j), pct, px == pct));
                             }
 
                         }
                     }
+                }
 
                 if (collisions.Count == 0) //There were no collisions
                 {

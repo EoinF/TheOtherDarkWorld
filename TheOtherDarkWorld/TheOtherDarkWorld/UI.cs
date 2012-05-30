@@ -11,8 +11,14 @@ namespace TheOtherDarkWorld
         public static List<UIElement> Inventory;
         public static List<TextSprite> HUDText;
         public static Tooltip Tooltip;
-        public static int ScreenX;
-        public static int ScreenY;
+        private static int _screenX;
+
+        public static int ScreenX
+        {
+            get { return _screenX;}
+            set { _screenX = value - Textures.SidePanel.Width;}
+        }
+        public static int ScreenY { get; set; }
 
         public static void Update()
         {

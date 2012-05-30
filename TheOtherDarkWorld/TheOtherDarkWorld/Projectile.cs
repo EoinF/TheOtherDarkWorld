@@ -59,7 +59,7 @@ namespace TheOtherDarkWorld
 
         public void Draw(SpriteBatch spriteBatch)
         {
-            spriteBatch.Draw(Textures.Bullet, Position, null, Colour, Rotation, Origin * Vector2.UnitX, 1, SpriteEffects.None, 0.2f);
+            spriteBatch.Draw(Textures.Bullet, Position - Player.PlayerList[0].Offset, null, Colour, Rotation, Origin * Vector2.UnitX, 1, SpriteEffects.None, 0.2f);
         }
 
         public override void CollideHorizontal(Collision col)

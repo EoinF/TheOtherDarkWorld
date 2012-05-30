@@ -47,7 +47,7 @@ namespace TheOtherDarkWorld
 
         public void Draw(SpriteBatch spriteBatch)
         {
-            spriteBatch.Draw(Textures.Block, Position, null, Colour, 0, Vector2.Zero, 1, SpriteEffects.None, 0.7f);
+            spriteBatch.Draw(Textures.Block, Position - Player.PlayerList[0].Offset, null, Colour, 0, Vector2.Zero, 1, SpriteEffects.None, 0.7f);
         }
 
     }

@@ -43,19 +43,28 @@ namespace TheOtherDarkWorld
 
             if (keyboardState[0].IsKeyDown(Keys.W))
             {
-                Player.PlayerList[0].Velocity -= new Vector2(0, 1);
+                Player.PlayerList[0].Velocity -= new Vector2(0, 2);
             }
             if (keyboardState[0].IsKeyDown(Keys.S))
             {
-                Player.PlayerList[0].Velocity += new Vector2(0, 1);
+                Player.PlayerList[0].Velocity += new Vector2(0, 2);
             }
             if (keyboardState[0].IsKeyDown(Keys.A))
             {
-                Player.PlayerList[0].Velocity -= new Vector2(1, 0);
+                Player.PlayerList[0].Velocity -= new Vector2(2, 0);
             }
             if (keyboardState[0].IsKeyDown(Keys.D))
             {
-                Player.PlayerList[0].Velocity += new Vector2(1, 0);
+                Player.PlayerList[0].Velocity += new Vector2(2, 0);
+            }
+
+            if (keyboardState[0].IsKeyUp(Keys.Left) && keyboardState[1].IsKeyDown(Keys.Left))
+            {
+                Level.GenerateLevel(Level.LevelType.Hallways, -1, Level.CurrentLevel.Width, Level.CurrentLevel.Height);
+            }
+            if (keyboardState[0].IsKeyUp(Keys.Right) && keyboardState[1].IsKeyDown(Keys.Right))
+            {
+                Level.GenerateLevel(Level.LevelType.Hallways, 1, Level.CurrentLevel.Width, Level.CurrentLevel.Height);
             }
 
 
@@ -77,32 +86,11 @@ namespace TheOtherDarkWorld
 
         public static void StartLevel()
         {
-            Block[,] blockList = new Block[75, 60];
-
-            int j = 0;
-            int i = 1;
-
-            while (j < 30)
-            {
-                blockList[0, j] = new Block(0, j, 1);
-                blockList[29, j] = new Block(29, j, 1);
-                j++;
-            }
-
-            while (i < 29)
-            {
-                blockList[i, 0] = new Block(i, 0, 0);
-                blockList[i, 29] = new Block(i, 29, 0);
-                i++;
-            }
-
-            //blockList = new Block[1, 1];
-            //blockList[0, 0] = new Block(10, 20, 0);
-
-            Level.CurrentLevel = new Level(blockList);
+            Random rand = new Random();
+            Level.GenerateLevel(Level.LevelType.Hallways, rand.Next(), 400, 200);
 
             Player.PlayerList = new Player[1] { new Player(new Vector2(170, 200), 6, 2, new Weapon(0), new Weapon(1), Color.LightBlue, Vector2.Zero, 0) };
-            Player.PlayerList[0].Inventory[2] = new Item(100, 15); 
+            Player.PlayerList[0].Inventory[2] = new Item(100, 15);
             Player.PlayerList[0].Inventory[3] = new Item(101, -1);
             Projectile.ProjectileList = new List<Projectile>();
             
@@ -118,7 +106,7 @@ namespace TheOtherDarkWorld
             UI.Inventory.Add(new UIElement(offset + new Vector2(35, 100), 0, 0));
 
             //Starts at 2, because it skips over the two equipped items
-            for (i = 0; i < Player.PlayerList[0].Inventory.Length - 2; i++)
+            for (int i = 0; i < Player.PlayerList[0].Inventory.Length - 2; i++)
             {
                 UI.Inventory.Add(new UIElement(offset + new Vector2(7 + (i % 2) * 30, 160 + (int)(i / 2) * 40), 0, 0));
             }

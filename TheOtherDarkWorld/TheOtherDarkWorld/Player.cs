@@ -16,6 +16,25 @@ namespace TheOtherDarkWorld
         public int ID;
         private int Health { get; set; }
         private int MaxHealth { get; set; }
+        private Vector2 _offset;
+        public Vector2 Offset 
+        {
+            get { return _offset;}
+            set 
+            {
+                if (value.X < 0)
+                    value.X = 0;
+                if (value.X > (Level.CurrentLevel.Width * 10) - UI.ScreenX)
+                    value.X = (Level.CurrentLevel.Width * 10) - UI.ScreenX;
+
+                if (value.Y < 0)
+                    value.Y = 0;
+                if (value.Y > (Level.CurrentLevel.Height * 10) - UI.ScreenY)
+                    value.Y = (Level.CurrentLevel.Height * 10) - UI.ScreenY;
+                _offset = value;
+            }
+        }
+
 
         /// <summary>
         /// The first 2 items are the equipped items
@@ -59,12 +78,9 @@ namespace TheOtherDarkWorld
         {
             get
             {
-                //float vectorX = CrosshairOrigin.X;
-                //float vectorY = CrosshairOrigin.Y;
+                float rot = (float)Math.Atan((MousePosition.Y + Offset.Y - Rect.Center.Y) / (MousePosition.X + Offset.X - Rect.Center.X)) - MathHelper.PiOver2;
 
-                float rot = (float)Math.Atan((MousePosition.Y - Rect.Center.Y) / (MousePosition.X - Rect.Center.X)) - MathHelper.PiOver2;
-
-                if (MousePosition.X >= Rect.Center.X)
+                if (MousePosition.X + Offset.X >= Rect.Center.X)
                     rot += MathHelper.Pi;
 
                 return rot;
@@ -104,7 +120,7 @@ namespace TheOtherDarkWorld
                         if (Inventory[i].Amount == 0)
                             Inventory[i] = null;
 
-                        //The weapon must be reloaded at this stage. The item shouldn't be in the inventory if the amount is 0
+                        //The weapon must be reloaded at this stage. The item doesn't exist in the inventory if the amount is 0
                         return;
                     }
                 }
@@ -118,8 +134,8 @@ namespace TheOtherDarkWorld
             if (Velocity != Vector2.Zero)
             {
                 Colour = Color.White;
-                List<Point> BlocksHit;
                 CheckCollisions();
+                Offset = Position - new Vector2(UI.ScreenX / 2, UI.ScreenY / 2); 
                 //CheckBlockCollisions(BaseRect, out BlocksHit, false);
             }
 
@@ -135,7 +151,7 @@ namespace TheOtherDarkWorld
 
         public void Activate_Primary()
         {
-            if (Inventory[0] != null)
+            if (Inventory[0] != null && !ObserverMode)
             {
                 Vector2 direction = new Vector2((float)Math.Cos(Rotation - MathHelper.PiOver2), (float)Math.Sin(Rotation - MathHelper.PiOver2));
                 direction.Normalize();
@@ -145,7 +161,7 @@ namespace TheOtherDarkWorld
 
         public void Activate_Secondary()
         {
-            if (Inventory[1] != null)
+            if (Inventory[1] != null && !ObserverMode)
             {
                 Vector2 direction = new Vector2((float)Math.Cos(Rotation - MathHelper.PiOver2), (float)Math.Sin(Rotation - MathHelper.PiOver2));
                 direction.Normalize();
@@ -164,7 +180,7 @@ namespace TheOtherDarkWorld
         {
             for (int i = 0; i < PlayerList.Length; i++)
             {
-                spriteBatch.Draw(Textures.Player, PlayerList[i].Position + PlayerList[i].Origin, null, PlayerList[i].Colour, PlayerList[i].Rotation, PlayerList[i].Origin, 1, SpriteEffects.None, 0.1f);
+                spriteBatch.Draw(Textures.Player, PlayerList[i].Position + PlayerList[i].Origin - PlayerList[i].Offset, null, PlayerList[i].Colour, PlayerList[i].Rotation, PlayerList[i].Origin, 1, SpriteEffects.None, 0.1f);
             }
             
             Player.PlayerList[0].DrawHUD(spriteBatch);
@@ -181,21 +197,13 @@ namespace TheOtherDarkWorld
             spriteBatch.Draw(Textures.UITextures[0], UI.Inventory[0].OriginalPosition, null, UI.Inventory[0].Colour, 0, Vector2.Zero, 1, SpriteEffects.None, 0.81f);
             spriteBatch.Draw(Textures.UITextures[0], UI.Inventory[1].OriginalPosition, null, UI.Inventory[1].Colour, 0, Vector2.Zero, 1, SpriteEffects.None, 0.81f);
 
-            /*if (Player.PlayerList[0].Inventory[0] != null)
-            {
-                spriteBatch.Draw(Textures.Items, UI.Inventory[0].Position + new Vector2(2, 2), Textures.GetItemRectangle(Player.PlayerList[0].Inventory[0].Type), Color.PaleVioletRed, 0, Vector2.Zero, 1, SpriteEffects.None, 0.85f);
-                spriteBatch.DrawString(Textures.Fonts[0], PlayerList[0].Inventory[0].Amount.ToString(), UI.Inventory[0].Position + new Vector2(2, 23), Color.Black, 0, Vector2.Zero, 1, SpriteEffects.None, 0.82f);
-            }
-            if (Player.PlayerList[0].Inventory[1] != null)
-            {
-                spriteBatch.Draw(Textures.Items, UI.Inventory[1].Position + new Vector2(2, 2), Textures.GetItemRectangle(Player.PlayerList[0].Inventory[1].Type), Color.PaleVioletRed, 0, Vector2.Zero, 1, SpriteEffects.None, 0.85f);
-                spriteBatch.DrawString(Textures.Fonts[0], PlayerList[0].Inventory[1].Amount.ToString(), UI.Inventory[1].Position + new Vector2(2, 23), Color.Black, 0, Vector2.Zero, 1, SpriteEffects.None, 0.82f);
-            }*/
-
+            spriteBatch.DrawString(Textures.Fonts[1], "Seed = " + Level.CurrentLevel.Seed, new Vector2(400, 400), Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 0.85f);
+            spriteBatch.DrawString(Textures.Fonts[1], "Projectiles = " + Projectile.ProjectileList.Count, new Vector2(100, 440), Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 0.85f);
+            
 
             spriteBatch.Draw(Textures.SidePanel, PanelPosition, null, Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 0.8f);
 
-            spriteBatch.DrawString(Textures.Fonts[1], "Health", HealthPosition ,Color.Violet, 0, Vector2.Zero, 1, SpriteEffects.None, 0.85f);
+            spriteBatch.DrawString(Textures.Fonts[1], "Health", HealthPosition, Color.Violet, 0, Vector2.Zero, 1, SpriteEffects.None, 0.85f);
             //Each health point is worth 100
             int HealthCutoff = (int)(Health / 100);
             int HealthTip = (Health / HealthCutoff);
@@ -212,6 +220,9 @@ namespace TheOtherDarkWorld
                 spriteBatch.Draw(Textures.HealthPoint, PanelPosition + new Vector2(7 + (i % 4) * 15, 30 + (int)(i/4) * 20), null, HPColour, 0, Vector2.Zero, 1, SpriteEffects.None, 0.81f);
             }
             
+            
+            
+            spriteBatch.DrawString(Textures.Fonts[1], "Items", HealthPosition + new Vector2(0, 135), Color.Violet, 0, Vector2.Zero, 1, SpriteEffects.None, 0.85f);
             //
             //Next, draw the inventory Items
             //
