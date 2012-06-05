@@ -31,7 +31,9 @@ namespace TheOtherDarkWorld
         }
 
         public static Texture2D Items { get; set; }
-        public static Texture2D[] Blocks { get; set; }
+        public static Texture2D Blocks { get; set; }
+
+        public static Texture2D[] Enemies { get; set; }
         public static Texture2D[] MenuTextures { get; set; }
         public static SpriteFont[] Fonts { get; set; }
 
@@ -60,9 +62,11 @@ namespace TheOtherDarkWorld
 
 
             Items = Content.Load<Texture2D>("ItemSheet");
-
-
-            Blocks = new Texture2D[1024];
+            Enemies = new Texture2D[1];
+            for (int i = 0; i < Enemies.Length; i++)
+            {
+                Enemies[i] = Content.Load<Texture2D>("Enemies/" + i);
+            }
         }
 
         public static Rectangle GetItemRectangle(int Type)

@@ -44,7 +44,6 @@ namespace TheOtherDarkWorld
 
         protected override void Initialize()
         {
-            //(new Vector2(this.Rect.Width, this.Rect.Height) - Text.Spritefont.MeasureString(Text.Text)) / 2f);
             base.Initialize();
             StateManager.State = 1;
         }
@@ -95,6 +94,7 @@ namespace TheOtherDarkWorld
                 Projectile.DrawAll(spriteBatch);
                 if (UI.Tooltip != null)
                     UI.Tooltip.Draw(spriteBatch);
+                UI.Draw(spriteBatch);
             }
 
 

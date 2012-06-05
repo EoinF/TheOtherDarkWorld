@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using TheOtherDarkWorld.Items;
 
 namespace TheOtherDarkWorld
 {
@@ -11,10 +12,14 @@ namespace TheOtherDarkWorld
     {
         public static Level CurrentLevel;
         public Block[,] BlockList;
+        public List<FloorItem> FloorItems;
+        public List<Enemy> Enemies;
         public int Width { get; private set; }
         public int Height { get; private set; }
         public int Seed { get; private set; }
         public string maxHeight;
+
+        public int wave;
 
         public void Draw(SpriteBatch spriteBatch)
         {
@@ -23,20 +28,43 @@ namespace TheOtherDarkWorld
             int startX = (int)(Player.PlayerList[0].Offset.X / 10);
             int startY = (int)(Player.PlayerList[0].Offset.Y / 10);
 
-            for (int i = startX; i < startX + (UI.ScreenX / 10) + 1 && i < Width; i++)
-                for (int j = startY; j < startY + (UI.ScreenY / 10) + 1 && j < Height; j++)
+            //Makes sure i doesn't start at a negative index
+            for (int i = startX < 0 ? 0 : startX; i < startX + (UI.ScreenX / 10) + 2; i++)
+            {
+                //Checks if the index is out of bounds
+                if (i >= Width)
+                    break;
+
+                //Makes sure j doesn't start at a negative index
+                for (int j = startY < 0 ? 0 : startY ; j < startY + (UI.ScreenY / 10) + 2; j++)
                 {
+                    //Checks if the index is out of bounds
+                    if (j >= Level.CurrentLevel.Height)
+                        break;
+
                     if (BlockList[i, j] != null)
                         BlockList[i, j].Draw(spriteBatch);
                 }
+            }
+
+            for (int i = 0; i < FloorItems.Count; i++)
+            {
+                FloorItems[i].Draw(spriteBatch);
+            }
+
+            for (int i = 0; i < Enemies.Count; i++)
+            {
+                Enemies[i].Draw(spriteBatch);
+            }
         }
 
 
-        private Level(Block[,] blockList, int Seed)
+        private Level(Block[,] BlockList, int Seed, List<FloorItem> FloorItems)
         {
-            BlockList = blockList;
-            Width = blockList.GetLength(0);
-            Height = blockList.GetLength(1);
+            this.FloorItems = FloorItems;
+            this.BlockList = BlockList;
+            Width = BlockList.GetLength(0);
+            Height = BlockList.GetLength(1);
             this.Seed = Seed;
         }
 
@@ -55,6 +83,59 @@ namespace TheOtherDarkWorld
         {
             UpdateBlocks();
 
+            for (int i = 0; i < Enemies.Count; i++)
+            {
+                if (Enemies[i].Update())
+                {
+                    Enemies.RemoveAt(i);
+                    //Reduce the index by 1, because the next item will replace the position of the item that
+                    //was just removed from the list
+                    i--;
+                }
+            }
+
+            if (Enemies.Count == 0)
+            {
+                Random rand = new Random();
+                wave++;
+                switch (wave)
+                {
+                    case 4:
+                    case 5:
+                        for (int i = 0; i < 70 + (5 * wave); i++)
+                        {
+                            Level.CurrentLevel.Enemies.Add(new Enemy(new Vector2((float)(4 * UI.ScreenX * rand.NextDouble()) - (2 * UI.ScreenX), -50 - (float)(100 * rand.NextDouble()) + (2 * UI.ScreenY * (rand.Next(0, 9) % 3))), 1 + (wave * 0.3f), Vector2.Zero, 0, 100, 20, 8, 30));
+                        }
+                        break;
+
+                    default:
+                        for (int i = 0; i < (10 * wave); i++)
+                        {
+                            Level.CurrentLevel.Enemies.Add(new Enemy(new Vector2((float)(UI.ScreenX * rand.NextDouble()), -50 - (float)(100 * rand.NextDouble()) + (2 * UI.ScreenY * (rand.Next(1, 3) % 2))), 1 + (wave * 0.3f), Vector2.Zero, 0, 100, 20, 8, 30));
+                        }
+                        for (int i = 0; i < (10 * (wave - 1)); i++)
+                        {
+                            Level.CurrentLevel.Enemies.Add(new Enemy(new Vector2(2 * (UI.ScreenY * (rand.Next(1,3) % 2 )) - (float)(UI.ScreenX * rand.NextDouble()), - 50 - (float)(100 * rand.NextDouble()) + (0.5f * UI.ScreenY * (rand.Next(0,9) % 3 ))), 1 +(wave * 0.3f), Vector2.Zero, 0, 100, 20, 8, 30));
+                        }
+                        break;
+                }
+
+                if (wave != 1)
+                {
+                    for (int i = 0; i < Player.PlayerList[0].Inventory.Length; i++)
+                    {
+                        Item item = Player.PlayerList[0].Inventory[i];
+
+                        if (item == null || item.Type > 100)
+                        {
+                            int type = 101 + rand.Next(0, 2);
+                            Player.PlayerList[0].Inventory[i] = new Item(type, (int)(GameData.GameItems[type].MaxAmount * (1 + (wave / 20f))));
+                        }
+                        else if (item.Type != 100)
+                            item.Amount = item.MaxAmount;
+                    }
+                }
+            }
         }
 
         private void UpdateBlocks()
@@ -70,6 +151,7 @@ namespace TheOtherDarkWorld
 
         public enum LevelType
         {
+            Open,
             Box,
             Hallways,
             Scattered
@@ -79,6 +161,9 @@ namespace TheOtherDarkWorld
         {
             switch (type)
             {
+                case LevelType.Open:
+                    Generate_Open(width, height, seed);
+                    break;
                 case LevelType.Box:
                     Generate_Box(width, height, seed);
                     break;
@@ -116,17 +201,26 @@ namespace TheOtherDarkWorld
             return blocks;
         }
 
+        private static void Generate_Open(int width, int height, int seed)
+        {
+            Block[,] blockList = new Block[width, height];
+
+            List<FloorItem> FloorItems = new List<FloorItem>();
+            CurrentLevel = new Level(blockList, seed, FloorItems);
+        }
+
         private static void Generate_Box(int width, int height, int seed)
         {
             Block[,] blockList = CreateBorders(width, height);
 
-            CurrentLevel = new Level(blockList, seed);
+            List<FloorItem> FloorItems = new List<FloorItem>();
+            CurrentLevel = new Level(blockList, seed, FloorItems);
         }
 
         private static void Generate_Hallways(int width, int height, int seed)
         {
             Block[,] blockList = CreateBorders(width, height);
-            //Block[,] blockList = new Block[width, height];
+            List<FloorItem> FloorItems = new List<FloorItem>();
 
             int minimumRoomWidth = 5;
             int minimumRoomHeight = 8;
@@ -143,7 +237,7 @@ namespace TheOtherDarkWorld
 
             for (int i = 0; heightTaken < height; i++)
             {
-                int roomHeight = minimumRoomHeight + Math.Abs((seed + i + (int)Math.Pow(seed + 3 + i, 3) + (1 / (Math.Abs(seed) + 1 + i))) / 15) % (maximumRoomHeight - minimumRoomHeight);
+                int roomHeight = minimumRoomHeight + Math.Abs((seed + i + (int)Math.Pow(seed + 3 + i, 3) + (1 / (Math.Abs(seed) + 1 + i))) / (5 + i)) % (maximumRoomHeight - minimumRoomHeight);
 
                 if (roomHeight + heightTaken > height - 2)
                     roomHeight = height - 2 - heightTaken;
@@ -156,7 +250,7 @@ namespace TheOtherDarkWorld
             if (CurrentLevel != null)
                 x = CurrentLevel.maxHeight + ",";
 
-            CurrentLevel = new Level(blockList, seed);
+            CurrentLevel = new Level(blockList, seed, FloorItems);
         }
 
         /// <summary>
