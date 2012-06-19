@@ -5,21 +5,24 @@ using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace TheOtherDarkWorld
+namespace TheOtherDarkWorld.GameObjects
 {
     public class Enemy : GameObject
     {
         public int Health { get; set; }
-        private int MaxHealth { get; set; }
+        public int MaxHealth { get; private set; }
         public int Type { get; private set; }
-        private int HitCooldown { get; set; }
-        public int Weight { get; set; }
-        public int MeleeDamage { get; set; }
+        public int HitCooldown { get; set; }
+        public int Weight { get; private set; }
+        public int MeleeDamage { get; private set; }
+        public bool IsAttacking { get { return HitCooldown <= 0; } }
+
+        private float Brightness { get; set; }
 
         /// <summary>
         /// This is the velocity that is added to the standard velocity of the enemy. e.g. When pushed by a bullet
         /// </summary>
-        private Vector2 HitVelocity { get; set; }
+        public Vector2 HitVelocity { get; set; }
 
         public new Color Colour
         {
@@ -65,10 +68,12 @@ namespace TheOtherDarkWorld
         /// <returns>True if the enemy is dead</returns>
         public bool Update()
         {
-            Target = Player.PlayerList[0].Position + Player.PlayerList[0].Origin;
-            Velocity = Vector2.Normalize(new Vector2(Target.X - this.Position.X, Target.Y - this.Position.Y));
+            if (HitCooldown <= 0) //The enemy is stunned when hit, so it has no intelligence
+                AI();
 
-            //The velocity can become NaN if the enemy is in the same position as the target
+            Velocity = Vector2.Normalize(new Vector2(Target.X - (this.Position.X + this.Origin.X), Target.Y - (this.Position.Y + this.Origin.Y)));
+
+            //The velocity can become NaN if the enemy is in the exact same position as the target
             if (float.IsNaN(Velocity.X))
                 Velocity = Vector2.Zero;
             Velocity *= Speed;
@@ -82,19 +87,54 @@ namespace TheOtherDarkWorld
             if (HitVelocity.Length() < 0.001f)
                 HitVelocity = Vector2.Zero;
 
-            CheckCollisions();
+            CheckCollisions(Level.CurrentLevel.Tiles);
             CheckProjectileCollisions();
             CheckEnemyCollisions();
+
+            CheckLighting(Level.CurrentLevel.Tiles);
 
             return (Health <= 0);
         }
 
-        public void Draw(SpriteBatch spriteBatch)
+        protected virtual void AI()
         {
-            spriteBatch.Draw(Textures.Enemies[Type], Position + Origin - Player.PlayerList[0].Offset, null, Colour, Rotation, Origin, 1, SpriteEffects.None, 0.5f);
+            Target = Player.PlayerList[0].Position + Player.PlayerList[0].Origin;
         }
 
-        public void CheckProjectileCollisions()
+        private void CheckLighting(Tile[,] Tiles)
+        {
+            int startX = (int)((Position.X) / 10f);
+            int startY = (int)((Position.Y) / 10f);
+            int blocksX = (int)((Texture.Width / 10f) + 0.5f);
+            int blocksY = (int)((Texture.Height / 10f) + 0.5f);
+
+            //The total number of tiles that have been used. This is needed to find the average brightness
+            float numbers = 0;
+
+            float totalBrightness = 0;
+
+            for (int i = startX; i < startX + blocksX; i++)
+            {
+                if (i < 0 || i >= Tiles.GetLength(0))
+                    break;
+                for (int j = startY; j < startY + blocksY; j++)
+                {
+                    if (j < 0 || j >= Tiles.GetLength(1))
+                        break;
+                    numbers++;
+                    totalBrightness += Tiles[i, j].Brightness;
+                }
+            }
+
+            this.Brightness = (totalBrightness / numbers);
+        }
+
+        public void Draw(SpriteBatch spriteBatch)
+        {
+            spriteBatch.Draw(Textures.Enemies[Type], Position + Origin - Player.PlayerList[0].Offset, null, Colour * Brightness, Rotation, Origin, 1, SpriteEffects.None, 0.5f);
+        }
+
+        private void CheckProjectileCollisions()
         {
             for (int i = 0; i < Projectile.ProjectileList.Count; i++)
             {
@@ -103,8 +143,8 @@ namespace TheOtherDarkWorld
                 {
                     this.Health -= p.Damage;
                     p.Health -= this.Resistance;
-                    this.HitVelocity += (p.Velocity / Weight);
-                    HitCooldown = 10;
+                    this.HitVelocity += p.Velocity / Weight;
+                    HitCooldown = 30;
 
                     if (this.Health <= MaxHealth) //The enemy won't absorb too many bullets if we stop the checks early
                         return;
@@ -115,7 +155,7 @@ namespace TheOtherDarkWorld
                 HitCooldown--;
         }
 
-        public void CheckEnemyCollisions()
+        private void CheckEnemyCollisions()
         {
             //Find the index of this enemy in the list. Collisions have already been detected for all enemies before 
             //this one in the list, so theres no need to check again
@@ -136,19 +176,31 @@ namespace TheOtherDarkWorld
                 {
                     if (Collision.SquareVsSquare_TwoMoving(Rect, e.Rect, Velocity, e.Velocity))
                     {
-                        Collision c = GetCollisionDetails(e.Rect, 0, 0);
+                        //Collision c = GetCollisionDetails(e.Rect, 0, 0);
 
                         Vector2 Bounce = this.Position - e.Position;
                         Bounce.Normalize();
+                        //Bounce *= (Velocity.Length() + e.Velocity.Length()) / 2f;
+
+                        float push = ((float)this.Weight / (float)(this.Weight + e.Weight)) / 2f;
+                        push += ((float)this.Velocity.Length() / (e.Velocity.Length() + this.Velocity.Length())) / 2f;
+
                         //Add the percentage of push that this enemy should recieve
-                        this.HitVelocity += Bounce * ((float)this.Weight / (float)(this.Weight + e.Weight));
+                        this.HitVelocity += Bounce * push;
                         //Add the remainder to the other enemy
-                        e.HitVelocity -= Bounce * ((float)e.Weight / (float)(this.Weight + e.Weight));
+                        e.HitVelocity -= Bounce * (1 - push);
+
                     }
                 }
                 i++;
             }
 
+        }
+
+
+        public Texture2D Texture
+        {
+            get { return Textures.Enemies[Type];}
         }
     }
 }

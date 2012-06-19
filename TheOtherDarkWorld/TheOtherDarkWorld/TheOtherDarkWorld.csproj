@@ -111,6 +111,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="GameObjects\Enemy.cs" />
+    <Compile Include="GameObjects\Light.cs" />
+    <Compile Include="GameObjects\Tile.cs" />
     <Compile Include="UI\Action.cs" />
     <Compile Include="GameObjects\Block.cs" />
     <Compile Include="UI\Button.cs" />

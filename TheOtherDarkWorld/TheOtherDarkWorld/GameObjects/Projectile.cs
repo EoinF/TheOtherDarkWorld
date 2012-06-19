@@ -6,7 +6,7 @@ using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace TheOtherDarkWorld
+namespace TheOtherDarkWorld.GameObjects
 {
     public class Projectile : GameObject
     {
@@ -45,7 +45,7 @@ namespace TheOtherDarkWorld
         public bool Update()
         {
             Collided = false;
-            CheckCollisions();
+            CheckCollisions(Level.CurrentLevel.Tiles);
 
             if (Collided)
             {
@@ -53,10 +53,10 @@ namespace TheOtherDarkWorld
             }
 
             return (Health <= 0
-                || Position.X > UI.ScreenX + 10
-                || Position.X -10 < 0
-                || Position.Y > UI.ScreenY + 10
-                || Position.Y -10 < 0
+                || Position.X > 50 + (Level.CurrentLevel.Tiles.GetLength(0) * 10)
+                || Position.X < -50
+                || Position.Y > 50 + (Level.CurrentLevel.Tiles.GetLength(1) * 10)
+                || Position.Y < -50
                 );
         }
 
@@ -76,13 +76,18 @@ namespace TheOtherDarkWorld
 
         public override void CollideHorizontal(Collision col)
         {
-            Block BlkHit = Level.CurrentLevel.BlockList[col.block.X, col.block.Y];
+            Block BlkHit = Level.CurrentLevel.Tiles[col.block.X, col.block.Y].Block;
             //Position += Velocity / 2; //There are two collisions per frame, so it adds half the velocity twice.
             BlkHit.Health -= this.Damage;
             this.Health -= BlkHit.Resistance;
             Collided = true;
         }
         public override void CollideVertical(Collision col)
+        {
+            CollideHorizontal(col); //Doesn't matter which side of the block it collides with
+        }
+
+        public override void CollideDiagonal(Collision col)
         {
             CollideHorizontal(col); //Doesn't matter which side of the block it collides with
         }

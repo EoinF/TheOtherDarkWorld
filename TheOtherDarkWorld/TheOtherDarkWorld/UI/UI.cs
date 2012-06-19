@@ -4,30 +4,58 @@ using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using TheOtherDarkWorld.Items;
+using TheOtherDarkWorld.GameObjects;
 
 namespace TheOtherDarkWorld
 {
     public static class UI
     {
         public static List<InventoryElement> Inventory;
+
+        public static int Kills;
+        public static int HighScore;
         /// <summary>
         /// The list of actions that the player can perform that are nearby
         /// </summary>
         public static List<UIElement> Actions;
         public static List<TextSprite> HUDText;
         public static Tooltip Tooltip;
-        private static int _screenX;
+        public static bool CursorMode;
 
-        public static int ScreenX
-        {
-            get { return _screenX;}
-            set { _screenX = value - Textures.SidePanel.Width;}
-        }
+        public static int ScreenX { get; set; }
         public static int ScreenY { get; set; }
 
         public static void Update()
         {
+            
+            //Only allow the mode to change so that an item isn't activated
+            //when the mouse goes into a non cursor mode area of the screen
+            if (!InputManager.LeftClicking)
+                CursorMode = false;
+
+            //
+            //Next, perform actions based on what state the game is in
+            //
+            if (StateManager.State == 0) //Main Menu
+            {
+
+            }
+            else if (StateManager.State == 1) //In Game
+            {
+                if (InputManager.MousePositionV.X > (800 - Textures.SidePanel.Width))
+                {
+                    //Only allow the mode to change so that an item isn't activated
+                    //when the mouse goes into a non cursor mode area of the screen
+                    if (!InputManager.LeftClicking)
+                    {
+                        CursorMode = true;
+                    }
+                }
+            }
+            else if (StateManager.State == 2) //Pause Menu
+            {
+            }
+
             if (Tooltip != null)
             {
                 if (Tooltip.Timeout < 0)
@@ -136,16 +164,11 @@ namespace TheOtherDarkWorld
                     }
                 }
             }
-            else //An unequipped item is being equipped(If there's space)
+            else //An unequipped item is being equipped
             {
-                for (int i = 0; i < 2; i++)
-                {
-                    if (Player.PlayerList[0].Inventory[i] == null)
-                    {
-                        Player.PlayerList[0].Inventory[i] = Player.PlayerList[0].Inventory[ItemHoveringOver];
-                        Player.PlayerList[0].Inventory[ItemHoveringOver] = null;
-                    }
-                }
+                Item temp = Player.PlayerList[0].Inventory[0];
+                Player.PlayerList[0].Inventory[0] = Player.PlayerList[0].Inventory[ItemHoveringOver];
+                Player.PlayerList[0].Inventory[ItemHoveringOver] = temp;
             }
         }
 

@@ -8,6 +8,7 @@ using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
+using TheOtherDarkWorld.GameObjects;
 
 namespace TheOtherDarkWorld
 {
@@ -29,12 +30,16 @@ namespace TheOtherDarkWorld
 
         protected override void LoadContent()
         {
-            Textures t = new Textures(Content);
-            Textures.LoadTextures();
-            Window.Title = "The Other Dark World";
             graphics.PreferredBackBufferWidth = UI.ScreenX = 800;
             graphics.PreferredBackBufferHeight = UI.ScreenY = 600;
             graphics.ApplyChanges();
+
+            Textures.LoadTextures(Content, graphics.GraphicsDevice);
+            
+            //Fix the screen width so that it doesnt include the side panel
+            UI.ScreenX -= Textures.SidePanel.Width;
+
+            Window.Title = "The Other Dark World";
 
             GameData.LoadGameData("GameContent.xml");
 
@@ -45,7 +50,7 @@ namespace TheOtherDarkWorld
         protected override void Initialize()
         {
             base.Initialize();
-            StateManager.State = 1;
+            StateManager.State = 0;
         }
 
 
@@ -61,23 +66,24 @@ namespace TheOtherDarkWorld
 
             InputManager.Update();
 
-            if (Level.CurrentLevel != null)
+            if (StateManager.State == 1)
+            {
                 Level.CurrentLevel.Update();
 
-            if (Player.PlayerList != null)
-                Player.PlayerList[0].Update();
+                if (Player.PlayerList != null)
+                    Player.PlayerList[0].Update();
 
-            if (Projectile.ProjectileList != null)
-                for (int i = 0; i < Projectile.ProjectileList.Count; i++)
-                {
-                    if (Projectile.ProjectileList[i].Update()) //returns true if the projectile was destroyed
+                if (Projectile.ProjectileList != null)
+                    for (int i = 0; i < Projectile.ProjectileList.Count; i++)
                     {
-                        Projectile.ProjectileList.RemoveAt(i);
-                        i--;
+                        if (Projectile.ProjectileList[i].Update()) //returns true if the projectile was destroyed
+                        {
+                            Projectile.ProjectileList.RemoveAt(i);
+                            i--;
+                        }
                     }
-                }
-            UI.Update();
-
+                UI.Update();
+            }
 
             base.Update(gameTime);
         }
@@ -87,7 +93,7 @@ namespace TheOtherDarkWorld
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             spriteBatch.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend);
-            if (Level.CurrentLevel != null)
+            if (StateManager.State == 1)
             {
                 Level.CurrentLevel.Draw(spriteBatch);
                 Player.DrawAll(spriteBatch);

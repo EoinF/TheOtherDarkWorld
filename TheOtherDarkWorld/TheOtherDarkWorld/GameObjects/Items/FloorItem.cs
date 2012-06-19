@@ -5,7 +5,7 @@ using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace TheOtherDarkWorld.Items
+namespace TheOtherDarkWorld.GameObjects
 {
     public class FloorItem
     {

@@ -6,7 +6,7 @@ using Microsoft.Xna.Framework;
 using System.Collections;
 
 
-namespace TheOtherDarkWorld.Items
+namespace TheOtherDarkWorld.GameObjects
 {
     public class Gun : Item
     {
@@ -57,7 +57,7 @@ namespace TheOtherDarkWorld.Items
             switch (AttackType)
             {
                 case GunType.Single:
-                    if (ReloadCooldown < 0)
+                    if (ReloadCooldown <= 0)
                     {
                         Projectile.ProjectileList.Add(new Projectile(Power, Penetration, BulletSpeed, BulletColour, Owner, Direction, startPosition, rotation));
                         Cooldown += UseCooldown;
@@ -65,7 +65,7 @@ namespace TheOtherDarkWorld.Items
                     }
                     break;
                 case GunType.Shotgun:
-                    if (ReloadCooldown < 0)
+                    if (ReloadCooldown <= 0)
                     {
                         for (int numShots = 0; numShots < 20; numShots++)
                         {

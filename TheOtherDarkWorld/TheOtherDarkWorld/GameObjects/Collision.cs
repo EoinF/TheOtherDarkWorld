@@ -9,13 +9,17 @@ namespace TheOtherDarkWorld
     public class Collision
     {
         public Point block { get; private set; }
-        public float pct { get; private set; } //The lower this number is, the earlier the collision will happen
+        public double pct { get; private set; } //The lower this number is, the earlier the collision will happen
+        public float Sx { get; private set; }
+        public float Sy { get; private set; }
         public bool IsHorizontal { get; set; }
 
-        public Collision(Point block, float pct, bool IsHorizontal)
+        public Collision(Point block, double pct, float Sx, float Sy, bool IsHorizontal)
         {
             this.block = block;
             this.pct = pct;
+            this.Sx = Sx;
+            this.Sy = Sy;
             this.IsHorizontal = IsHorizontal;
         }
 
@@ -72,7 +76,7 @@ namespace TheOtherDarkWorld
         /// <returns>True if they collide</returns>
         public static bool SquareVsSquare_TwoMoving(Rectanglef r1, Rectanglef r2, Vector2 Velocity1, Vector2 Velocity2)
         {
-            Rectanglef r2V = new Rectanglef(r2.Left + (Velocity2.X < 0 ? 0 : Velocity2.X), r2.Top + (Velocity2.Y < 0 ? 0 : Velocity2.Y), r2.Width + Math.Abs(Velocity2.X), r2.Height + Math.Abs(Velocity2.Y));
+            Rectanglef r2V = new Rectanglef(r2.Left + (Velocity2.X < 0 ? Velocity2.X : 0), r2.Top + (Velocity2.Y < 0 ? Velocity2.Y : 0), r2.Width + Math.Abs(Velocity2.X), r2.Height + Math.Abs(Velocity2.Y));
 
             return (r2V.Intersects(new Rectanglef(r1.Left, r1.Top + (Velocity1.Y < 0 ? Velocity1.Y : 0), r1.Width, r1.Height + Math.Abs(Velocity1.Y)))
             || r2V.Intersects(new Rectanglef(r1.Left + (Velocity1.X < 0 ? Velocity1.X : 0), r1.Top, r1.Width + Math.Abs(Velocity1.X), r1.Height)));

@@ -1,12 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <main>
   <Weapons>
-    <Gun Type="0" Name="AK-47" Cooldown="8" Consumes="101" MaxAmount="30" Power="50" Penetration="25" BulletColour="Black" BulletSpeed="15" IsAutomatic="True" ReloadTime="220" Description="An old, yet reliable machine-gun"/>
+    <Gun Type="0" Name="AK-47" Cooldown="8" Consumes="101" MaxAmount="30" Power="50" Penetration="35" BulletColour="Black" BulletSpeed="15" IsAutomatic="True" ReloadTime="220" Description="An old, yet reliable machine-gun"/>
     <Gun Type="1" Name="Glock-9mm" Cooldown="10" Consumes="100" MaxAmount="7" Power="30" Penetration="50" BulletColour="Grey" BulletSpeed="12" IsAutomatic="False" ReloadTime="170" Description="An old handgun. Still works though"/>
-    <Gun Type="2" Name="Shotgun" Cooldown="6" Consumes="102" MaxAmount="2" Power="15" Penetration="17" BulletColour="Grey" BulletSpeed="7" IsAutomatic="False" AttackType="Shotgun" ReloadTime="100" Description="A double barrel shotgun."/>
-    <Melee Type="3" Name="Knife" Cooldown="10" IsConsumable="True" MaxAmount="50" Power="50" Reach="5" IsAutomatic="False" Description="A sharp blade. This could save me in close combat situations."/>
-    <Melee Type="4" Name="Steel-Pipe" Cooldown="50" IsConsumable="True" MaxAmount="20" Power="100" Reach="5" IsAutomatic="False" Description="A metal pipe. It's hard to swing, but it'll do a lot of damage."/>
-    </Weapons>
+    <Gun Type="2" Name="Shotgun" Cooldown="6" Consumes="102" MaxAmount="2" Power="20" Penetration="11" BulletColour="Grey" BulletSpeed="8" IsAutomatic="False" AttackType="Shotgun" ReloadTime="100" Description="A double barrel shotgun."/>
+    <Melee Type="3" Name="Knife" Cooldown="10" IsConsumable="True" MaxAmount="50" Power="50" Knockback ="10" Reach="7" IsAutomatic="False" Description="A sharp blade. This could save me in close combat situations."/>
+    <Melee Type="4" Name="Steel-Pipe" Cooldown="40" IsConsumable="True" MaxAmount="50" Power="20" Knockback="50" Reach="15" IsAutomatic="False" Description="A metal pipe. It's hard to swing, but it'll do a lot of damage."/>
+    <Melee Type="5" Name="Diamond Crucifix" Cooldown="6" IsConsumable="True" MaxAmount="30" Power="50" Knockback="75" Reach="50" IsAutomatic="True" Description="A curious looking crucifix made from pure diamond! It looks unbreakable..." />
+  </Weapons>
 
   <Items>
     <Item Type="100" Name="Handgun Ammo" IsConsumable="False" MaxAmount="24"/>

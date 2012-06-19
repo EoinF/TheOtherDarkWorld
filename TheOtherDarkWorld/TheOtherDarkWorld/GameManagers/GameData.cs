@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework;
 using System.Xml;
-using TheOtherDarkWorld.Items;
+using TheOtherDarkWorld.GameObjects;
 
 namespace TheOtherDarkWorld
 {
@@ -51,6 +51,7 @@ namespace TheOtherDarkWorld
                 GunType AttackTypeG = GunType.Single;
                 int Consumes = -1;
                 int MaxAmount = -1;
+                int Knockback = 0;
                 int Power = 0;
                 int Penetration = -1;
                 int Reach = 0;
@@ -107,6 +108,9 @@ namespace TheOtherDarkWorld
                         case "Reach":
                             Reach = int.Parse(atr.Value);
                             break;
+                        case "Knockback":
+                            Knockback = int.Parse(atr.Value);
+                            break;
                         case "AttackType":
                             AttackTypeM = getAttackTypeFromNameM(atr.Value);
                             AttackTypeG = getAttackTypeFromNameG(atr.Value);
@@ -120,7 +124,7 @@ namespace TheOtherDarkWorld
                 }
                 else if (node.ChildNodes[i].Name == "Melee")
                 {
-                    GameItems[Type] = new Melee(Type, IsConsumable, Consumes, MaxAmount, Name, UseCooldown, Power, Reach, AttackTypeM, IsAutomatic, Description);
+                    GameItems[Type] = new Melee(Type, IsConsumable, Consumes, MaxAmount, Name, UseCooldown, Power, Reach, Knockback, AttackTypeM, IsAutomatic, Description);
                 }
             }
         }
@@ -186,13 +190,12 @@ namespace TheOtherDarkWorld
                 string Name = "";
                 Color Colour = Color.White;
                 int Health = -1;
-                List<Item> Items = new List<Item>();
+                Item[] Drops = new Item[10];
                 int Resistance = -1;
-                List<Trigger> Triggers = new List<Trigger>();
 
                 if (node.ChildNodes[i].InnerText != "")
                 {
-                    //TODO: Add some extra parameters here; Such as triggers and events 
+                    //TODO: Add some extra parameters here; Such as items dropped from destruction
                 }
 
 
@@ -219,7 +222,7 @@ namespace TheOtherDarkWorld
 
                     }
                 }
-                GameBlocks[Type] = new Block(Type, Colour, Health, Items, Resistance, Triggers);
+                GameBlocks[Type] = new Block(Type, Colour, Health, Drops, Resistance);
             }
         }
 

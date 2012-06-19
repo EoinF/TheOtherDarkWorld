@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
-using TheOtherDarkWorld.Items;
+using TheOtherDarkWorld.GameObjects;
 
 namespace TheOtherDarkWorld
 {
@@ -30,93 +30,67 @@ namespace TheOtherDarkWorld
         /// <summary>
         /// This is true AS the user is CLICKING
         /// </summary>
-        public static bool JustLeftClicked; 
+        public static bool JustLeftClicked;
+
+        public static bool JustRightClicked;
+
         public static bool DoubleLeftClicked;
-        public static bool CursorMode;
+        public static bool LeftClicking;
+        public static bool RightClicking;
+
+        /// <summary>
+        /// A character value is passed in, to find out if a key was pressed
+        /// </summary>
+        public static bool[] keysPressed;
+
 
         public static void Update()
         {
             UpdateStates();
-            CheckPlayerInput();
 
             if (keyboardState[0].IsKeyDown(Keys.Enter))
+            {
                 StartLevel();
-        }
 
+                if (UI.Kills > UI.HighScore)
+                    UI.HighScore = UI.Kills;
+                UI.Kills = 0;
 
-        private static void CheckPlayerInput()
-        {
-            if (Level.CurrentLevel == null)
-                return;
-
-            if (keyboardState[0].IsKeyDown(Keys.W))
-            {
-                Player.PlayerList[0].Velocity -= new Vector2(0, 1);
+                StateManager.State = 1;
             }
-            if (keyboardState[0].IsKeyDown(Keys.S))
-            {
-                Player.PlayerList[0].Velocity += new Vector2(0, 1);
-            }
-            if (keyboardState[0].IsKeyDown(Keys.A))
-            {
-                Player.PlayerList[0].Velocity -= new Vector2(1, 0);
-            }
-            if (keyboardState[0].IsKeyDown(Keys.D))
-            {
-                Player.PlayerList[0].Velocity += new Vector2(1, 0);
-            }
-
-            Player.PlayerList[0].Velocity.Normalize();
-            Player.PlayerList[0].Velocity *= Player.PlayerList[0].Speed;
-
-            if (keyboardState[0].IsKeyDown(Keys.R))
-            {
-                if (Player.PlayerList[0].Inventory[0].GetType() == typeof(Gun))
-                {
-                    Player.PlayerList[0].Reload();
-                }
-            }
-
-
-            if (mouseState[0].LeftButton == ButtonState.Pressed && !CursorMode)
-                Player.PlayerList[0].Activate_Primary();
-            if (mouseState[0].RightButton == ButtonState.Pressed && !CursorMode)
-                Player.PlayerList[0].Activate_Secondary();
-
         }
 
         public static void StartLevel()
         {
             Random rand = new Random();
-            Level.GenerateLevel(Level.LevelType.Open, rand.Next(), 50, 50);
+            Level.GenerateLevel(Level.LevelType.Open, rand.Next(), 80, 60);
             Level.CurrentLevel.Enemies = new List<Enemy>();
 
+            Player.PlayerList = new Player[1] { new Player(new Vector2(230, 200), 5, 3, 8, Vector2.Zero, 0, 5) };
 
-            Player.PlayerList = new Player[1] { new Player(new Vector2(230, 200), 5, 3, 5, Vector2.Zero, 0, 5) };
+            Player.PlayerList[0].Inventory[0] = new Gun(2, -1);
+            Player.PlayerList[0].Inventory[1] = new Melee(4, -1);
+            Player.PlayerList[0].Inventory[4] = new Melee(5, 30);
 
-            Player.PlayerList[0].Inventory[0] = new Gun(0, -1);
-            Player.PlayerList[0].Inventory[4] = new Gun(1, -1);
-            Player.PlayerList[0].Inventory[1] = new Gun(2, -1);
-
-            Player.PlayerList[0].Inventory[2] = new Item(100, 999);
-            Player.PlayerList[0].Inventory[3] = new Item(102, -1);
+            Player.PlayerList[0].Inventory[2] = new Item(102, 999);
+            Player.PlayerList[0].Inventory[3] = new Gun(0, -1);
             Projectile.ProjectileList = new List<Projectile>();
             
             Vector2 offset = new Vector2(800 - Textures.SidePanel.Width, 0);
 
             UI.HUDText = new List<TextSprite>();
-            UI.HUDText.Add(new TextSprite("Items", 1, Color.Violet, -1, offset + new Vector2(14, 145)));
+            UI.HUDText.Add(new TextSprite("Items", 1, Color.Violet, -1, offset + new Vector2(14, 245)));
             UI.HUDText.Add(new TextSprite("Health", 1, Color.Violet, -1, offset + new Vector2(11, 10)));
 
 
             UI.Inventory = new List<InventoryElement>();
-            UI.Inventory.Add(new InventoryElement(offset + new Vector2(10, 100), 0, 0));
-            UI.Inventory.Add(new InventoryElement(offset + new Vector2(35, 100), 0, 0));
+            UI.Inventory.Add(new InventoryElement(offset + new Vector2(10, 200), 0, 0));
+            UI.Inventory.Add(new InventoryElement(offset + new Vector2(35, 200), 0, 0));
 
             //Starts at 2, because it skips over the two equipped items
             for (int i = 0; i < Player.PlayerList[0].Inventory.Length - 2; i++)
             {
-                UI.Inventory.Add(new InventoryElement(offset + new Vector2(7 + (i % 2) * 30, 160 + (int)(i / 2) * 40), 0, 0));
+                UI.Inventory.Add(new InventoryElement(offset + new Vector2(7 + (i % 2) * 30, 260 + (int)(i / 2) * 40), 0, 0));
             }
         }
 
@@ -134,36 +108,32 @@ namespace TheOtherDarkWorld
 
             JustLeftReleased = mouseState[0].LeftButton == ButtonState.Released && mouseState[1].LeftButton == ButtonState.Pressed;
             JustLeftClicked = mouseState[0].LeftButton == ButtonState.Pressed && mouseState[1].LeftButton == ButtonState.Released;
+            
+            JustRightClicked = mouseState[0].RightButton == ButtonState.Pressed && mouseState[1].RightButton == ButtonState.Released;
+            
             DoubleLeftClicked = CheckDoubleLeftClick();
 
-            //Only allow the mode to change so that an item isn't activated
-            //when the mouse goes into a non cursor mode area of the screen
-            if (mouseState[0].LeftButton == ButtonState.Released)
-                CursorMode = false;
+            LeftClicking = (mouseState[0].LeftButton == ButtonState.Pressed);
+
+            RightClicking = (mouseState[0].RightButton == ButtonState.Pressed);
+                
+
 
             //
             //Next, perform actions based on what state the game is in
             //
+
             if (StateManager.State == 0) //Main Menu
             {
 
             }
             else if (StateManager.State == 1) //In Game
             {
-                if (mouseState[0].X > (800 - Textures.SidePanel.Width))
-                {
-                    //Only allow the mode to change so that an item isn't activated
-                    //when the mouse goes into a non cursor mode area of the screen
-                    if (mouseState[0].LeftButton == ButtonState.Released)
-                    {
-                        CursorMode = true;
-                    }
-                }
                 InventoryInput();
             }
             else if (StateManager.State == 2) //Pause Menu
             {
-                CursorMode = true;
+
             }
 
         }

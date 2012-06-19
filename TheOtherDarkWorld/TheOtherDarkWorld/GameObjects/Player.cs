@@ -5,7 +5,7 @@ using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using TheOtherDarkWorld.Items;
+using TheOtherDarkWorld.GameObjects;
 
 namespace TheOtherDarkWorld
 {
@@ -17,8 +17,11 @@ namespace TheOtherDarkWorld
         public int ID;
         private int Health { get; set; }
         private int MaxHealth { get; set; }
+        public Swing Swing;
+        public Light Vision;
+        public Light PeripheralVision;
 
-        public Color Colour
+        public new Color Colour
         {
             get
             {
@@ -33,7 +36,6 @@ namespace TheOtherDarkWorld
             get { return _offset;}
             set 
             {
-
                 //We only need to alter the offset in this way if the level is larger than the actual screen
                 if ((Level.CurrentLevel.Width * 10) < UI.ScreenX
                     || value.X < 0)
@@ -66,6 +68,8 @@ namespace TheOtherDarkWorld
             this.Health = 100 * (this.MaxHealth = MaxHealth);
             this.ID = ID;
             Inventory = new Item[inventorySize];
+            Vision = new Light(0.4f, 100, startPosition, Vector2.One, 0.7f);
+            //PeripheralVision = new Light(0.1f, startPosition, Vector2.One, MathHelper.Pi);
         }
 
         public static Vector2 CrosshairOrigin
@@ -136,16 +140,40 @@ namespace TheOtherDarkWorld
             if (Health <= 0)
                 return;
 
-            ObserverMode = InputManager.keyboardState[0].IsKeyDown(Keys.Space);
-            //Velocity = Level.CurrentLevel.Enemies[0].Velocity;
-            //Velocity = new Vector2(0.9f,0);
-            if (Velocity != Vector2.Zero)
+            if (InputManager.keyboardState[0].IsKeyDown(Keys.R))
             {
-                CheckCollisions();
-                Offset = Position - new Vector2(UI.ScreenX / 2, UI.ScreenY / 2);
-                //CheckBlockCollisions(BaseRect, out BlocksHit, false);
+                if (Player.PlayerList[0].Inventory[0].GetType() == typeof(Gun))
+                {
+                    Reload();
+                }
             }
 
+            Vision.Update(Level.CurrentLevel.Tiles, Position + Origin, Rotation);
+            Level.CurrentLevel.LightStack.Push(Vision);
+            //PeripheralVision.Update(Level.CurrentLevel.Tiles, Position + Origin, Rotation);
+
+            if (InputManager.LeftClicking && !UI.CursorMode)
+                Activate_Primary(Inventory[0]);
+            if (InputManager.RightClicking && !UI.CursorMode)
+                Activate_Secondary(Inventory[1]);
+
+            ObserverMode = InputManager.keyboardState[0].IsKeyDown(Keys.Space);
+
+            if (Velocity != Vector2.Zero)
+            {
+                CheckCollisions(Level.CurrentLevel.Tiles);
+                Offset = Position - new Vector2(UI.ScreenX / 2, UI.ScreenY / 2);
+            }
+
+            if (Swing != null)
+            {
+                if (Swing.Update(Position))
+                    Swing = null;
+            }
+
+            //
+            //Reduce the cooldown of equipped items
+            //
             if (Inventory[0] != null)
             {
                 if (Inventory[0].GetType() == typeof(Gun))
@@ -154,6 +182,7 @@ namespace TheOtherDarkWorld
                     if (gun.ReloadCooldown >= 0)
                         gun.ReloadCooldown--;
                 }
+
                 if (Inventory[0].Cooldown >= 0)
                     Inventory[0].Cooldown--;
             }
@@ -164,41 +193,74 @@ namespace TheOtherDarkWorld
             if (HitCooldown >= 0)
                 HitCooldown--;
 
+            UpdateMovement();
             CheckEnemyCollisions();
 
-            Velocity = Vector2.Zero;
+            UpdateMovement();
         }
 
-
-        public void Activate_Primary()
+        void UpdateMovement()
         {
-            if (Inventory[0] != null && !ObserverMode)
+            Velocity = Vector2.Zero;
+
+            if (InputManager.keyboardState[0].IsKeyDown(Keys.W))
             {
-                if ((!Inventory[0].IsAutomatic && InputManager.JustLeftClicked) || Inventory[0].IsAutomatic)
+                Velocity -= Vector2.UnitY;
+            }
+            if (InputManager.keyboardState[0].IsKeyDown(Keys.S))
+            {
+                Velocity += Vector2.UnitY;
+            }
+            if (InputManager.keyboardState[0].IsKeyDown(Keys.A))
+            {
+                Velocity -= Vector2.UnitX;
+            }
+            if (InputManager.keyboardState[0].IsKeyDown(Keys.D))
+            {
+                Velocity += Vector2.UnitX;
+            }
+
+            if (Velocity != Vector2.Zero)
+                Velocity = Vector2.Normalize(Velocity);
+            Velocity *= Speed;
+            //Velocity = new Vector2(Velocity.X + 0.1f, Velocity.Y + 0.1f);
+        }
+
+        public void Activate_Primary(Item item)
+        {
+            if (item != null && !ObserverMode)
+            {
+                if ((!item.IsAutomatic && InputManager.JustLeftClicked) || item.IsAutomatic)
                 {
-                    if (Inventory[0].Cooldown < 0)
+                    if (item.Cooldown < 0)
                     {
-                        if (Inventory[0].Amount == 0)
+                        if (item.Amount == 0)
                             Reload();
 
-                        if (Inventory[0].Amount > 0)
+                        if (item.Amount > 0)
                         {
                             Vector2 direction = new Vector2((float)Math.Cos(Rotation - MathHelper.PiOver2), (float)Math.Sin(Rotation - MathHelper.PiOver2));
                             direction.Normalize();
-                            Inventory[0].Activate(Rotation, direction, new Vector2(Rect.Center.X + (Textures.Bullet.Width / 2), Rect.Center.Y + (Textures.Bullet.Height / 2)) + (direction * 3));
+                            item.Activate(Rotation, direction, new Vector2(Rect.Center.X + (Textures.Bullet.Width / 2), Rect.Center.Y + (Textures.Bullet.Height / 2)) + (direction * 3));
                         }
                     }
                 }
             }
         }
 
-        public void Activate_Secondary()
+        public void Activate_Secondary(Item item)
         {
-            if (Inventory[1] != null && !ObserverMode)
+            if (item != null && !ObserverMode)
             {
-                Vector2 direction = new Vector2((float)Math.Cos(Rotation - MathHelper.PiOver2), (float)Math.Sin(Rotation - MathHelper.PiOver2));
-                direction.Normalize();
-                Inventory[1].Activate(Rotation, direction, new Vector2(Rect.Center.X + (Textures.Bullet.Width / 2), Rect.Center.Y + (Textures.Bullet.Height / 2)) + (direction * 3));
+                if ((!item.IsAutomatic && InputManager.JustRightClicked) || item.IsAutomatic)
+                {
+                    if (item.Cooldown < 0 && item.GetType() != typeof(Gun))
+                    {
+                        Vector2 direction = new Vector2((float)Math.Cos(Rotation - MathHelper.PiOver2), (float)Math.Sin(Rotation - MathHelper.PiOver2));
+                        direction.Normalize();
+                        item.Activate(Rotation, direction, new Vector2(Rect.Center.X + (Textures.Bullet.Width / 2), Rect.Center.Y + (Textures.Bullet.Height / 2)) + (direction * 3));
+                    }
+                }
             }
         }
 
@@ -210,11 +272,20 @@ namespace TheOtherDarkWorld
 
                 if (Collision.SquareVsSquare_TwoMoving(Rect, e.Rect, Velocity, e.Velocity) && HitCooldown < 0)
                 {
-                    Health -= e.MeleeDamage;
-                    HitCooldown = 10;
+                    if (e.IsAttacking)
+                    {
+                        Health -= e.MeleeDamage;
+                        HitCooldown = 10;
+                    }
                 }
             }
 
+        }
+
+        public void PlusOneLife()
+        {
+            MaxHealth++;
+            Health = MaxHealth * 100;
         }
 
 
@@ -223,6 +294,9 @@ namespace TheOtherDarkWorld
             for (int i = 0; i < PlayerList.Length; i++)
             {
                 spriteBatch.Draw(Textures.Player, PlayerList[i].Position + PlayerList[i].Origin - PlayerList[i].Offset, null, PlayerList[i].Colour, PlayerList[i].Rotation, PlayerList[i].Origin, 1, SpriteEffects.None, 0.5f);
+                
+                if (PlayerList[i].Swing != null)
+                    PlayerList[i].Swing.Draw(spriteBatch, PlayerList[i].Offset);
             }
             
             Player.PlayerList[0].DrawHUD(spriteBatch);
@@ -255,8 +329,10 @@ namespace TheOtherDarkWorld
         private void DrawHUD(SpriteBatch spriteBatch)
         {
             //spriteBatch.DrawString(Textures.Fonts[1], "Seed = " + Level.CurrentLevel.Seed, new Vector2(400, 400), Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 0.85f);
-            spriteBatch.DrawString(Textures.Fonts[1], "Enemies left = " + Level.CurrentLevel.Enemies.Count, new Vector2(300, 50), Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 0.85f);
-            spriteBatch.DrawString(Textures.Fonts[1], "Wave: " + Level.CurrentLevel.wave, new Vector2(100, 50), Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 0.85f);
+            spriteBatch.DrawString(Textures.Fonts[1], "Enemies Killed = " + UI.Kills, new Vector2(250, 20), Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 0.85f);
+            spriteBatch.DrawString(Textures.Fonts[1], "Wave: " + Level.CurrentLevel.wave, new Vector2(100, 20), Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 0.85f);
+            spriteBatch.DrawString(Textures.Fonts[1], "High Score = " + UI.HighScore, new Vector2(250, 40), Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 0.85f);
+            //spriteBatch.DrawString(Textures.Fonts[1], "Projectiles: " + Projectile.ProjectileList.Count, new Vector2(100, 100), Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 0.85f);
             
 
             spriteBatch.Draw(Textures.SidePanel, PanelPosition, null, Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 0.8f);
@@ -297,7 +373,7 @@ namespace TheOtherDarkWorld
                 }
             }
 
-            if (InputManager.CursorMode)
+            if (UI.CursorMode)
                 spriteBatch.Draw(Textures.Cursor, InputManager.MousePositionV, null, Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 0.9f);
             else
                 spriteBatch.Draw(Textures.Crosshair, InputManager.MousePositionV, null, Color.YellowGreen, 0, CrosshairOrigin, 1, SpriteEffects.None, 0.9f);

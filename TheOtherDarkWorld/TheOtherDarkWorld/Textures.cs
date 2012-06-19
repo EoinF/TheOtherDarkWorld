@@ -19,32 +19,31 @@ namespace TheOtherDarkWorld
         public static Texture2D ItemSlot { get; private set; }
         public static Texture2D HealthPoint { get; private set; }
         public static Texture2D Cursor { get; private set; }
+        public static Texture2D Swipe { get; private set; }
 
         public static List<Texture2D> UITextures { get; private set; }
 
+        public static Texture2D Foreground { get; private set; }
 
-        private static ContentManager Content;
 
-        public Textures(ContentManager content)
-        {
-            Content = content;
-        }
+        public static Texture2D Items { get; private set; }
+        public static Texture2D Blocks { get; private set; }
 
-        public static Texture2D Items { get; set; }
-        public static Texture2D Blocks { get; set; }
+        public static Texture2D[] Enemies { get; private set; }
+        public static Texture2D[] MenuTextures { get; private set; }
+        public static SpriteFont[] Fonts { get; private set; }
 
-        public static Texture2D[] Enemies { get; set; }
-        public static Texture2D[] MenuTextures { get; set; }
-        public static SpriteFont[] Fonts { get; set; }
-
-        public static void LoadTextures()
+        public static void LoadTextures(ContentManager Content, GraphicsDevice device)
         {
             MenuTextures = new Texture2D[10];
             Crosshair = Content.Load<Texture2D>("Crosshair");
             SidePanel = Content.Load<Texture2D>("SidePanel");
             HealthPoint = Content.Load<Texture2D>("HealthPoint");
             Cursor = Content.Load<Texture2D>("Cursor");
+            Swipe = Content.Load<Texture2D>("swipe");
 
+
+            Foreground = new Texture2D(device, UI.ScreenX - SidePanel.Width, UI.ScreenY);
 
             Block = Content.Load<Texture2D>("Block");
             Bullet = Content.Load<Texture2D>("Bullet");
@@ -71,7 +70,12 @@ namespace TheOtherDarkWorld
 
         public static Rectangle GetItemRectangle(int Type)
         {
-             return new Rectangle((Type % (Textures.Items.Width / 16) * 16),(Type / (Textures.Items.Width / 16)) * 16, 16, 16);
+             return new Rectangle((Type * 16) % Items.Width, ((Type * 16) / Items.Width) * 16, 16, 16);
+        }
+
+        public static void UpdateForeground(Color[] ShroudArray)
+        {
+            Foreground.SetData(ShroudArray);
         }
     }
 
