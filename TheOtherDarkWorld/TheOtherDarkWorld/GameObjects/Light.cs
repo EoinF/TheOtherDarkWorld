@@ -36,11 +36,11 @@ namespace TheOtherDarkWorld.GameObjects
             this.RotationOffset = Span;
         }
 
+        /*
         public void Update(Tile[,] Tiles, Vector2 Position, float Rotation)
         {
             this.Position = Position;
-
-            return;
+            
             //
             //The tile in the array that the light originates
             //
@@ -74,9 +74,11 @@ namespace TheOtherDarkWorld.GameObjects
                         Level.CurrentLevel.LightTile(i, j, (Brightness * (Depth / DistanceFromCentre)));
                 }
             }
-        }
+            
+            
+        }*/
 
-        /*
+        
         /// <summary>
         /// Calculates what tiles are affected by this light
         /// </summary>
@@ -113,7 +115,7 @@ namespace TheOtherDarkWorld.GameObjects
                 Ray(Tiles, arrayPositionX, arrayPositionY, RayVector.X, RayVector.Y, Brightness);
             }
         }
-        */
+        
         private void Ray(Tile[,] Tiles, int i, int j, float Vx, float Vy, float Brightness)
         {
             float Sx = i;

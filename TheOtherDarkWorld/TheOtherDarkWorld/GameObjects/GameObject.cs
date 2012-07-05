@@ -35,28 +35,37 @@ namespace TheOtherDarkWorld.GameObjects
                 //This rectangle is initialised here because it doesn't change until all the blocks have been checked
                 Rectanglef RoughRect = new Rectanglef(Rect.Left + (Velocity.X < 0 ? Velocity.X : 0), Rect.Top + (Velocity.Y < 0 ? Velocity.Y : 0), Rect.Width + Math.Abs(Velocity.X), Rect.Height + Math.Abs(Velocity.Y));
 
-                //
-                //The tile in the array that the object is found in with 3 subtracted
-                //
-                int arrayPositionX = (int)(Position.X / 10) - 3;
-                int arrayPositionY = (int)(Position.Y / 10) - 3;
 
-                for (int i = arrayPositionX; i < arrayPositionX + 6; i++)
-                {
-                    //Check if the index is out of bounds
-                    if (i >= Tiles.GetLength(0))
-                        break;
-                    if (i < 0)
-                        continue;
+                //The index of the tile in the array that the rectangle begins at
+                int startX = (int)(RoughRect.Left / 10);
+                int startY = (int)(RoughRect.Top / 10);
 
-                    for (int j = arrayPositionY; j < arrayPositionY + 6; j++)
+
+                //Check if the start index is out of bounds
+                if (startX < 0)
+                    startX = 0;
+                if (startY < 0)
+                    startY = 0;
+
+                //The index of the tile in the array that the rectangle ends at
+                int endX = startX + (int)(RoughRect.Width / 10) + 1;
+                int endY = startY + (int)(RoughRect.Height / 10) + 1;
+
+                //Check if the end index is out of bounds
+                if (endX >= Tiles.GetLength(0))
+                    endX = Tiles.GetLength(0);
+                if (endY >= Tiles.GetLength(1))
+                    endY = Tiles.GetLength(1);
+
+
+                //
+                //The index should never be out of bounds at this stage
+                //No further checking is necessary (so that should improve performance)
+                //
+
+                for (int i = startX; i < endX; i++)
+                    for (int j = startY; j < endY; j++)
                     {
-                        //Check if the index is out of bounds
-                        if (j >= Tiles.GetLength(1))
-                            break;
-                        if (j < 0)
-                            continue;
-
                         if (Tiles[i, j].Block == null) //If there is no block here,
                             continue; //go to the next block
 
@@ -64,16 +73,10 @@ namespace TheOtherDarkWorld.GameObjects
                         //nearby blocks are checked anyway
                         if (RoughRect.Intersects(Tiles[i, j].Rect))
                         {
-                            //At this stage, there's a chance of a collision because they were close
-
-                            //if (Collision.SquareVsSquare_OneMoving(Rect, blk.Rect, Velocity))
-                            {
-                                //At this stage, there definitely is a collision
-                                collisions.Add(GetCollisionDetails(Tiles[i, j].Rect, i, j));
-                            }
+                            collisions.Add(GetCollisionDetails(Tiles[i, j].Rect, i, j));
                         }
                     }
-                }
+                
 
                 if (collisions.Count == 0) //There were no collisions
                 {
@@ -117,6 +120,9 @@ namespace TheOtherDarkWorld.GameObjects
                         CollideHorizontal(collisions[lowestIndex]);
                     else
                         CollideVertical(collisions[lowestIndex]);
+
+                    if (float.IsNaN(Position.X) || float.IsNaN(Position.Y))
+                        System.Diagnostics.Debugger.Break();
                 }
             }
 
@@ -131,7 +137,7 @@ namespace TheOtherDarkWorld.GameObjects
         public virtual void CollideVertical(Collision col)
         {
             Position += new Vector2(col.Sx, col.Sy);
-            Velocity = new Vector2(Velocity.X - (Math.Sign(Velocity.X) * col.Sx), 0);
+            Velocity = new Vector2(Velocity.X - (Math.Sign(Velocity.X) * col.Sx), 0); 
         }
         public virtual void CollideDiagonal(Collision col)
         {

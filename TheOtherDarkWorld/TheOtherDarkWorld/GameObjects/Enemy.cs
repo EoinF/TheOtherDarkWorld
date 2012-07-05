@@ -16,6 +16,18 @@ namespace TheOtherDarkWorld.GameObjects
         public int Weight { get; private set; }
         public int MeleeDamage { get; private set; }
         public bool IsAttacking { get { return HitCooldown <= 0; } }
+        private Color LightColour
+        {
+            get
+            {
+                //Preserve the alpha component so that the tiles will actually be drawn
+                byte alpha = Colour.A;
+                Color c = Colour * Brightness;
+                c.A = alpha;
+                return c;
+            }
+
+        }
 
         private float Brightness { get; set; }
 
@@ -71,6 +83,9 @@ namespace TheOtherDarkWorld.GameObjects
             if (HitCooldown <= 0) //The enemy is stunned when hit, so it has no intelligence
                 AI();
 
+            if (float.IsNaN(Position.X) || float.IsNaN(Position.Y))
+                System.Diagnostics.Debugger.Break();
+
             Velocity = Vector2.Normalize(new Vector2(Target.X - (this.Position.X + this.Origin.X), Target.Y - (this.Position.Y + this.Origin.Y)));
 
             //The velocity can become NaN if the enemy is in the exact same position as the target
@@ -88,50 +103,54 @@ namespace TheOtherDarkWorld.GameObjects
                 HitVelocity = Vector2.Zero;
 
             CheckCollisions(Level.CurrentLevel.Tiles);
-            CheckProjectileCollisions();
-            CheckEnemyCollisions();
+            if (float.IsNaN(Position.X) || float.IsNaN(Position.Y))
+                System.Diagnostics.Debugger.Break();
 
-            CheckLighting(Level.CurrentLevel.Tiles);
+            CheckProjectileCollisions();
+            if (float.IsNaN(Position.X) || float.IsNaN(Position.Y))
+                System.Diagnostics.Debugger.Break();
+
+            CheckEnemyCollisions();
+            if (float.IsNaN(Position.X) || float.IsNaN(Position.Y))
+                System.Diagnostics.Debugger.Break();
+
+            UpdateLighting(Level.CurrentLevel.Tiles);
 
             return (Health <= 0);
+        }
+
+        private void UpdateLighting(Tile[,] Tiles)
+        {
+            int startX = (int)(Position.X / 10);
+            int endX = startX + (Texture.Width / 10) + 1;
+
+            if (startX < 0)
+                startX = 0;
+            if (endX >= Level.CurrentLevel.Width)
+                endX = Level.CurrentLevel.Width - 1;
+
+            int startY = (int)(Position.Y / 10);
+            int endY = startY + (Texture.Height / 10) + 1;
+
+            if (startY < 0)
+                startY = 0;
+            if (endY >= Level.CurrentLevel.Height)
+                endY = Level.CurrentLevel.Height - 1;
+
+            float total = 0;
+            int tilesChecked = 0;
+            for (int i = startX; i < endX; i++)
+                for (int j = startY; j < endY; j++)
+                {
+                    total += Tiles[i, j].Brightness;
+                    tilesChecked++;
+                }
+            this.Brightness = total / tilesChecked;
         }
 
         protected virtual void AI()
         {
             Target = Player.PlayerList[0].Position + Player.PlayerList[0].Origin;
-        }
-
-        private void CheckLighting(Tile[,] Tiles)
-        {
-            int startX = (int)((Position.X) / 10f);
-            int startY = (int)((Position.Y) / 10f);
-            int blocksX = (int)((Texture.Width / 10f) + 0.5f);
-            int blocksY = (int)((Texture.Height / 10f) + 0.5f);
-
-            //The total number of tiles that have been used. This is needed to find the average brightness
-            float numbers = 0;
-
-            float totalBrightness = 0;
-
-            for (int i = startX; i < startX + blocksX; i++)
-            {
-                if (i < 0 || i >= Tiles.GetLength(0))
-                    break;
-                for (int j = startY; j < startY + blocksY; j++)
-                {
-                    if (j < 0 || j >= Tiles.GetLength(1))
-                        break;
-                    numbers++;
-                    totalBrightness += Tiles[i, j].Brightness;
-                }
-            }
-
-            this.Brightness = (totalBrightness / numbers);
-        }
-
-        public void Draw(SpriteBatch spriteBatch)
-        {
-            spriteBatch.Draw(Textures.Enemies[Type], Position + Origin - Player.PlayerList[0].Offset, null, Colour * Brightness, Rotation, Origin, 1, SpriteEffects.None, 0.5f);
         }
 
         private void CheckProjectileCollisions()
@@ -180,16 +199,20 @@ namespace TheOtherDarkWorld.GameObjects
 
                         Vector2 Bounce = this.Position - e.Position;
                         Bounce.Normalize();
+                        if (float.IsNaN(Bounce.X))
+                            Bounce = Vector2.UnitX;
                         //Bounce *= (Velocity.Length() + e.Velocity.Length()) / 2f;
 
                         float push = ((float)this.Weight / (float)(this.Weight + e.Weight)) / 2f;
-                        push += ((float)this.Velocity.Length() / (e.Velocity.Length() + this.Velocity.Length())) / 2f;
+                        //push += ((float)this.Velocity.Length() / (e.Velocity.Length() + this.Velocity.Length())) / 2f;
 
                         //Add the percentage of push that this enemy should recieve
                         this.HitVelocity += Bounce * push;
                         //Add the remainder to the other enemy
                         e.HitVelocity -= Bounce * (1 - push);
 
+                        if (float.IsNaN(HitVelocity.X) || float.IsNaN(HitVelocity.Y))
+                            System.Diagnostics.Debugger.Break();
                     }
                 }
                 i++;
@@ -202,5 +225,11 @@ namespace TheOtherDarkWorld.GameObjects
         {
             get { return Textures.Enemies[Type];}
         }
+
+        public void Draw(SpriteBatch spriteBatch)
+        {
+            spriteBatch.Draw(Textures.Enemies[Type], Position + Origin - Player.PlayerList[0].Offset, null, LightColour, Rotation, Origin, 1, SpriteEffects.None, 0.12f);
+        }
+
     }
 }

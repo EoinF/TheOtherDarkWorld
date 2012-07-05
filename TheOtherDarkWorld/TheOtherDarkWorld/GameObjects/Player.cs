@@ -17,6 +17,8 @@ namespace TheOtherDarkWorld
         public int ID;
         private int Health { get; set; }
         private int MaxHealth { get; set; }
+        public bool IsAlive { get { return Health > 0; } }
+
         public Swing Swing;
         public Light Vision;
         public Light PeripheralVision;
@@ -68,7 +70,7 @@ namespace TheOtherDarkWorld
             this.Health = 100 * (this.MaxHealth = MaxHealth);
             this.ID = ID;
             Inventory = new Item[inventorySize];
-            Vision = new Light(0.4f, 100, startPosition, Vector2.One, 0.7f);
+            Vision = new Light(0.5f, 300, startPosition, Vector2.One, MathHelper.PiOver4);
             //PeripheralVision = new Light(0.1f, startPosition, Vector2.One, MathHelper.Pi);
         }
 
@@ -149,7 +151,7 @@ namespace TheOtherDarkWorld
             }
 
             Vision.Update(Level.CurrentLevel.Tiles, Position + Origin, Rotation);
-            Level.CurrentLevel.LightStack.Push(Vision);
+            //Level.CurrentLevel.LightStack.Push(Vision);
             //PeripheralVision.Update(Level.CurrentLevel.Tiles, Position + Origin, Rotation);
 
             if (InputManager.LeftClicking && !UI.CursorMode)
@@ -193,9 +195,7 @@ namespace TheOtherDarkWorld
             if (HitCooldown >= 0)
                 HitCooldown--;
 
-            UpdateMovement();
             CheckEnemyCollisions();
-
             UpdateMovement();
         }
 
@@ -223,7 +223,6 @@ namespace TheOtherDarkWorld
             if (Velocity != Vector2.Zero)
                 Velocity = Vector2.Normalize(Velocity);
             Velocity *= Speed;
-            //Velocity = new Vector2(Velocity.X + 0.1f, Velocity.Y + 0.1f);
         }
 
         public void Activate_Primary(Item item)
@@ -293,7 +292,7 @@ namespace TheOtherDarkWorld
         {
             for (int i = 0; i < PlayerList.Length; i++)
             {
-                spriteBatch.Draw(Textures.Player, PlayerList[i].Position + PlayerList[i].Origin - PlayerList[i].Offset, null, PlayerList[i].Colour, PlayerList[i].Rotation, PlayerList[i].Origin, 1, SpriteEffects.None, 0.5f);
+                spriteBatch.Draw(Textures.Player, PlayerList[i].Position + PlayerList[i].Origin - PlayerList[i].Offset, null, PlayerList[i].Colour, PlayerList[i].Rotation, PlayerList[i].Origin, 1, SpriteEffects.None, 0.12f);
                 
                 if (PlayerList[i].Swing != null)
                     PlayerList[i].Swing.Draw(spriteBatch, PlayerList[i].Offset);
@@ -321,6 +320,7 @@ namespace TheOtherDarkWorld
                 changed *=  1 - ((float)gun.ReloadCooldown / (gun.ReloadTime * 1.3f));
                 //Restore the alpha
                 changed.A = original.A;
+                changed.B = 255;
                 return changed;
             }
             return original;
@@ -331,6 +331,7 @@ namespace TheOtherDarkWorld
             //spriteBatch.DrawString(Textures.Fonts[1], "Seed = " + Level.CurrentLevel.Seed, new Vector2(400, 400), Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 0.85f);
             spriteBatch.DrawString(Textures.Fonts[1], "Enemies Killed = " + UI.Kills, new Vector2(250, 20), Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 0.85f);
             spriteBatch.DrawString(Textures.Fonts[1], "Wave: " + Level.CurrentLevel.wave, new Vector2(100, 20), Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 0.85f);
+            spriteBatch.DrawString(Textures.Fonts[0], "Remaining: " + Level.CurrentLevel.Enemies.Count, new Vector2(95, 33), Color.Aqua, 0, Vector2.Zero, 1, SpriteEffects.None, 0.85f);
             spriteBatch.DrawString(Textures.Fonts[1], "High Score = " + UI.HighScore, new Vector2(250, 40), Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 0.85f);
             //spriteBatch.DrawString(Textures.Fonts[1], "Projectiles: " + Projectile.ProjectileList.Count, new Vector2(100, 100), Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 0.85f);
             

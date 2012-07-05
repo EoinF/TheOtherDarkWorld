@@ -10,7 +10,7 @@ namespace TheOtherDarkWorld.GameObjects
     {
         public int Health { get; set; }
         public int Resistance { get; private set; }
-        public Color Colour { get; private set; }
+        public Color Colour { get;  set; }
         public Item[] Drops;
 
 

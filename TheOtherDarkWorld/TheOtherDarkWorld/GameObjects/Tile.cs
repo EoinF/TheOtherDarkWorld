@@ -9,34 +9,47 @@ namespace TheOtherDarkWorld.GameObjects
 {
     public class Tile
     {
-        public Block Block { get; set; }
-        public Vector2 Position { get; private set; }
-        public Item[] Items { get; set; }
-        public Trigger[] Triggers { get; set; }
-        private Color LightColour { get; set; }
-        private float _brightness;
-        public float Brightness
+        private Block _block;
+        public Block Block
         {
             get
             {
-                return _brightness;
+                return _block;
             }
             set
             {
-                if (value <= 1)
-                    _brightness = value;
+                if (value == null)
+                    Colour = Color.White;
                 else
-                    _brightness = 1;
+                    Colour = value.Colour;
+                _block = value;
             }
         }
+        public Vector2 Position { get; private set; }
+        public Item[] Items { get; set; }
+        public Trigger[] Triggers { get; set; }
+
+        private Color LightColour {
+            get
+            {
+                //Preserve the alpha component so that the tiles will actually be drawn
+                byte alpha = Colour.A;
+                Color c = Colour * Brightness;
+                c.A = alpha;
+                return c;
+            }
+        }
+        //private float _brightness;
+        public float Brightness { get { return 1; } set { ;} }
+
         private Color Colour
         {
             get;
             set;
-            
-                //Color c = Color.Lerp((Block != null ? Block.Colour : Color.White), LightColour, 0.5f);
-                //return new Color((byte)(c.R * Brightness), (byte)(c.G * Brightness), (byte)(c.B * Brightness));
-            
+
+            //Color c = Color.Lerp((Block != null ? Block.Colour : Color.White), LightColour, 0.5f);
+            //return new Color((byte)(c.R * Brightness), (byte)(c.G * Brightness), (byte)(c.B * Brightness));
+
         }
 
         public Rectanglef Rect
@@ -50,8 +63,7 @@ namespace TheOtherDarkWorld.GameObjects
             this.Items = Items;
             this.Triggers = Triggers;
             Position = new Vector2(x * 10, y * 10);
-            this.LightColour = LightColour;
-            Brightness = 0;
+            this.Colour = Colour;
         }
 
         public Tile(int x, int y, Item[] Items = null, Trigger[] Triggers = null, Block Block = null)
@@ -60,13 +72,12 @@ namespace TheOtherDarkWorld.GameObjects
             this.Items = Items;
             this.Triggers = Triggers;
             Position = new Vector2(x * 10, y * 10);
-            this.LightColour = Color.White;
-            Brightness = 0;
+            Colour = Color.White;
         }
 
         public void Draw(SpriteBatch spriteBatch)
         {
-            spriteBatch.Draw(Textures.Block, Position - Player.PlayerList[0].Offset, null, Colour, 0, Vector2.Zero, 1, SpriteEffects.None, 0.1f);
+            spriteBatch.Draw(Textures.Block, Position - Player.PlayerList[0].Offset, null, LightColour, 0, Vector2.Zero, 1, SpriteEffects.None, 0.1f);
         }
     }
 }

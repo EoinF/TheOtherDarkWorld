@@ -63,17 +63,15 @@ namespace TheOtherDarkWorld
         public static void StartLevel()
         {
             Random rand = new Random();
-            Level.GenerateLevel(Level.LevelType.Open, rand.Next(), 80, 60);
+            Level.GenerateLevel(Level.LevelType.Hallways, rand.Next(), 76, 60);
             Level.CurrentLevel.Enemies = new List<Enemy>();
 
             Player.PlayerList = new Player[1] { new Player(new Vector2(230, 200), 5, 3, 8, Vector2.Zero, 0, 5) };
 
-            Player.PlayerList[0].Inventory[0] = new Gun(2, -1);
+            Player.PlayerList[0].Inventory[0] = new Gun(0, -1);
             Player.PlayerList[0].Inventory[1] = new Melee(4, -1);
-            Player.PlayerList[0].Inventory[4] = new Melee(5, 30);
 
-            Player.PlayerList[0].Inventory[2] = new Item(102, 999);
-            Player.PlayerList[0].Inventory[3] = new Gun(0, -1);
+            Player.PlayerList[0].Inventory[2] = new Item(101, 999999);
             Projectile.ProjectileList = new List<Projectile>();
             
             Vector2 offset = new Vector2(800 - Textures.SidePanel.Width, 0);

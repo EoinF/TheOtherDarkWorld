@@ -73,6 +73,8 @@ namespace TheOtherDarkWorld
                 if (Player.PlayerList != null)
                     Player.PlayerList[0].Update();
 
+
+
                 if (Projectile.ProjectileList != null)
                     for (int i = 0; i < Projectile.ProjectileList.Count; i++)
                     {
@@ -93,8 +95,19 @@ namespace TheOtherDarkWorld
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             spriteBatch.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend);
+            if (StateManager.State == 0)
+            {
+                string prompt = "Press Enter to Begin...";
+                spriteBatch.DrawString(Textures.Fonts[2], prompt, new Vector2(graphics.PreferredBackBufferWidth / 2, UI.ScreenY / 2) - (Textures.Fonts[2].MeasureString(prompt) / 2f), Color.White);
+
+            }
             if (StateManager.State == 1)
             {
+                string prompt = "Press Enter to Retry...";
+                if (!Player.PlayerList[0].IsAlive)
+                    spriteBatch.DrawString(Textures.Fonts[2], prompt, new Vector2(UI.ScreenX / 2, UI.ScreenY / 2) - (Textures.Fonts[2].MeasureString(prompt) / 2f), Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
+
+
                 Level.CurrentLevel.Draw(spriteBatch);
                 Player.DrawAll(spriteBatch);
                 Projectile.DrawAll(spriteBatch);

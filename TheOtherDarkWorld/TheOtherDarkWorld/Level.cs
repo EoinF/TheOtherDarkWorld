@@ -36,27 +36,33 @@ namespace TheOtherDarkWorld
         
         public void Draw(SpriteBatch spriteBatch)
         {
+            
             //These variables find out which blocks are currently on screen
             //This saves drawing off screen objects
             int startX = (int)(Player.PlayerList[0].Offset.X / 10);
             int startY = (int)(Player.PlayerList[0].Offset.Y / 10);
 
-            //Makes sure i doesn't start at a negative index
-            for (int i = startX < 0 ? 0 : startX; i < startX + (UI.ScreenX / 10) + 2; i++)
-            {
-                //Checks if the index is out of bounds
-                if (i >= Width)
-                    break;
+            int endX = startX + (UI.ScreenX / 10) + 2;
+            int endY = startY + (UI.ScreenY / 10) + 2;
 
+            if (endX >= Width)
+                endX = Width;
+            //
+            //Prevent the index from being out of bounds
+            //
+            if (endY >= Height)
+                endY = Height;
+
+            //Makes sure it doesn't start at a negative index
+            for (int i = startX < 0 ? 0 : startX; i < endX; i++)
+            {
                 //Makes sure j doesn't start at a negative index
-                for (int j = startY < 0 ? 0 : startY ; j < startY + (UI.ScreenY / 10) + 2; j++)
+                for (int j = startY < 0 ? 0 : startY ; j < endY; j++)
                 {
-                    //Checks if the index is out of bounds
-                    if (j >= Level.CurrentLevel.Height)
-                        break;
                     Tiles[i, j].Draw(spriteBatch);
                 }
             }
+            
 
             for (int i = 0; i < FloorItems.Count; i++)
             {
@@ -67,6 +73,7 @@ namespace TheOtherDarkWorld
             {
                 Enemies[i].Draw(spriteBatch);
             }
+
             //Draw the foreground texture, which represents the darkness
             //spriteBatch.Draw(Textures.Foreground, Vector2.Zero, null, Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 0.4f);
         }
@@ -90,7 +97,7 @@ namespace TheOtherDarkWorld
 
             for (int i = 0; i < PlainShroud.Length; i++)
             {
-                    PlainShroud[i] = Color.Black;
+                PlainShroud[i] = Color.Black;
             }
 
             ShroudArray = (Color[])PlainShroud.Clone();
@@ -106,7 +113,7 @@ namespace TheOtherDarkWorld
             return false;
         }
 
-        [Obsolete]
+        
         public void LightTile(int i, int j, float Brightness)
         {
             if (i >= 0 && i < Width && j >= 0 && j < Height)
@@ -122,29 +129,39 @@ namespace TheOtherDarkWorld
                 UpdatedTiles.Push(Tiles[i, j]);
             }
         }
+        
 
         private void UpdateLights()
         {
+            return;
+
             while (LightStack.Count > 0)
             {
                 CalculateLight(LightStack.Pop());
             }
             Textures.UpdateForeground(ShroudArray);
+            //ShroudArray = (Color[])PlainShroud.Clone();
+            //if (Player.PlayerList[0].IsAlive)
+                //ShroudArray = (Color[])PlainShroud.Clone();
         }
 
         private void CalculateLight(Light light)
         {
+            //If the brightness is 0, the light will have no effect on anything
+            if (light.Brightness <= 0)
+                return;
+
             //
             //The pixel in the array that the light originates
             //
-            int arrayPositionX = (int)light.Position.X;
-            int arrayPositionY = (int)light.Position.Y;
+            int arrayPositionX = (int)(light.Position.X - Player.PlayerList[0].Offset.X);
+            int arrayPositionY = (int)(light.Position.Y - Player.PlayerList[0].Offset.Y);
 
             int radius = (int)light.Depth;
 
             int startX = arrayPositionX - radius;
-            if (startX < 0)
-                startX = 0;
+            if (startX < 10)
+                startX = 10;
 
             int endX = arrayPositionX + radius;
             if (endX >= (Level.CurrentLevel.Width * 10))
@@ -158,22 +175,24 @@ namespace TheOtherDarkWorld
             if (endY >= (Level.CurrentLevel.Height * 10))
                 endY = (Level.CurrentLevel.Height * 10) - 1;
 
-            for (int i = startX; i < endX; i++)
+            //float brightness = (float)Math.Sqrt(1 - light.Brightness);
+            float brightness = (1 - (light.Brightness / 10f));
+
+            Vector2 lightScreenPosition = light.Position - Player.PlayerList[0].Offset;
+            Vector2 CurrentCheck;
+            for (CurrentCheck.Y = startY; CurrentCheck.Y < endY; CurrentCheck.Y++)
             {
-                for (int j = startY; j < endY; j++)
+                for (CurrentCheck.X = startX; CurrentCheck.X < endX; CurrentCheck.X++)
                 {
-                    float DistanceFromCentre = Vector2.Distance(Tiles[i / 10, j / 10].Position, light.Position);
+                    float DistanceFromCentre =  Vector2.Distance(CurrentCheck, lightScreenPosition);
                     if (DistanceFromCentre <= light.Depth)
-                        ShroudArray[(j * UI.ScreenX) + i] = new Color(1,1,1, (light.Brightness * (light.Depth / DistanceFromCentre)));
+                        ShroudArray[((int)CurrentCheck.Y * UI.ScreenX) + (int)CurrentCheck.X].A = (byte)((255 * Math.Sqrt(DistanceFromCentre / light.Depth) * brightness));
                 }
             }
         }
 
         public void Update()
         {
-            UpdateBlocks();
-            //UpdateLights();
-
             for (int i = 0; i < Enemies.Count; i++)
             {
                 if (Enemies[i].Update())
@@ -186,51 +205,51 @@ namespace TheOtherDarkWorld
                 }
             }
 
-            while (UpdatedTiles.Count > 0)
-            {
-                UpdatedTiles.Pop().Brightness = 0;
-            }
+            UpdateBlocks();
 
-            if (Enemies.Count == 0)
+            if (false && Enemies.Count == 0 || (InputManager.keyboardState[0].IsKeyDown(Microsoft.Xna.Framework.Input.Keys.N) && InputManager.keyboardState[1].IsKeyUp(Microsoft.Xna.Framework.Input.Keys.N)))
             {
                 Random rand = new Random();
                 wave++;
-                switch (wave)
-                {
-                    case 4:
-                    case 5:
-                        for (int i = 0; i < 70 + (5 * wave); i++)
-                        {
-                            Level.CurrentLevel.Enemies.Add(new Enemy(new Vector2((float)(2 * UI.ScreenX * rand.NextDouble()) + (UI.ScreenX), 50 + (float)(100 * rand.NextDouble()) + (2 * UI.ScreenY * (rand.Next(0, 9) % 3))), 1 + (wave * 0.3f), Vector2.Zero, 0, 100, 20, 8, 30));
-                        }
-                        break;
 
-                    default:
-                        for (int i = 0; i < (10 * wave); i++)
-                        {
-                            Level.CurrentLevel.Enemies.Add(new Enemy(new Vector2((float)(UI.ScreenX * rand.NextDouble()), 50 + (float)(100 * rand.NextDouble()) + (2 * UI.ScreenY * (rand.Next(1, 3) % 2))), 1 + (wave * 0.3f), Vector2.Zero, 0, 100, 20, 8, 30));
-                        }
-                        for (int i = 0; i < (10 * (wave - 1)); i++)
-                        {
-                        //    Level.CurrentLevel.Enemies.Add(new Enemy(new Vector2(2 * (UI.ScreenY * (rand.Next(1,3) % 2 )) + (float)(UI.ScreenX * rand.NextDouble()), 50 + (float)(100 * rand.NextDouble()) + (0.5f * UI.ScreenY * (rand.Next(0,9) % 3 ))), 1 +(wave * 0.3f), Vector2.Zero, 0, 100, 20, 8, 30));
-                        }
-                        break;
+                if (wave % 5 == 0)
+                {
+                    for (int i = 0; i < 2 + (wave); i++)
+                    {
+                        Enemies.Add(new Enemy(new Vector2((float)((Level.CurrentLevel.Width * 5) * rand.NextDouble()), (float)((Level.CurrentLevel.Height * 5) + Level.CurrentLevel.Height * 5 * rand.NextDouble())), 1.6f, Vector2.Zero, 0, 1000, 20, 40, 60 + (wave * 4)));
+                        Enemies.Add(new Enemy(new Vector2((float)((Level.CurrentLevel.Width * 5) + (Level.CurrentLevel.Width * 5) * rand.NextDouble()), (float)(Level.CurrentLevel.Height * 5 * rand.NextDouble())), 1.6f, Vector2.Zero, 0, 1000, 20, 40, 60 + (wave * 4)));
+                    }
+                } 
+                else if ((wave + 2) % 5 == 0)
+                {
+                    for (int i = 0; i < 10 + (7 * wave); i++)
+                    {
+                        Enemies.Add(new Enemy(new Vector2((float)((Level.CurrentLevel.Width * 5) + (Level.CurrentLevel.Width * 5) * rand.NextDouble()), (float)(Level.CurrentLevel.Height * 10 * rand.NextDouble())), 1 + (wave * 0.5f), Vector2.Zero, 0, 100, 20, 8, 15));
+                        Enemies.Add(new Enemy(new Vector2((float)((Level.CurrentLevel.Width * 5) * rand.NextDouble()), (float)(Level.CurrentLevel.Height * 10 * rand.NextDouble())), 1 + (wave * 0.5f), Vector2.Zero, 0, 100, 20, 8, 15));
+                    }
+                }
+                else if ((wave + 3) % 5 == 0)
+                {
+                    for (int i = 0; i < 10 + (4 * wave); i++)
+                    {
+                        Enemies.Add(new Enemy(new Vector2((float)(Level.CurrentLevel.Width * 10 * rand.NextDouble()), (float)((Level.CurrentLevel.Height * 5) * rand.NextDouble())), 1 + (wave * 0.3f), Vector2.Zero, 0, 100, 20, 8, 30));
+                        Enemies.Add(new Enemy(new Vector2((float)((Level.CurrentLevel.Width * 5) + (Level.CurrentLevel.Width * 5) * rand.NextDouble()), (float)(Level.CurrentLevel.Height * 10 * rand.NextDouble())), 5, Vector2.Zero, 0, 50, 20, 2, 2));
+                    }
+                }
+                else
+                {
+                    for (int i = 0; i < (3 * wave); i++)
+                    {
+                        Enemies.Add(new Enemy(new Vector2((float)(Level.CurrentLevel.Width * 10 * rand.NextDouble()), (float)((Level.CurrentLevel.Height * 5) * rand.NextDouble())), 1 + (wave * 0.3f), Vector2.Zero, 0, 100, 20, 8, 30));
+                    }
+                    for (int i = 0; i < (3 * (wave - 1)); i++)
+                    {
+                        Enemies.Add(new Enemy(new Vector2((float)(Level.CurrentLevel.Width * 10 * rand.NextDouble()), (Level.CurrentLevel.Height * 5) + (float)(2f * Level.CurrentLevel.Height * rand.NextDouble())), 1 + (wave * 0.3f), Vector2.Zero, 0, 100, 20, 8, 30));
+                    }
                 }
 
                 if (wave != 1)
                 {
-                    for (int i = 0; i < Player.PlayerList[0].Inventory.Length; i++)
-                    {
-                        Item item = Player.PlayerList[0].Inventory[i];
-
-                        if (item == null || item.Type > 100)
-                        {
-                            int type = 101 + rand.Next(0, 2);
-                            Player.PlayerList[0].Inventory[i] = new Item(type, (int)(GameData.GameItems[type].MaxAmount * (1 + (wave / 20f))));
-                        }
-                        else if (item.Type != 100)
-                            item.Amount = item.MaxAmount;
-                    }
                     Player.PlayerList[0].PlusOneLife();
                 }
             }
@@ -238,6 +257,9 @@ namespace TheOtherDarkWorld
 
         private void UpdateBlocks()
         {
+            while (UpdatedTiles.Count > 0)
+                UpdatedTiles.Pop().Brightness = 0;
+
             for (int i = 0; i < Level.CurrentLevel.Width; i++)
                 for (int j = 0; j < Level.CurrentLevel.Height; j++)
                 {
