@@ -1,0 +1,2 @@
+C:\Users\Eoin\Documents\Visual Studio 2010\Projects\TheOtherDarkWorld\TacticalShooterGame\TacticalShooterGameContent\obj\x86\Debug\ResolveAssemblyReference.cache
+C:\Users\Eoin\TheOtherDarkWorld\TheOtherDarkWorld\TheOtherDarkWorldContent\obj\x86\Debug\ResolveAssemblyReference.cache

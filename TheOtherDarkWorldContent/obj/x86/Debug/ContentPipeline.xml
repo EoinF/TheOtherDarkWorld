@@ -1,0 +1,118 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<XnaContent xmlns:Pipeline="Microsoft.Xna.Framework.Content.Pipeline">
+  <Asset Type="Pipeline:BuildItemCollection">
+    <Item>
+      <Source>Block.png</Source>
+      <Name>Block</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+      <Options>None</Options>
+      <Output>C:\Users\Eoin\Documents\Visual Studio 2010\Projects\TacticalShooterGame\TacticalShooterGame\TacticalShooterGame\bin\x86\Debug\Content\Block.xnb</Output>
+      <Time>2011-11-26T14:58:42.9884278+00:00</Time>
+    </Item>
+    <Item>
+      <Source>Bullet.png</Source>
+      <Name>Bullet</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+      <Options>None</Options>
+      <Output>C:\Users\Eoin\Documents\Visual Studio 2010\Projects\TacticalShooterGame\TacticalShooterGame\TacticalShooterGame\bin\x86\Debug\Content\Bullet.xnb</Output>
+      <Time>2011-09-01T17:14:34.5957427+01:00</Time>
+    </Item>
+    <Item>
+      <Source>Player.png</Source>
+      <Name>Player</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+      <Options>None</Options>
+      <Output>C:\Users\Eoin\Documents\Visual Studio 2010\Projects\TacticalShooterGame\TacticalShooterGame\TacticalShooterGame\bin\x86\Debug\Content\Player.xnb</Output>
+      <Time>2011-09-01T19:00:18.6328604+01:00</Time>
+    </Item>
+    <Item>
+      <Source>Small.spritefont</Source>
+      <Name>Small</Name>
+      <Importer>FontDescriptionImporter</Importer>
+      <Processor>FontDescriptionProcessor</Processor>
+      <Options>None</Options>
+      <Output>C:\Users\Eoin\Documents\Visual Studio 2010\Projects\TacticalShooterGame\TacticalShooterGame\TacticalShooterGame\bin\x86\Debug\Content\Small.xnb</Output>
+      <Time>2011-09-01T17:17:43.4464998+01:00</Time>
+    </Item>
+    <Item>
+      <Source>Medium.spritefont</Source>
+      <Name>Medium</Name>
+      <Importer>FontDescriptionImporter</Importer>
+      <Processor>FontDescriptionProcessor</Processor>
+      <Options>None</Options>
+      <Output>C:\Users\Eoin\Documents\Visual Studio 2010\Projects\TacticalShooterGame\TacticalShooterGame\TacticalShooterGame\bin\x86\Debug\Content\Medium.xnb</Output>
+      <Time>2011-09-01T17:17:45.3965026+01:00</Time>
+    </Item>
+    <Item>
+      <Source>Large.spritefont</Source>
+      <Name>Large</Name>
+      <Importer>FontDescriptionImporter</Importer>
+      <Processor>FontDescriptionProcessor</Processor>
+      <Options>None</Options>
+      <Output>C:\Users\Eoin\Documents\Visual Studio 2010\Projects\TacticalShooterGame\TacticalShooterGame\TacticalShooterGame\bin\x86\Debug\Content\Large.xnb</Output>
+      <Time>2011-09-01T17:15:21.2319818+01:00</Time>
+    </Item>
+    <Item>
+      <Source>Huge.spritefont</Source>
+      <Name>Huge</Name>
+      <Importer>FontDescriptionImporter</Importer>
+      <Processor>FontDescriptionProcessor</Processor>
+      <Options>None</Options>
+      <Output>C:\Users\Eoin\Documents\Visual Studio 2010\Projects\TacticalShooterGame\TacticalShooterGame\TacticalShooterGame\bin\x86\Debug\Content\Huge.xnb</Output>
+      <Time>2011-09-01T17:17:49.2865203+01:00</Time>
+    </Item>
+    <Item>
+      <Source>Crosshair.png</Source>
+      <Name>Crosshair</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+      <Options>None</Options>
+      <Output>C:\Users\Eoin\Documents\Visual Studio 2010\Projects\TacticalShooterGame\TacticalShooterGame\TacticalShooterGame\bin\x86\Debug\Content\Crosshair.xnb</Output>
+      <Time>2011-09-05T12:46:56.0851773+01:00</Time>
+    </Item>
+    <BuildSuccessful>true</BuildSuccessful>
+    <Settings>
+      <TargetPlatform>Windows</TargetPlatform>
+      <TargetProfile>Reach</TargetProfile>
+      <BuildConfiguration>Debug</BuildConfiguration>
+      <CompressContent>false</CompressContent>
+      <RootDirectory>C:\Users\Eoin\Documents\Visual Studio 2010\Projects\TacticalShooterGame\TacticalShooterGame\TacticalShooterGameContent\</RootDirectory>
+      <LoggerRootDirectory>C:\Users\Eoin\Documents\Visual Studio 2010\Projects\TacticalShooterGame\TacticalShooterGame\TacticalShooterGame\</LoggerRootDirectory>
+      <IntermediateDirectory>C:\Users\Eoin\Documents\Visual Studio 2010\Projects\TacticalShooterGame\TacticalShooterGame\TacticalShooterGameContent\obj\x86\Debug\</IntermediateDirectory>
+      <OutputDirectory>C:\Users\Eoin\Documents\Visual Studio 2010\Projects\TacticalShooterGame\TacticalShooterGame\TacticalShooterGame\bin\x86\Debug\Content\</OutputDirectory>
+    </Settings>
+    <Assemblies>
+      <Assembly>
+        <Key>C:\Program Files (x86)\Microsoft XNA\XNA Game Studio\v4.0\References\Windows\x86\Microsoft.Xna.Framework.Content.Pipeline.XImporter.dll</Key>
+        <Value>2010-08-23T12:41:18+01:00</Value>
+      </Assembly>
+      <Assembly>
+        <Key>C:\Program Files (x86)\Microsoft XNA\XNA Game Studio\v4.0\References\Windows\x86\Microsoft.Xna.Framework.Content.Pipeline.VideoImporters.dll</Key>
+        <Value>2010-08-23T12:41:18+01:00</Value>
+      </Assembly>
+      <Assembly>
+        <Key>C:\Program Files (x86)\Microsoft XNA\XNA Game Studio\v4.0\References\Windows\x86\Microsoft.Xna.Framework.Content.Pipeline.TextureImporter.dll</Key>
+        <Value>2010-08-23T12:41:18+01:00</Value>
+      </Assembly>
+      <Assembly>
+        <Key>C:\Program Files (x86)\Microsoft XNA\XNA Game Studio\v4.0\References\Windows\x86\Microsoft.Xna.Framework.Content.Pipeline.FBXImporter.dll</Key>
+        <Value>2010-08-23T12:41:18+01:00</Value>
+      </Assembly>
+      <Assembly>
+        <Key>C:\Program Files (x86)\Microsoft XNA\XNA Game Studio\v4.0\References\Windows\x86\Microsoft.Xna.Framework.Content.Pipeline.EffectImporter.dll</Key>
+        <Value>2010-08-23T12:41:18+01:00</Value>
+      </Assembly>
+      <Assembly>
+        <Key>C:\Program Files (x86)\Microsoft XNA\XNA Game Studio\v4.0\References\Windows\x86\Microsoft.Xna.Framework.Content.Pipeline.AudioImporters.dll</Key>
+        <Value>2010-08-23T12:41:18+01:00</Value>
+      </Assembly>
+      <Assembly>
+        <Key>C:\Windows\Microsoft.Net\assembly\GAC_32\Microsoft.Xna.Framework.Content.Pipeline\v4.0_4.0.0.0__842cf8be1de50553\Microsoft.Xna.Framework.Content.Pipeline.dll</Key>
+        <Value>2011-09-05T10:59:15.0886294+01:00</Value>
+      </Assembly>
+    </Assemblies>
+  </Asset>
+</XnaContent>
