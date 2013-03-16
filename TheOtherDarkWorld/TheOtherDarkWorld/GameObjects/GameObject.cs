@@ -48,8 +48,8 @@ namespace TheOtherDarkWorld.GameObjects
                     startY = 0;
 
                 //The index of the tile in the array that the rectangle ends at
-                int endX = startX + (int)(RoughRect.Width / 10) + 1;
-                int endY = startY + (int)(RoughRect.Height / 10) + 1;
+                int endX = startX + (int)(RoughRect.Width / 10) + 2;
+                int endY = startY + (int)(RoughRect.Height / 10) + 2;
 
                 //Check if the end index is out of bounds
                 if (endX >= Tiles.GetLength(0))
@@ -66,14 +66,13 @@ namespace TheOtherDarkWorld.GameObjects
                 for (int i = startX; i < endX; i++)
                     for (int j = startY; j < endY; j++)
                     {
-                        if (Tiles[i, j].Block == null) //If there is no block here,
-                            continue; //go to the next block
-
-                        //TODO: Decide if this rough check is actually necessary when only the
-                        //nearby blocks are checked anyway
-                        if (RoughRect.Intersects(Tiles[i, j].Rect))
+                        if (Tiles[i, j].Block != null)
                         {
-                            collisions.Add(GetCollisionDetails(Tiles[i, j].Rect, i, j));
+                            if (RoughRect.Intersects(Tiles[i, j].Rect))
+                            {
+                                Collision col = GetCollisionDetails(Tiles[i, j].Rect, i, j);
+                                collisions.Add(col);
+                            }
                         }
                     }
                 

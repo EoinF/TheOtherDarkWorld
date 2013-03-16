@@ -39,8 +39,8 @@ namespace TheOtherDarkWorld.GameObjects
                 return c;
             }
         }
-        //private float _brightness;
-        public float Brightness { get { return 1; } set { ;} }
+        private float _brightness;
+        public float Brightness { get { return _brightness; } set { _brightness = value;} }
 
         private Color Colour
         {

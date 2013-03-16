@@ -37,14 +37,14 @@ namespace TheOtherDarkWorld
             || r2.Intersects(new Rectanglef(r1.Left + (Velocity.X < 0 ? Velocity.X : 0), r1.Top, r1.Width + Math.Abs(Velocity.X), r1.Height)));
 
 
-            /*
+            
             if (Velocity.X == 0)
             {
-                return r2.Intersects(new Rectangle(r1.Left, r1.Top + (Velocity.Y < 0 ? (int)Velocity.Y : 0), r1.Width, r1.Height + (Velocity.Y > 0 ? (int)Velocity.Y : 0)));
+                return r2.Intersects(new Rectanglef(r1.Left, r1.Top + (Velocity.Y < 0 ? (int)Velocity.Y : 0), r1.Width, r1.Height + (Velocity.Y > 0 ? (int)Velocity.Y : 0)));
             }
             else if (Velocity.Y == 0)
             {
-                return r2.Intersects(new Rectangle(r1.Left + (Velocity.X < 0 ? (int)Velocity.X : 0), r1.Top, r1.Width + (Velocity.X > 0 ? (int)Velocity.X : 0), r1.Height));
+                return r2.Intersects(new Rectanglef(r1.Left + (Velocity.X < 0 ? (int)Velocity.X : 0), r1.Top, r1.Width + (Velocity.X > 0 ? (int)Velocity.X : 0), r1.Height));
             }
             else
             {
@@ -66,7 +66,7 @@ namespace TheOtherDarkWorld
 
                 return false;
             }
-             */
+             
         } /// <summary>
         /// 
         /// </summary>

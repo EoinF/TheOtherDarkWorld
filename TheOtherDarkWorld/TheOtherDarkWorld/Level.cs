@@ -133,8 +133,6 @@ namespace TheOtherDarkWorld
 
         private void UpdateLights()
         {
-            return;
-
             while (LightStack.Count > 0)
             {
                 CalculateLight(LightStack.Pop());
@@ -207,7 +205,7 @@ namespace TheOtherDarkWorld
 
             UpdateBlocks();
 
-            if (false && Enemies.Count == 0 || (InputManager.keyboardState[0].IsKeyDown(Microsoft.Xna.Framework.Input.Keys.N) && InputManager.keyboardState[1].IsKeyUp(Microsoft.Xna.Framework.Input.Keys.N)))
+            if (Enemies.Count == 0 || (InputManager.keyboardState[0].IsKeyDown(Microsoft.Xna.Framework.Input.Keys.N) && InputManager.keyboardState[1].IsKeyUp(Microsoft.Xna.Framework.Input.Keys.N)))
             {
                 Random rand = new Random();
                 wave++;
