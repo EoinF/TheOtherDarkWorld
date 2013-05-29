@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace TheOtherDarkWorld.GameObjects
 {
@@ -11,12 +12,38 @@ namespace TheOtherDarkWorld.GameObjects
         public Vector2 Position { get; set; }
         public Vector2 Velocity { get; set; }
         public float Speed { get; private set; }
-        public Color Colour { get; protected set; }
+        public Color Colour { get; set; }
         public Vector2 Origin { get; private set; }
         public int Resistance { get; set; }
         public virtual Rectanglef Rect { get; private set; }
 
-        public GameObject(Vector2 startPosition, float speed, Color colour, Vector2 startVelocity, Vector2 Origin, int Resistance)
+        private float _brightness;
+        public float Brightness
+        {
+            get
+            {
+                if (_brightness > 1) //Brightness is capped at 1
+                    return 1;
+                else
+                    return _brightness;
+            }
+            set
+            {
+                _brightness = value;
+            }
+        }
+
+        protected Color getLightColour()
+        {
+                //Preserve the alpha component so that the object will actually be drawn
+                byte alpha = Colour.A;
+                Color c = Colour * Brightness;
+                c.A = alpha;
+                return c;
+        }
+
+
+        public GameObject(Vector2 startPosition, float speed, Color colour, Vector2 startVelocity, Vector2 Origin, int Resistance, int width, int height)
         {
             Position = startPosition - Origin;
             this.Origin = Origin;
@@ -24,6 +51,7 @@ namespace TheOtherDarkWorld.GameObjects
             Colour = colour;
             Velocity = startVelocity;
             this.Resistance = Resistance;
+            this.Rect = new Rectanglef(Position.X, Position.Y, width, height);
         }
 
 
@@ -48,8 +76,11 @@ namespace TheOtherDarkWorld.GameObjects
                     startY = 0;
 
                 //The index of the tile in the array that the rectangle ends at
-                int endX = startX + (int)(RoughRect.Width / 10) + 1;
-                int endY = startY + (int)(RoughRect.Height / 10) + 1;
+                //
+                //The extra 2 is added to ensure that the area checked is big enough to detect all collisions
+                //
+                int endX = startX + (int)(RoughRect.Width / 10) + 2;
+                int endY = startY + (int)(RoughRect.Height / 10) + 2;
 
                 //Check if the end index is out of bounds
                 if (endX >= Tiles.GetLength(0))
@@ -67,13 +98,13 @@ namespace TheOtherDarkWorld.GameObjects
                     for (int j = startY; j < endY; j++)
                     {
                         if (Tiles[i, j].Block == null) //If there is no block here,
-                            continue; //go to the next block
+                            continue; //go to the next tile
 
                         //TODO: Decide if this rough check is actually necessary when only the
                         //nearby blocks are checked anyway
                         if (RoughRect.Intersects(Tiles[i, j].Rect))
                         {
-                            collisions.Add(GetCollisionDetails(Tiles[i, j].Rect, i, j));
+                            collisions.Add(new Collision(this, Tiles[i, j], i, j));
                         }
                     }
                 
@@ -101,9 +132,9 @@ namespace TheOtherDarkWorld.GameObjects
                         {
                             lowestIndex = i;
 
-                            //At this point, we know i is the index of soonest collision. We assume that there is
-                            //no collision perpendicular to this one that happens at the same time so we set
-                            //this variable to false
+                            //At this point, we know i is the index of soonest collision. We assume(until 
+                            //another collision is found) that there is no collision perpendicular to this 
+                            //one that happens at the same time so we set this variable to false
                             collidingDiagonal = false;
                         }
                         else if (collisions[i].pct == collisions[lowestIndex].pct)
@@ -120,79 +151,30 @@ namespace TheOtherDarkWorld.GameObjects
                         CollideHorizontal(collisions[lowestIndex]);
                     else
                         CollideVertical(collisions[lowestIndex]);
-
-                    if (float.IsNaN(Position.X) || float.IsNaN(Position.Y))
-                        System.Diagnostics.Debugger.Break();
                 }
             }
-
         }
 
 
         public virtual void CollideHorizontal(Collision col)
         {
-            Position += new Vector2(col.Sx, col.Sy);
-            Velocity = new Vector2(0, Velocity.Y - (Math.Sign(Velocity.X) * col.Sy));
+            Position += new Vector2(col.S.X, col.S.Y);
+            Velocity = new Vector2(0, Velocity.Y - (Math.Sign(Velocity.Y) * col.S.Y));
         }
         public virtual void CollideVertical(Collision col)
         {
-            Position += new Vector2(col.Sx, col.Sy);
-            Velocity = new Vector2(Velocity.X - (Math.Sign(Velocity.X) * col.Sx), 0); 
+            Position += new Vector2(col.S.X, col.S.Y);
+            Velocity = new Vector2(Velocity.X - (Math.Sign(Velocity.X) * col.S.X), 0);
         }
         public virtual void CollideDiagonal(Collision col)
         {
-            Position += new Vector2(col.Sx, col.Sy);
-            Velocity = new Vector2(Velocity.X - (Math.Sign(Velocity.X) * col.Sx), 0);
+            Position += new Vector2(col.S.X , col.S.Y); //Add this small amount to prevent the player getting stuck
+            Velocity = new Vector2(Velocity.X, 0);
         }
 
-        public virtual Collision GetCollisionDetails(Rectanglef rect, int i, int j)
+        public virtual void Draw(SpriteBatch spriteBatch)
         {
-            float Sx = 0, Sy = 0; //Distance of the player from the block
-
-            if (Velocity.X < 0)
-                Sx = rect.Right - this.Rect.Left;
-            else if (Velocity.X > 0)
-                Sx = rect.Left - this.Rect.Right;
-
-            if (Velocity.Y < 0)
-                Sy = rect.Bottom - this.Rect.Top;
-            else if (Velocity.Y > 0)
-                Sy = rect.Top - this.Rect.Bottom;
-
-
-            //If the time taken for the y component to reach the block is higher than
-            //for the x component to reach the block, then it has collided horiztontally
-            //The lower time is the percentage of the velocity that was used up before colliding
-
-            double pct = 0;
-
-            double px = Math.Abs(Sx / Velocity.X);
-            double py = Math.Abs(Sy / Velocity.Y);
-
-            if (double.IsNaN(px))
-                pct = py;
-            else if (double.IsNaN(py))
-                pct = px;
-            else
-                pct = Math.Min(px, py);
-
-            //The collision happened along the left or right side of the objects, if horizontal is true
-            bool Horizontal = (px == pct);
-
-            if (Horizontal)
-                Sy = (float)(Velocity.Y * pct);
-            else
-                Sx = (float)(Velocity.X * pct);
-
-            //
-            //The player is probably already inside a block so let them go where they want
-            //The pct passed in is -1, so this will be the only collision that is actually executed
-            //
-            if (pct > 1)// || (Velocity.Y < 0))
-                return new Collision(new Point(i, j), -1, Velocity.X, Velocity.Y, Horizontal);
-
-            //if (Math.Abs(pct) <= Math.Abs(Velocity.X) || Math.Abs(pct) <= Math.Abs(Velocity.Y))
-            return new Collision(new Point(i, j), pct, Sx, Sy, Horizontal);
+            spriteBatch.Draw(Textures.Block, Position + Origin - Player.PlayerList[0].Offset, null, getLightColour(), 0, Vector2.Zero, 1, SpriteEffects.None, 0.1f);
         }
     }
 }

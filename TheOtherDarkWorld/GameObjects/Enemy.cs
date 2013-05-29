@@ -16,20 +16,6 @@ namespace TheOtherDarkWorld.GameObjects
         public int Weight { get; private set; }
         public int MeleeDamage { get; private set; }
         public bool IsAttacking { get { return HitCooldown <= 0; } }
-        private Color LightColour
-        {
-            get
-            {
-                //Preserve the alpha component so that the tiles will actually be drawn
-                byte alpha = Colour.A;
-                Color c = Colour * Brightness;
-                c.A = alpha;
-                return c;
-            }
-
-        }
-
-        private float Brightness { get; set; }
 
         /// <summary>
         /// This is the velocity that is added to the standard velocity of the enemy. e.g. When pushed by a bullet
@@ -64,7 +50,7 @@ namespace TheOtherDarkWorld.GameObjects
         }
 
         public Enemy(Vector2 startPosition, float speed, Vector2 startVelocity, int Type, int MaxHealth, int Resistance, int Weight, int MeleeDamage)
-            : base(startPosition, speed, Color.White, Vector2.Zero, new Vector2(Textures.Enemies[Type].Width / 2, Textures.Enemies[Type].Height / 2), Resistance)
+            : base(startPosition, speed, Color.White, Vector2.Zero, new Vector2(Textures.Enemies[Type].Width / 2, Textures.Enemies[Type].Height / 2), Resistance, (int)Textures.Enemies[Type].Width, (int)Textures.Enemies[Type].Height)
         {
             this.Type = Type;
             this.Health = MaxHealth;
@@ -80,6 +66,17 @@ namespace TheOtherDarkWorld.GameObjects
         /// <returns>True if the enemy is dead</returns>
         public bool Update()
         {
+            //
+            //Check if the enemy is lit up
+            //
+            int tilex = (int)(Position.X / 10);
+            int tiley = (int)(Position.Y / 10);
+
+            if (tilex >= 0 && tilex < Level.CurrentLevel.Tiles.GetLength(0)
+                && tiley >= 0 && tiley < Level.CurrentLevel.Tiles.GetLength(1))
+                Brightness = Level.CurrentLevel.Tiles[tilex, tiley].Brightness;
+
+
             if (HitCooldown <= 0) //The enemy is stunned when hit, so it has no intelligence
                 AI();
 
@@ -114,38 +111,7 @@ namespace TheOtherDarkWorld.GameObjects
             if (float.IsNaN(Position.X) || float.IsNaN(Position.Y))
                 System.Diagnostics.Debugger.Break();
 
-            UpdateLighting(Level.CurrentLevel.Tiles);
-
             return (Health <= 0);
-        }
-
-        private void UpdateLighting(Tile[,] Tiles)
-        {
-            int startX = (int)(Position.X / 10);
-            int endX = startX + (Texture.Width / 10) + 1;
-
-            if (startX < 0)
-                startX = 0;
-            if (endX >= Level.CurrentLevel.Width)
-                endX = Level.CurrentLevel.Width - 1;
-
-            int startY = (int)(Position.Y / 10);
-            int endY = startY + (Texture.Height / 10) + 1;
-
-            if (startY < 0)
-                startY = 0;
-            if (endY >= Level.CurrentLevel.Height)
-                endY = Level.CurrentLevel.Height - 1;
-
-            float total = 0;
-            int tilesChecked = 0;
-            for (int i = startX; i < endX; i++)
-                for (int j = startY; j < endY; j++)
-                {
-                    total += Tiles[i, j].Brightness;
-                    tilesChecked++;
-                }
-            this.Brightness = total / tilesChecked;
         }
 
         protected virtual void AI()
@@ -158,7 +124,7 @@ namespace TheOtherDarkWorld.GameObjects
             for (int i = 0; i < Projectile.ProjectileList.Count; i++)
             {
                 Projectile p = Projectile.ProjectileList[i];
-                if (Collision.SquareVsSquare_TwoMoving(p.Rect, Rect, p.Velocity, Velocity))
+                if (Collision.SquareVsSquare(p.Rect, Rect, p.Velocity, Velocity))
                 {
                     this.Health -= p.Damage;
                     p.Health -= this.Resistance;
@@ -193,7 +159,7 @@ namespace TheOtherDarkWorld.GameObjects
 
                 if ((this.Position - e.Position).Length() < 70)
                 {
-                    if (Collision.SquareVsSquare_TwoMoving(Rect, e.Rect, Velocity, e.Velocity))
+                    if (Collision.SquareVsSquare(Rect, e.Rect, Velocity, e.Velocity))
                     {
                         //Collision c = GetCollisionDetails(e.Rect, 0, 0);
 
@@ -228,7 +194,7 @@ namespace TheOtherDarkWorld.GameObjects
 
         public void Draw(SpriteBatch spriteBatch)
         {
-            spriteBatch.Draw(Textures.Enemies[Type], Position + Origin - Player.PlayerList[0].Offset, null, LightColour, Rotation, Origin, 1, SpriteEffects.None, 0.12f);
+            spriteBatch.Draw(Textures.Enemies[Type], Position + Origin - Player.PlayerList[0].Offset, null, getLightColour(), Rotation, Origin, 1, SpriteEffects.None, 0.12f);
         }
 
     }

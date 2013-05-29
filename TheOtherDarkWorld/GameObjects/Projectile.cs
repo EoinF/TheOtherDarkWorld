@@ -34,7 +34,7 @@ namespace TheOtherDarkWorld.GameObjects
         }
 
         public Projectile(int damage, int penetration, float speed, Color colour, int owner, Vector2 startVelocity, Vector2 startPosition, float rotation)
-            : base(startPosition, speed, colour, startVelocity * speed, new Vector2(Textures.Bullet.Width / 2, Textures.Bullet.Height / 2), 0)
+            : base(startPosition, speed, colour, startVelocity * speed, new Vector2(Textures.Bullet.Width / 2, Textures.Bullet.Height / 2), 0, (int)Textures.Bullet.Width, (int)Textures.Bullet.Height)
         {
             Damage = damage;
             Health = penetration;
@@ -76,7 +76,7 @@ namespace TheOtherDarkWorld.GameObjects
 
         public override void CollideHorizontal(Collision col)
         {
-            Block BlkHit = Level.CurrentLevel.Tiles[col.block.X, col.block.Y].Block;
+            Block BlkHit = Level.CurrentLevel.Tiles[col.location.X, col.location.Y].Block;
             //Position += Velocity / 2; //There are two collisions per frame, so it adds half the velocity twice.
             BlkHit.Health -= this.Damage;
             this.Health -= BlkHit.Resistance;

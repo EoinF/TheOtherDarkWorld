@@ -65,13 +65,15 @@ namespace TheOtherDarkWorld
 
 
         public Player(Vector2 startPosition, int MaxHealth, float walkSpeed, int inventorySize, Vector2 startVelocity, int ID, int Resistance)
-            : base(startPosition, walkSpeed, Color.White, startVelocity, new Vector2(Textures.Player.Width / 2, Textures.Player.Height / 2), Resistance)
+            : base(startPosition, walkSpeed, Color.White, startVelocity, new Vector2(Textures.Player.Width / 2, Textures.Player.Height / 2), Resistance, (int)Textures.Player.Height, (int)Textures.Player.Width)
         {
             this.Health = 100 * (this.MaxHealth = MaxHealth);
             this.ID = ID;
             Inventory = new Item[inventorySize];
-            Vision = new Light(0.5f, 300, startPosition, Vector2.One, MathHelper.PiOver4);
-            //PeripheralVision = new Light(0.1f, startPosition, Vector2.One, MathHelper.Pi);
+            Vision = new Light(1, 400, startPosition, Vector2.One, 0.8f);
+            PeripheralVision = new Light(0.1f, 200, startPosition, Vector2.One, 2);
+
+            Level.CurrentLevel.Lights.Add(Vision);
         }
 
         public static Vector2 CrosshairOrigin
@@ -93,12 +95,7 @@ namespace TheOtherDarkWorld
         {
             get
             {
-                float rot = (float)Math.Atan((InputManager.MousePositionP.Y + Offset.Y - Rect.Center.Y) / (InputManager.MousePositionP.X + Offset.X - Rect.Center.X)) - MathHelper.PiOver2;
-
-                if (InputManager.MousePositionP.X + Offset.X >= Rect.Center.X)
-                    rot += MathHelper.Pi;
-
-                return rot;
+                return (float)Math.Atan2(InputManager.MousePositionP.Y + Offset.Y - Rect.Center.Y, InputManager.MousePositionP.X + Offset.X - Rect.Center.X) + MathHelper.PiOver2;
             }
         }
 
@@ -128,7 +125,7 @@ namespace TheOtherDarkWorld
                     if (Inventory[i].Amount == 0)
                         Inventory[i] = null;
 
-                    //The weapon must be reloaded at this stage. The item doesn't exist in the inventory if the amount is 0
+                    //The weapon has been reloaded at this stage
                     Gun gun = Inventory[0] as Gun;
                     gun.ReloadCooldown = gun.ReloadTime;
                     return;
@@ -150,9 +147,7 @@ namespace TheOtherDarkWorld
                 }
             }
 
-            Vision.Update(Level.CurrentLevel.Tiles, Position + Origin, Rotation);
-            //Level.CurrentLevel.LightStack.Push(Vision);
-            //PeripheralVision.Update(Level.CurrentLevel.Tiles, Position + Origin, Rotation);
+            Vision.Update(Position + (Origin / 2), new Vector2((float)Math.Sin(Rotation), (float)Math.Cos(Rotation)), Level.CurrentLevel.Tiles);
 
             if (InputManager.LeftClicking && !UI.CursorMode)
                 Activate_Primary(Inventory[0]);
@@ -269,7 +264,7 @@ namespace TheOtherDarkWorld
             {
                 Enemy e = Level.CurrentLevel.Enemies[i];
 
-                if (Collision.SquareVsSquare_TwoMoving(Rect, e.Rect, Velocity, e.Velocity) && HitCooldown < 0)
+                if (Collision.SquareVsSquare(Rect, e.Rect, Velocity, e.Velocity) && HitCooldown < 0)
                 {
                     if (e.IsAttacking)
                     {

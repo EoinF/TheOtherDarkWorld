@@ -8,10 +8,10 @@ Content\HealthPoint.xnb
 Content\ItemSheet.xnb
 Content\Cursor.xnb
 Content\Tooltip.xnb
+Content\Enemies\0.xnb
+Content\swipe.xnb
 Content\Small.xnb
 Content\Medium.xnb
 Content\Large.xnb
 Content\Huge.xnb
-Content\Enemies\0.xnb
-Content\swipe.xnb
 GameContent.xml

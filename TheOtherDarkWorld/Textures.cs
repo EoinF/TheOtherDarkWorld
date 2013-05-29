@@ -42,9 +42,6 @@ namespace TheOtherDarkWorld
             Cursor = Content.Load<Texture2D>("Cursor");
             Swipe = Content.Load<Texture2D>("swipe");
 
-
-            Foreground = new Texture2D(device, UI.ScreenX - SidePanel.Width, UI.ScreenY);
-
             Block = Content.Load<Texture2D>("Block");
             Bullet = Content.Load<Texture2D>("Bullet");
             Player = Content.Load<Texture2D>("Characters");
@@ -71,11 +68,6 @@ namespace TheOtherDarkWorld
         public static Rectangle GetItemRectangle(int Type)
         {
              return new Rectangle((Type * 16) % Items.Width, ((Type * 16) / Items.Width) * 16, 16, 16);
-        }
-
-        public static void UpdateForeground(Color[] ShroudArray)
-        {
-            Foreground.SetData(ShroudArray);
         }
     }
 

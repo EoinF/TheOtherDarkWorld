@@ -11,6 +11,7 @@ namespace TheOtherDarkWorld
     public struct Level
     {
         public static Level CurrentLevel;
+
         public Tile[,] Tiles;
         public Player[] Players;
         public List<FloorItem> FloorItems;
@@ -18,21 +19,9 @@ namespace TheOtherDarkWorld
         public int Width;
         public int Height;
         public int Seed;
-        public Stack<Light> LightStack;
+        public List<Light> Lights;
 
         public int wave;
-
-        /// <summary>
-        /// The darkness that will be drawn over everything
-        /// </summary>
-        private Color[] ShroudArray;
-        private Color[] PlainShroud;
-
-        /// <summary>
-        /// This is used when a tile's brightness has changed. This returns
-        /// the value back to 0
-        /// </summary>
-        public Stack<Tile> UpdatedTiles;
         
         public void Draw(SpriteBatch spriteBatch)
         {
@@ -72,10 +61,7 @@ namespace TheOtherDarkWorld
             for (int i = 0; i < Enemies.Count; i++)
             {
                 Enemies[i].Draw(spriteBatch);
-            }
-
-            //Draw the foreground texture, which represents the darkness
-            //spriteBatch.Draw(Textures.Foreground, Vector2.Zero, null, Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 0.4f);
+            }    
         }
 
 
@@ -90,17 +76,7 @@ namespace TheOtherDarkWorld
             wave = 0;
             Players = new Player[1];
 
-            UpdatedTiles = new Stack<Tile>();
-            LightStack = new Stack<Light>();
-
-            PlainShroud = new Color[UI.ScreenX * UI.ScreenY];
-
-            for (int i = 0; i < PlainShroud.Length; i++)
-            {
-                PlainShroud[i] = Color.Black;
-            }
-
-            ShroudArray = (Color[])PlainShroud.Clone();
+            Lights = new List<Light>();
         }
 
         public static bool DamageBlock(int x, int y, int dmg)
@@ -114,82 +90,17 @@ namespace TheOtherDarkWorld
         }
 
         
-        public void LightTile(int i, int j, float Brightness)
-        {
-            if (i >= 0 && i < Width && j >= 0 && j < Height)
-            {
-                if (Tiles[i, j].Block != null)
-                {
-                    if (Tiles[i, j].Brightness < (Brightness / 2f))
-                        Tiles[i, j].Brightness = (Brightness / 2f);
-                }
-                else
-                    if (Tiles[i, j].Brightness < Brightness)
-                        Tiles[i, j].Brightness = Brightness;
-                UpdatedTiles.Push(Tiles[i, j]);
-            }
-        }
-        
 
         private void UpdateLights()
         {
-            return;
+            Light.ResetBrightness(); //Reset the brightness on all lit tiles
 
-            while (LightStack.Count > 0)
+            for (int i = 0; i < Lights.Count; i++)
             {
-                CalculateLight(LightStack.Pop());
-            }
-            Textures.UpdateForeground(ShroudArray);
-            //ShroudArray = (Color[])PlainShroud.Clone();
-            //if (Player.PlayerList[0].IsAlive)
-                //ShroudArray = (Color[])PlainShroud.Clone();
-        }
-
-        private void CalculateLight(Light light)
-        {
-            //If the brightness is 0, the light will have no effect on anything
-            if (light.Brightness <= 0)
-                return;
-
-            //
-            //The pixel in the array that the light originates
-            //
-            int arrayPositionX = (int)(light.Position.X - Player.PlayerList[0].Offset.X);
-            int arrayPositionY = (int)(light.Position.Y - Player.PlayerList[0].Offset.Y);
-
-            int radius = (int)light.Depth;
-
-            int startX = arrayPositionX - radius;
-            if (startX < 10)
-                startX = 10;
-
-            int endX = arrayPositionX + radius;
-            if (endX >= (Level.CurrentLevel.Width * 10))
-                endX = (Level.CurrentLevel.Width * 10) - 1;
-
-            int startY = arrayPositionY - radius;
-            if (startY < 0)
-                startY = 0;
-
-            int endY = arrayPositionY + radius;
-            if (endY >= (Level.CurrentLevel.Height * 10))
-                endY = (Level.CurrentLevel.Height * 10) - 1;
-
-            //float brightness = (float)Math.Sqrt(1 - light.Brightness);
-            float brightness = (1 - (light.Brightness / 10f));
-
-            Vector2 lightScreenPosition = light.Position - Player.PlayerList[0].Offset;
-            Vector2 CurrentCheck;
-            for (CurrentCheck.Y = startY; CurrentCheck.Y < endY; CurrentCheck.Y++)
-            {
-                for (CurrentCheck.X = startX; CurrentCheck.X < endX; CurrentCheck.X++)
-                {
-                    float DistanceFromCentre =  Vector2.Distance(CurrentCheck, lightScreenPosition);
-                    if (DistanceFromCentre <= light.Depth)
-                        ShroudArray[((int)CurrentCheck.Y * UI.ScreenX) + (int)CurrentCheck.X].A = (byte)((255 * Math.Sqrt(DistanceFromCentre / light.Depth) * brightness));
-                }
+                Lights[i].Cast(Tiles);
             }
         }
+       
 
         public void Update()
         {
@@ -206,8 +117,9 @@ namespace TheOtherDarkWorld
             }
 
             UpdateBlocks();
+            UpdateLights();
 
-            if (false && Enemies.Count == 0 || (InputManager.keyboardState[0].IsKeyDown(Microsoft.Xna.Framework.Input.Keys.N) && InputManager.keyboardState[1].IsKeyUp(Microsoft.Xna.Framework.Input.Keys.N)))
+            if ((InputManager.keyboardState[0].IsKeyDown(Microsoft.Xna.Framework.Input.Keys.N) && InputManager.keyboardState[1].IsKeyUp(Microsoft.Xna.Framework.Input.Keys.N)))
             {
                 Random rand = new Random();
                 wave++;
@@ -257,9 +169,6 @@ namespace TheOtherDarkWorld
 
         private void UpdateBlocks()
         {
-            while (UpdatedTiles.Count > 0)
-                UpdatedTiles.Pop().Brightness = 0;
-
             for (int i = 0; i < Level.CurrentLevel.Width; i++)
                 for (int j = 0; j < Level.CurrentLevel.Height; j++)
                 {
@@ -321,7 +230,7 @@ namespace TheOtherDarkWorld
 
             while (j < height)
             {
-                type ^= 1; //
+                type ^= 1; //Alernate between 2 different types of block
                 Tiles[0, j].Block = new Block(0, j, (type));
                 Tiles[width - 1, j].Block = new Block(width - 1, j, (type));
                 j++;

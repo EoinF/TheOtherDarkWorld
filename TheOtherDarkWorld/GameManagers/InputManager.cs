@@ -71,7 +71,7 @@ namespace TheOtherDarkWorld
             Player.PlayerList[0].Inventory[0] = new Gun(0, -1);
             Player.PlayerList[0].Inventory[1] = new Melee(4, -1);
 
-            Player.PlayerList[0].Inventory[2] = new Item(101, 999999);
+            Player.PlayerList[0].Inventory[2] = new Item(101, 999);
             Projectile.ProjectileList = new List<Projectile>();
             
             Vector2 offset = new Vector2(800 - Textures.SidePanel.Width, 0);
