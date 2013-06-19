@@ -22,7 +22,7 @@ namespace TheOtherDarkWorld
         public List<Light> Lights;
 
         public int wave;
-        
+
         public void Draw(SpriteBatch spriteBatch)
         {
             
@@ -200,7 +200,6 @@ namespace TheOtherDarkWorld
                     Generate_Hallways(width, height, seed);
                     break;
             }
-
         }
 
         private static Tile[,] InitializeTiles(int width, int height)
@@ -295,6 +294,9 @@ namespace TheOtherDarkWorld
 
 
             CurrentLevel = new Level(Tiles, seed, FloorItems);
+            CurrentLevel.Lights.Add(new Light(0.5f, 200, new Vector2(200, 200), Vector2.One, MathHelper.TwoPi, Color.Yellow));
+            CurrentLevel.Lights.Add(new Light(0.5f, 200, new Vector2(400, 500), Vector2.One, MathHelper.TwoPi, Color.Red));
+            CurrentLevel.Lights.Add(new Light(0.5f, 200, new Vector2(600, 300), Vector2.One, MathHelper.TwoPi, Color.Blue));
         }
 
         /// <summary>

@@ -8,5 +8,6 @@ namespace TheOtherDarkWorld
     public static class StateManager
     {
         public static int State { get; set; }
+        public static bool DebugMode { get; set; }
     }
 }

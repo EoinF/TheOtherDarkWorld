@@ -70,8 +70,8 @@ namespace TheOtherDarkWorld
             this.Health = 100 * (this.MaxHealth = MaxHealth);
             this.ID = ID;
             Inventory = new Item[inventorySize];
-            Vision = new Light(1, 400, startPosition, Vector2.One, 0.8f);
-            PeripheralVision = new Light(0.1f, 200, startPosition, Vector2.One, 2);
+            Vision = new Light(0.7f, 400, startPosition, Vector2.One, 0.8f, Color.Red);
+            PeripheralVision = new Light(0.1f, 200, startPosition, Vector2.One, 2, Color.White);
 
             Level.CurrentLevel.Lights.Add(Vision);
         }
@@ -180,12 +180,12 @@ namespace TheOtherDarkWorld
                         gun.ReloadCooldown--;
                 }
 
-                if (Inventory[0].Cooldown >= 0)
-                    Inventory[0].Cooldown--;
+                if (Inventory[0].UseCooldown >= 0)
+                    Inventory[0].UseCooldown--;
             }
 
-            if (Inventory[1] != null && Inventory[1].Cooldown >= 0)
-                Inventory[1].Cooldown--;
+            if (Inventory[1] != null && Inventory[1].UseCooldown >= 0)
+                Inventory[1].UseCooldown--;
 
             if (HitCooldown >= 0)
                 HitCooldown--;
@@ -226,7 +226,7 @@ namespace TheOtherDarkWorld
             {
                 if ((!item.IsAutomatic && InputManager.JustLeftClicked) || item.IsAutomatic)
                 {
-                    if (item.Cooldown < 0)
+                    if (item.UseCooldown < 0)
                     {
                         if (item.Amount == 0)
                             Reload();
@@ -248,7 +248,7 @@ namespace TheOtherDarkWorld
             {
                 if ((!item.IsAutomatic && InputManager.JustRightClicked) || item.IsAutomatic)
                 {
-                    if (item.Cooldown < 0 && item.GetType() != typeof(Gun))
+                    if (item.UseCooldown < 0 && item.GetType() != typeof(Gun))
                     {
                         Vector2 direction = new Vector2((float)Math.Cos(Rotation - MathHelper.PiOver2), (float)Math.Sin(Rotation - MathHelper.PiOver2));
                         direction.Normalize();

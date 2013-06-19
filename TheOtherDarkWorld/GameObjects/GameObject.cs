@@ -33,13 +33,15 @@ namespace TheOtherDarkWorld.GameObjects
             }
         }
 
+        public Color LightColour { get; set; }
+
         protected Color getLightColour()
         {
-                //Preserve the alpha component so that the object will actually be drawn
-                byte alpha = Colour.A;
-                Color c = Colour * Brightness;
-                c.A = alpha;
-                return c;
+            //Preserve the alpha component so that the object will actually be drawn
+            byte alpha = Colour.A;
+            Color c = Color.Lerp(Colour, LightColour, 1) * Brightness;
+            c.A = alpha;
+            return c;
         }
 
 
@@ -49,6 +51,7 @@ namespace TheOtherDarkWorld.GameObjects
             this.Origin = Origin;
             Speed = speed;
             Colour = colour;
+            LightColour = colour;
             Velocity = startVelocity;
             this.Resistance = Resistance;
             this.Rect = new Rectanglef(Position.X, Position.Y, width, height);

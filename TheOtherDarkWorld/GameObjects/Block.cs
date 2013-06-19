@@ -9,9 +9,10 @@ namespace TheOtherDarkWorld.GameObjects
     public class Block
     {
         public int Health { get; set; }
-        public int Resistance { get; private set; }
+        public int Resistance { get; set; }
         public Color Colour { get;  set; }
         public Item[] Drops;
+        public float Opacity { get; set; }
 
 
         public Block(int x, int y, byte Type)
@@ -21,16 +22,10 @@ namespace TheOtherDarkWorld.GameObjects
             this.Health = characteristics.Health;
             this.Drops = characteristics.Drops;
             this.Resistance = characteristics.Resistance;
-
+            this.Opacity = characteristics.Opacity;
         }
 
-        public Block(int Type, Color Colour, int Health, Item[] Drops, int Resistance)
-        {
-            this.Colour = Colour;
-            this.Health = Health;
-            this.Drops = Drops;
-            this.Resistance = Resistance;
-        }
+        public Block() { }
 
 
 

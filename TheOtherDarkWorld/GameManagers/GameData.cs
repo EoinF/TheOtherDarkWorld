@@ -4,7 +4,9 @@ using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework;
 using System.Xml;
+using System.Xml.Serialization;
 using TheOtherDarkWorld.GameObjects;
+using System.IO;
 
 namespace TheOtherDarkWorld
 {
@@ -38,93 +40,38 @@ namespace TheOtherDarkWorld
 
         }
 
+        private static T ConvertNode<T>(XmlNode node) where T : class
+        {
+            MemoryStream stm = new MemoryStream();
+
+            StreamWriter stw = new StreamWriter(stm);
+            stw.Write(node.OuterXml);
+            stw.Flush();
+
+            stm.Position = 0;
+
+            XmlSerializer ser = new XmlSerializer(typeof(T));
+            T result = (ser.Deserialize(stm) as T);
+
+            return result;
+        }
 
         private static void LoadWeapons(XmlNode node)
         {
             for (int i = 0; i < node.ChildNodes.Count; i++)
             {
-                int Type = -1;
-                string Name = "";
-                int UseCooldown = -1;
-                bool IsConsumable = false;
-                MeleeType AttackTypeM = MeleeType.Swing;
-                GunType AttackTypeG = GunType.Single;
-                int Consumes = -1;
-                int MaxAmount = -1;
-                int Knockback = 0;
-                int Power = 0;
-                int Penetration = -1;
-                int Reach = 0;
-                Color BulletColour = Color.White;
-                float BulletSpeed = -1;
-                int ReloadTime = -1;
-                bool IsAutomatic = false;
-                string Description = "This weapon is a mystery to me...";
+                int type = int.Parse(node.ChildNodes[i].SelectSingleNode("Type").InnerText);
 
-                for (int a = 0; a < node.ChildNodes[i].Attributes.Count; a++)
-                {
-                    XmlAttribute atr = node.ChildNodes[i].Attributes[a];
-                    switch (atr.Name)
-                    {
-                        case "Type":
-                            Type = int.Parse(atr.Value);
-                            break;
-                        case "Name":
-                            Name = atr.Value;
-                            break;
-                        case "Cooldown":
-                            UseCooldown = int.Parse(atr.Value);
-                            break;
-                        case "Consumes":
-                            Consumes = int.Parse(atr.Value);
-                            break;
-                        case "IsConsumable":
-                            IsConsumable = bool.Parse(atr.Value);
-                            break;
-                        case "MaxAmount":
-                            MaxAmount = int.Parse(atr.Value);
-                            break;
-                        case "Power":
-                            Power = int.Parse(atr.Value);
-                            break;
-                        case "Penetration":
-                            Penetration = int.Parse(atr.Value);
-                            break;
-                        case "BulletColour":
-                            BulletColour = GetColourFromName(atr.Value);
-                            break;
-                        case "BulletSpeed":
-                            BulletSpeed = float.Parse(atr.Value);
-                            break;
-                        case "ReloadTime":
-                            ReloadTime = int.Parse(atr.Value);
-                            break;
-                        case "IsAutomatic":
-                            IsAutomatic = bool.Parse(atr.Value);
-                            break;
-                        case "Description":
-                            Description = atr.Value;
-                            break;
-                        case "Reach":
-                            Reach = int.Parse(atr.Value);
-                            break;
-                        case "Knockback":
-                            Knockback = int.Parse(atr.Value);
-                            break;
-                        case "AttackType":
-                            AttackTypeM = getAttackTypeFromNameM(atr.Value);
-                            AttackTypeG = getAttackTypeFromNameG(atr.Value);
-                            break;
-                    }
-                }
-
+                //
+                //Check if it's a gun or melee type first
+                //
                 if (node.ChildNodes[i].Name == "Gun")
                 {
-                    GameItems[Type] = new Gun(Type, IsConsumable, Consumes, MaxAmount, Name, UseCooldown, Power, Penetration, BulletColour, BulletSpeed, ReloadTime, AttackTypeG, IsAutomatic, Description);
+                    GameItems[type] = ConvertNode<Gun>(node.ChildNodes[i]);
                 }
                 else if (node.ChildNodes[i].Name == "Melee")
                 {
-                    GameItems[Type] = new Melee(Type, IsConsumable, Consumes, MaxAmount, Name, UseCooldown, Power, Reach, Knockback, AttackTypeM, IsAutomatic, Description);
+                    GameItems[type] = ConvertNode<Melee>(node.ChildNodes[i]);
                 }
             }
         }
@@ -133,52 +80,8 @@ namespace TheOtherDarkWorld
         {
             for (int i = 0; i < node.ChildNodes.Count; i++)
             {
-                int Type = -1;
-                string Name = "";
-                int UseCooldown = -1;
-                bool IsConsumable = false;
-                int Consumes = -1;
-                int MaxAmount = -1;
-                int Power = 0;
-                bool IsAutomatic = false;
-                string Description = "This item is a mystery to me...";
-
-                for (int a = 0; a < node.ChildNodes[i].Attributes.Count; a++)
-                {
-                    XmlAttribute atr = node.ChildNodes[i].Attributes[a];
-                    switch (atr.Name)
-                    {
-                        case "Type":
-                            Type = int.Parse(atr.Value);
-                            break;
-                        case "Name":
-                            Name = atr.Value;
-                            break;
-                        case "Cooldown":
-                            UseCooldown = int.Parse(atr.Value);
-                            break;
-                        case "IsConsumable":
-                            IsConsumable = bool.Parse(atr.Value);
-                            break;
-                        case "Consumes":
-                            Consumes = int.Parse(atr.Value);
-                            break;
-                        case "MaxAmount":
-                            MaxAmount = int.Parse(atr.Value);
-                            break;
-                        case "Power":
-                            Power = int.Parse(atr.Value);
-                            break;
-                        case "IsAutomatic":
-                            IsAutomatic = bool.Parse(atr.Value);
-                            break;
-                        case "Description":
-                            Description = atr.Value;
-                            break;
-
-                    }
-                }
-                GameItems[Type] = new Item(Type, IsConsumable, Consumes, MaxAmount, Name, UseCooldown, Power, IsAutomatic, Description);
+                int type = int.Parse(node.ChildNodes[i].SelectSingleNode("Type").InnerText);
+                GameItems[type] = ConvertNode<Item>(node.ChildNodes[i]);
             }
         }
 
@@ -186,43 +89,8 @@ namespace TheOtherDarkWorld
         {
             for (int i = 0; i < node.ChildNodes.Count; i++)
             {
-                int Type = -1;
-                string Name = "";
-                Color Colour = Color.White;
-                int Health = -1;
-                Item[] Drops = new Item[10];
-                int Resistance = -1;
-
-                if (node.ChildNodes[i].InnerText != "")
-                {
-                    //TODO: Add some extra parameters here; Such as items dropped from destruction
-                }
-
-
-                for (int a = 0; a < node.ChildNodes[i].Attributes.Count; a++)
-                {
-                    XmlAttribute atr = node.ChildNodes[i].Attributes[a];
-                    switch (atr.Name)
-                    {
-                        case "Type":
-                            Type = int.Parse(atr.Value);
-                            break;
-                        case "Name":
-                            Name = atr.Value;
-                            break;
-                        case "Colour":
-                            Colour = GetColourFromName(atr.Value);
-                            break;
-                        case "Health":
-                            Health = int.Parse(atr.Value);
-                            break;
-                        case "Resistance":
-                            Resistance = int.Parse(atr.Value);
-                            break;
-
-                    }
-                }
-                GameBlocks[Type] = new Block(Type, Colour, Health, Drops, Resistance);
+                int type = int.Parse(node.ChildNodes[i].SelectSingleNode("Type").InnerText);
+                GameBlocks[type] = ConvertNode<Block>(node.ChildNodes[i]);
             }
         }
 

@@ -1,24 +1,141 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <main>
   <Weapons>
-    <Gun Type="0" Name="AK-47" Cooldown="8" Consumes="101" MaxAmount="30" Power="50" Penetration="35" BulletColour="Black" BulletSpeed="15" IsAutomatic="True" ReloadTime="220" Description="An old, yet reliable machine-gun"/>
-    <Gun Type="1" Name="Glock-9mm" Cooldown="10" Consumes="100" MaxAmount="7" Power="30" Penetration="50" BulletColour="Grey" BulletSpeed="12" IsAutomatic="False" ReloadTime="170" Description="An old handgun. Still works though"/>
-    <Gun Type="2" Name="Shotgun" Cooldown="6" Consumes="102" MaxAmount="2" Power="20" Penetration="11" BulletColour="Grey" BulletSpeed="8" IsAutomatic="False" AttackType="Shotgun" ReloadTime="100" Description="A double barrel shotgun."/>
-    <Melee Type="3" Name="Knife" Cooldown="10" IsConsumable="True" MaxAmount="50" Power="50" Knockback ="10" Reach="7" IsAutomatic="False" Description="A sharp blade. This could save me in close combat situations."/>
-    <Melee Type="4" Name="Steel-Pipe" Cooldown="40" IsConsumable="True" MaxAmount="50" Power="20" Knockback="50" Reach="15" IsAutomatic="False" Description="A metal pipe. It's hard to swing, but it'll do a lot of damage."/>
-    <Melee Type="5" Name="Diamond Crucifix" Cooldown="6" IsConsumable="True" MaxAmount="30" Power="50" Knockback="75" Reach="50" IsAutomatic="True" Description="A curious looking crucifix made from pure diamond! It looks unbreakable..." />
+    <Gun>
+      <Type>0</Type>
+      <Name>AK-47</Name>
+      <Cooldown>8</Cooldown>
+      <Consumes>101</Consumes>
+      <MaxAmount>30</MaxAmount>
+      <Power>50</Power>
+      <Penetration>35</Penetration>
+      <BulletColour>Black</BulletColour>
+      <BulletSpeed>15</BulletSpeed>
+      <IsAutomatic>true</IsAutomatic>
+      <ReloadTime>220</ReloadTime>
+      <Description>An old, yet reliable machine-gun"</Description>
+    </Gun>
+    <Gun>
+      <Type>1</Type>
+      <Name>Glock-9mm</Name>
+      <Cooldown>10</Cooldown>
+      <Consumes>100</Consumes>
+      <MaxAmount>7</MaxAmount>
+      <Power>30</Power>
+      <Penetration>50</Penetration>
+      <BulletColour>Grey</BulletColour>
+      <BulletSpeed>12</BulletSpeed>
+      <IsAutomatic>false</IsAutomatic>
+      <ReloadTime>170</ReloadTime>
+      <Description>An old handgun. Still works though"</Description>
+    </Gun>
+    <Gun>
+      <Type>2</Type>
+      <Name>Shotgun</Name>
+      <Cooldown>6</Cooldown>
+      <Consumes>102</Consumes>
+      <MaxAmount>2</MaxAmount>
+      <Power>20</Power>
+      <Penetration>11</Penetration>
+      <BulletColour>Grey</BulletColour>
+      <BulletSpeed>8</BulletSpeed>
+      <IsAutomatic>false</IsAutomatic>
+      <AttackType>Shotgun</AttackType>
+      <ReloadTime>100</ReloadTime>
+      <Description>A double barrel shotgun.</Description>
+    </Gun>
+    <Melee>
+      <Type>3</Type>
+      <Name>Knife"</Name>
+      <Cooldown>10</Cooldown>
+      <IsConsumable>true</IsConsumable>
+      <MaxAmount>50</MaxAmount>
+      <Power>50</Power>
+      <Knockback>10</Knockback>
+      <Reach>7</Reach>
+      <IsAutomatic>false</IsAutomatic>
+      <Description>A sharp blade. This could save me in close combat situations.</Description>
+    </Melee>
+    <Melee>
+      <Type>4</Type>
+      <Name>Steel-Pipe</Name>
+      <Cooldown>40</Cooldown>
+      <IsConsumable>true</IsConsumable>
+      <MaxAmount>50</MaxAmount>
+      <Power>20</Power>
+      <Knockback>50</Knockback>
+      <Reach>15</Reach>
+      <IsAutomatic>false</IsAutomatic>
+      <Description>A metal pipe. It's hard to swing, but it'll do a lot of damage.</Description>
+      </Melee>
+    <Melee>
+      <Name>Diamond Crucifix</Name>
+      <Cooldown>6</Cooldown>
+      <IsConsumable>true</IsConsumable>
+      <MaxAmount>30</MaxAmount>
+      <Power>50</Power>
+      <Knockback>75</Knockback>
+      <Reach>50</Reach>
+      <IsAutomatic>true</IsAutomatic>
+      <Description>A curious looking crucifix made from pure diamond! It looks unbreakable...</Description>
+      <Type>5</Type>
+    </Melee>
   </Weapons>
 
   <Items>
-    <Item Type="100" Name="Handgun Ammo" IsConsumable="False" MaxAmount="24"/>
-    <Item Type="101" Name="Machinegun Ammo" IsConsumable="False" MaxAmount="60"/>
-    <Item Type="102" Name="Shotgun Ammo" IsConsumable="False" MaxAmount="16"/>
+    <Item>
+      <Type>100</Type>
+      <Name>Handgun Ammo</Name>
+      <IsConsumable>false</IsConsumable>
+      <MaxAmount>24</MaxAmount>
+    </Item>
+    <Item>
+      <Type>101</Type>
+      <Name>Machinegun Ammo</Name>
+      <IsConsumable>false</IsConsumable>
+      <MaxAmount>60</MaxAmount>
+    </Item>
+    <Item>
+      <Type>102</Type>
+      <Name>Shotgun Ammo</Name>
+      <IsConsumable>false</IsConsumable>
+      <MaxAmount>16</MaxAmount>
+    </Item>
   </Items>
   <Blocks>
-    <Block Type="0" Name="BorderA" Health="99999999" Resistance="100000" Colour="Cream"/>
-    <Block Type="1" Name="BorderB" Health="99999999" Resistance="100000" Colour="White"/>
-    <Block Type="2" Name="Plaster" Health="500" Resistance="8" Colour="Cream"/>
-    <Block Type="3" Name="Brick" Health="2500" Resistance="20" Colour="Red"/>
+    <Block>
+      <Type>0</Type>
+      <Name>BorderA</Name>
+      <Health>99999999</Health>
+      <Resistance>100000</Resistance>
+      <Colour>Cream</Colour>
+    </Block>
+    <Block>
+      <Type>1</Type>
+      <Name>BorderB</Name>
+      <Health>99999999</Health>
+      <Resistance>100000</Resistance>
+      <Colour>White</Colour>
+    </Block>
+    <Block>
+      <Type>2</Type>
+      <Name>Plaster</Name>
+      <Health>500</Health>
+      <Resistance>8</Resistance>
+      <Colour>
+        <A>255</A>
+        <R>200</R>
+        <G>180</G>
+        <B>180</B>
+      </Colour>
+    </Block>
+    <Block>
+      <Type>3</Type>
+      <Name>Brick</Name>
+      <Health>2500</Health>
+      <Resistance>20</Resistance>
+      <Colour>Red</Colour>
+    </Block>
   </Blocks>
   
 </main>

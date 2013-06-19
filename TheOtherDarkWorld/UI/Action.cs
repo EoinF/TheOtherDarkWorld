@@ -7,6 +7,6 @@ namespace TheOtherDarkWorld
 {
     public class Action
     {
-        public String Name { get; protected set; }
+        public String Name { get; set; }
     }
 }

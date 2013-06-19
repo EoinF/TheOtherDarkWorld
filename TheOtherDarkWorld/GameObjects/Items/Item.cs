@@ -10,15 +10,15 @@ namespace TheOtherDarkWorld.GameObjects
     {
         #region Fields & Properties
 
-        public int Power { get; protected set; }
+        public int Power { get; set; }
         public bool IsAutomatic { get; set; }
-        public int MaxAmount { get; private set; }
-        public int Consumes { get; private set; } //This refers to the item type that is consumed when this item is activated
-        public bool IsConsumable {get; private set;} //If true, amount is reduced by 1 when activated
-        public int UseCooldown { get; protected set; }
+        public int MaxAmount { get; set; }
+        public int Consumes { get; set; } //This refers to the item type that is consumed when this item is activated
+        public bool IsConsumable {get; set;} //If true, amount is reduced by 1 when activated
+        public int UseCooldown { get; set; }
         public int Cooldown { get; set; }
         public int Owner { get; set; }
-        public string Description { get; private set; }
+        public string Description { get; set; }
 
 
         private int _type;
@@ -56,7 +56,7 @@ namespace TheOtherDarkWorld.GameObjects
             if (IsConsumable)
             {
                 //Find out what this item does and trigger it
-                Cooldown = UseCooldown;
+                UseCooldown = Cooldown;
                 Amount--;
             }
             return (Amount == 0);
@@ -72,7 +72,7 @@ namespace TheOtherDarkWorld.GameObjects
             this.MaxAmount = characteristics.MaxAmount;
             this.Name = characteristics.Name;
             this.Owner = owner;
-            this.UseCooldown = characteristics.UseCooldown;
+            this.Cooldown = characteristics.Cooldown;
             this.Power = characteristics.Power;
             this.IsAutomatic = characteristics.IsAutomatic;
             this.Description = characteristics.Description;
@@ -83,17 +83,8 @@ namespace TheOtherDarkWorld.GameObjects
                 Amount = amount;
         }
 
-        public Item(int Type, bool IsConsumable, int Consumes, int MaxAmount, string Name, int UseRate, int Power, bool IsAutomatic, string Description)
+        public Item()
         {
-            this.Type = Type;
-            this.IsConsumable = IsConsumable;
-            this.Consumes = Consumes;
-            this.MaxAmount = MaxAmount;
-            this.Name = Name;
-            this.UseCooldown = UseRate;
-            this.Power = Power;
-            this.IsAutomatic = IsAutomatic;
-            this.Description = Description;
         }
 
     }

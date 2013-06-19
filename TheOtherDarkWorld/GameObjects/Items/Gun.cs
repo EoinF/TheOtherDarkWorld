@@ -16,12 +16,12 @@ namespace TheOtherDarkWorld.GameObjects
         public int ReloadCooldown { get; set; }
 
         //Characteristics
-        public int Penetration { get; private set; }
-        public int ReloadTime { get; private set; }
-        public float BulletSpeed { get; private set; }
-        public Color BulletColour { get; private set; }
-        public int BulletType { get; private set; }
-        public GunType AttackType { get; private set; }
+        public int Penetration { get; set; }
+        public int ReloadTime { get; set; }
+        public float BulletSpeed { get; set; }
+        public Color BulletColour { get; set; }
+        public int BulletType { get; set; }
+        public GunType AttackType { get; set; }
 
         #endregion
 
@@ -37,18 +37,9 @@ namespace TheOtherDarkWorld.GameObjects
             this.AttackType = characteristics.AttackType;
         }
 
-        public Gun(int Type, bool IsConsumable, int Consumes, int MaxAmount, string Name, int UseRate, int Power, int Penetration, Color BulletColour, float BulletSpeed, int ReloadTime,GunType AttackType, bool IsAutomatic, string Description)
-            : base(Type, IsConsumable, Consumes, MaxAmount, Name, UseRate, Power, IsAutomatic, Description)
+        public Gun()
         {
-            this.Penetration = Penetration;
-            this.BulletColour = BulletColour;
-            this.BulletSpeed = BulletSpeed;
-            this.ReloadTime = ReloadTime;
-            this.AttackType = AttackType;
         }
-
-
-
 
 
         public override bool Activate(float rotation, Vector2 Direction, Vector2 startPosition)
@@ -60,7 +51,7 @@ namespace TheOtherDarkWorld.GameObjects
                     if (ReloadCooldown <= 0)
                     {
                         Projectile.ProjectileList.Add(new Projectile(Power, Penetration, BulletSpeed, BulletColour, Owner, Direction, startPosition, rotation));
-                        Cooldown += UseCooldown;
+                        UseCooldown += Cooldown;
                         Amount--;
                     }
                     break;
@@ -75,7 +66,7 @@ namespace TheOtherDarkWorld.GameObjects
                             Direction.Normalize();
                             Projectile.ProjectileList.Add(new Projectile(Power, Penetration, BulletSpeed, BulletColour, Owner, Direction, startPosition, newRotation));
                         }
-                        Cooldown += UseCooldown;
+                        UseCooldown += Cooldown;
                         Amount--;
                     }
                     break;

@@ -60,6 +60,26 @@ namespace TheOtherDarkWorld
             }
         }
 
+        /// <summary>
+        /// If the key was just pressed this frame only and it wasnt being held down since last frame
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public static bool JustPressed(Keys key)
+        {
+            return keyboardState[0].IsKeyDown(key) && keyboardState[1].IsKeyUp(key);
+        }
+
+        /// <summary>
+        /// If the key was just released this frame and was being held down since last frame
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public static bool JustReleased(Keys key)
+        {
+            return keyboardState[1].IsKeyDown(key) && keyboardState[0].IsKeyUp(key);
+        }
+
         public static void StartLevel()
         {
             Random rand = new Random();

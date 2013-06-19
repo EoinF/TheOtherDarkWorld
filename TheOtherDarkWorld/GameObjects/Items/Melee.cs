@@ -9,8 +9,8 @@ namespace TheOtherDarkWorld.GameObjects
 {
     public class Melee : Item
     {
-        public int Reach { get; private set; }
-        public MeleeType AttackType { get; private set; }
+        public int Reach { get; set; }
+        public MeleeType AttackType { get; set; }
         private int Knockback { get; set; }
 
 
@@ -23,12 +23,8 @@ namespace TheOtherDarkWorld.GameObjects
             this.Knockback = characteristics.Knockback;
         }
 
-        public Melee(int Type, bool IsConsumable, int Consumes, int MaxAmount, string Name, int UseRate, int Power, int Reach, int Knockback, MeleeType AttackType, bool IsAutomatic, string Description)
-            : base(Type, IsConsumable, Consumes, MaxAmount, Name, UseRate, Power, IsAutomatic, Description)
+        public Melee()
         {
-            this.Reach = Reach;
-            this.AttackType = AttackType;
-            this.Knockback = Knockback;
         }
 
         /// <summary>
@@ -40,8 +36,8 @@ namespace TheOtherDarkWorld.GameObjects
             if (IsConsumable)
             {
                 //Find out what this item does and trigger it
-                Player.PlayerList[0].Swing = new Swing(Player.PlayerList[0].Rotation, this.Reach, this.Power, this.UseCooldown, Knockback, (int)Player.PlayerList[0].Rect.Width, Player.PlayerList[0].ID);
-                Cooldown = UseCooldown;
+                Player.PlayerList[0].Swing = new Swing(Player.PlayerList[0].Rotation, this.Reach, this.Power, this.Cooldown, Knockback, (int)Player.PlayerList[0].Rect.Width, Player.PlayerList[0].ID);
+                UseCooldown = Cooldown;
                 Amount--;
             }
 
