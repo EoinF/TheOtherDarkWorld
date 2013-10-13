@@ -4,7 +4,6 @@ Content\Characters.xnb
 Content\Crosshair.xnb
 Content\ItemSlot.xnb
 Content\SidePanel.xnb
-Content\HealthPoint.xnb
 Content\ItemSheet.xnb
 Content\Cursor.xnb
 Content\Tooltip.xnb
@@ -14,4 +13,7 @@ Content\Small.xnb
 Content\Medium.xnb
 Content\Large.xnb
 Content\Huge.xnb
+Content\HealthBar.xnb
+Content\HealthBarPiece.xnb
+Content\SmartPhoneExterior.xnb
 GameContent.xml

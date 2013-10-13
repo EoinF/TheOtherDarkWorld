@@ -9,21 +9,40 @@ namespace TheOtherDarkWorld.GameObjects
 {
     public class GameObject
     {
+        private const bool FULL_BRIGHT = false;
+        private const bool FULL_VISION = false;
+        private const float MAX_BRIGHTNESS = 1;
+        private const float MIN_BRIGHTNESS = 0.05f;
+
         public Vector2 Position { get; set; }
         public Vector2 Velocity { get; set; }
-        public float Speed { get; private set; }
-        public Color Colour { get; set; }
+        public float Speed { get; set; }
+        public virtual Color Colour { get; set; }
         public Vector2 Origin { get; private set; }
         public int Resistance { get; set; }
         public virtual Rectanglef Rect { get; private set; }
+
+        /// <summary>
+        /// This object is visible to the player
+        /// </summary>
+        public bool IsVisible 
+        { 
+            get { return FULL_VISION ||
+                (_isVisible 
+                && !Level.CurrentLevel.Players[Level.CurrentLevel.PlayerIndex].IsBlinded); } 
+            set { _isVisible = value; } 
+        }
+        private bool _isVisible;
 
         private float _brightness;
         public float Brightness
         {
             get
             {
-                if (_brightness > 1) //Brightness is capped at 1
-                    return 1;
+                if (_brightness > MAX_BRIGHTNESS || FULL_BRIGHT) //Brightness is capped
+                    return MAX_BRIGHTNESS;
+                else if (_brightness < MIN_BRIGHTNESS)
+                    return MIN_BRIGHTNESS;
                 else
                     return _brightness;
             }
@@ -37,21 +56,28 @@ namespace TheOtherDarkWorld.GameObjects
 
         protected Color getLightColour()
         {
-            //Preserve the alpha component so that the object will actually be drawn
-            byte alpha = Colour.A;
-            Color c = Color.Lerp(Colour, LightColour, 1) * Brightness;
-            c.A = alpha;
-            return c;
+            if (FULL_BRIGHT)
+            {
+                return Colour;
+            }
+            else
+            {
+                //Preserve the alpha component so that the object will actually be drawn
+                byte alpha = Colour.A;
+                Color c = Color.Lerp(Colour, LightColour, 0.5f) * Brightness;
+                c.A = alpha;
+                return c;
+            }
+
         }
-
-
+        
         public GameObject(Vector2 startPosition, float speed, Color colour, Vector2 startVelocity, Vector2 Origin, int Resistance, int width, int height)
         {
             Position = startPosition - Origin;
             this.Origin = Origin;
             Speed = speed;
             Colour = colour;
-            LightColour = colour;
+            LightColour = Color.Transparent;
             Velocity = startVelocity;
             this.Resistance = Resistance;
             this.Rect = new Rectanglef(Position.X, Position.Y, width, height);
@@ -171,13 +197,14 @@ namespace TheOtherDarkWorld.GameObjects
         }
         public virtual void CollideDiagonal(Collision col)
         {
-            Position += new Vector2(col.S.X , col.S.Y); //Add this small amount to prevent the player getting stuck
+            Position += new Vector2(col.S.X , col.S.Y);
             Velocity = new Vector2(Velocity.X, 0);
         }
 
         public virtual void Draw(SpriteBatch spriteBatch)
         {
-            spriteBatch.Draw(Textures.Block, Position + Origin - Player.PlayerList[0].Offset, null, getLightColour(), 0, Vector2.Zero, 1, SpriteEffects.None, 0.1f);
+            if (IsVisible)
+                spriteBatch.Draw(Textures.Block, Position + Origin - Level.CurrentLevel.Players[0].Offset, null, getLightColour(), 0, Vector2.Zero, 1, SpriteEffects.None, 0.1f);
         }
     }
 }

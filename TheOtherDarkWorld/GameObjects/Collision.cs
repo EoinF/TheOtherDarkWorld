@@ -15,7 +15,6 @@ namespace TheOtherDarkWorld
         //
         //Distance from entity to block
         //
-
         private Vector2 _S;
         public Vector2 S { get { return _S; } }
 
@@ -74,72 +73,19 @@ namespace TheOtherDarkWorld
             }
         }
 
-
-        /*public Collision(GameObject entity, Tile tile, int i, int j)
-        {
-            location = new Point(i, j);
-
-
-            if (entity.Velocity.X < 0)
-                _S.X = tile.Rect.Right - entity.Rect.Left;
-            else if (entity.Velocity.X > 0)
-                _S.X = tile.Rect.Left - entity.Rect.Right;
-
-            if (entity.Velocity.Y < 0)
-                _S.Y = tile.Rect.Bottom - entity.Rect.Top;
-            else if (entity.Velocity.Y > 0)
-                _S.Y = tile.Rect.Top - entity.Rect.Bottom;
-
-
-            //If the time taken for the y component to reach the block is higher than
-            //for the x component to reach the block, then it has collided horiztontally
-            //The lower time is the percentage of the velocity that was used up before colliding
-
-            double px = Math.Abs(_S.X / entity.Velocity.X);
-            double py = Math.Abs(_S.Y / entity.Velocity.Y);
-
-            if (double.IsNaN(px))
-                pct = py;
-            else if (double.IsNaN(py))
-                pct = px;
-            else
-                pct = Math.Min(px, py);
-
-            //The collision happened along the left or right side of the objects, if horizontal is true
-            IsHorizontal = (px == pct);
-
-            if (IsHorizontal)
-                _S.Y = (float)(entity.Velocity.Y * pct);
-            else
-                _S.X = (float)(entity.Velocity.X * pct);
-
-            //
-            //If pct > 1 then the entity is probably already inside the tile so let it go where it wants
-            //until they aren't colliding anymore. The pct is set to -1, so this will be the only collision that 
-            //is actually executed
-            //
-            if (pct > 1)
-            {
-                pct = -1;
-                _S.X = entity.Velocity.X;
-                _S.Y = entity.Velocity.Y;
-            }
-        }*/
-
         /// <summary>
-        /// 
+        /// Tests for a collision between 2 square objects
         /// </summary>
-        /// <param name="r1">The moving rectangle</param>
-        /// <param name="r2">The stationary rectangle</param>
-        /// <param name="Velocity">The velocity of r1</param>
-        /// <returns>True if they collide</returns>
-        public static bool SquareVsSquare(Rectanglef r1, Rectanglef r2, Vector2 VelocityA, Vector2 VelocityB)
+        /// <param name="entityA"></param>
+        /// <param name="entityB"></param>
+        /// <returns>True if the two objects will collide</returns>
+        public static bool SquareVsSquare(GameObject entityA, GameObject entityB)
         {
             //Get the velocity of A relative to B
-            Vector2 Velocity = VelocityA - VelocityB;
-            return (r2.Intersects(new Rectanglef(r1.Left, r1.Top + (Velocity.Y < 0 ? Velocity.Y : 0), r1.Width, r1.Height + Math.Abs(Velocity.Y)))
-            || r2.Intersects(new Rectanglef(r1.Left + (Velocity.X < 0 ? Velocity.X : 0), r1.Top, r1.Width + Math.Abs(Velocity.X), r1.Height)));
+            Vector2 Velocity = entityA.Velocity - entityB.Velocity;
 
+            return (entityB.Rect.Intersects(new Rectanglef(entityA.Rect.Left, entityA.Rect.Top + (Velocity.Y < 0 ? Velocity.Y : 0), entityA.Rect.Width, entityA.Rect.Height + Math.Abs(Velocity.Y)))
+            || entityB.Rect.Intersects(new Rectanglef(entityA.Rect.Left + (Velocity.X < 0 ? Velocity.X : 0), entityA.Rect.Top, entityA.Rect.Width + Math.Abs(Velocity.X), entityA.Rect.Height)));
         }
     }
 

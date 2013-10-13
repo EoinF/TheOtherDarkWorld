@@ -28,14 +28,23 @@ namespace TheOtherDarkWorld
         /// </summary>
         public static bool JustLeftReleased;
         /// <summary>
-        /// This is true AS the user is CLICKING
+        /// This is true at the very moment that the user is CLICKING
         /// </summary>
         public static bool JustLeftClicked;
 
+        /// <summary>
+        /// This is true at the very moment that the user is CLICKING
+        /// </summary>
         public static bool JustRightClicked;
 
         public static bool DoubleLeftClicked;
+        /// <summary>
+        /// True if the left mouse button is being held down
+        /// </summary>
         public static bool LeftClicking;
+        /// <summary>
+        /// True if the right mouse button is being held down
+        /// </summary>
         public static bool RightClicking;
 
         /// <summary>
@@ -84,32 +93,27 @@ namespace TheOtherDarkWorld
         {
             Random rand = new Random();
             Level.GenerateLevel(Level.LevelType.Hallways, rand.Next(), 76, 60);
-            Level.CurrentLevel.Enemies = new List<Enemy>();
+            Level.CurrentLevel.Entities = new List<Entity>();
 
-            Player.PlayerList = new Player[1] { new Player(new Vector2(230, 200), 5, 3, 8, Vector2.Zero, 0, 5) };
+            int InventorySize = 14;
+            UI.InitializeHUD(InventorySize);
 
-            Player.PlayerList[0].Inventory[0] = new Gun(0, -1);
-            Player.PlayerList[0].Inventory[1] = new Melee(4, -1);
+            Level.CurrentLevel.Players = new Player[1] { new Player(new Vector2(230, 200), 500, 3, 14, Vector2.Zero, 0, 5) };
+           
+            Player player = Level.CurrentLevel.Players[0];
+            Level.CurrentLevel.Entities.Add(player);
 
-            Player.PlayerList[0].Inventory[2] = new Item(101, 999);
+            player.PickUpItem(new Gun(0, -1, player));
+            player.PickUpItem(new Melee(4, -1, player));
+            player.PickUpItem(new Melee(5, -1, player));
+
+            player.PickUpItem(new Item(101, 999, player));
+            player.PickUpItem(new Item(50, -1, player));
+            player.PickUpItem(new Torch(110, player));
+            player.PickUpItem(new SmartPhone(112, player));
+
             Projectile.ProjectileList = new List<Projectile>();
             
-            Vector2 offset = new Vector2(800 - Textures.SidePanel.Width, 0);
-
-            UI.HUDText = new List<TextSprite>();
-            UI.HUDText.Add(new TextSprite("Items", 1, Color.Violet, -1, offset + new Vector2(14, 245)));
-            UI.HUDText.Add(new TextSprite("Health", 1, Color.Violet, -1, offset + new Vector2(11, 10)));
-
-
-            UI.Inventory = new List<InventoryElement>();
-            UI.Inventory.Add(new InventoryElement(offset + new Vector2(10, 200), 0, 0));
-            UI.Inventory.Add(new InventoryElement(offset + new Vector2(35, 200), 0, 0));
-
-            //Starts at 2, because it skips over the two equipped items
-            for (int i = 0; i < Player.PlayerList[0].Inventory.Length - 2; i++)
-            {
-                UI.Inventory.Add(new InventoryElement(offset + new Vector2(7 + (i % 2) * 30, 260 + (int)(i / 2) * 40), 0, 0));
-            }
         }
 
         private static void UpdateStates()
@@ -164,7 +168,7 @@ namespace TheOtherDarkWorld
         private static bool CheckDoubleLeftClick()
         {
             bool WaitingForClick = true;
-            int count = 0; //Counts the number of clicks
+            int count = 0; //Counts the number of changes in mouse state
 
             for (int i = 0; i < DoubleClickResponsiveness; i++)
             {

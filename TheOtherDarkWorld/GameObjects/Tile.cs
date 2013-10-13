@@ -24,27 +24,26 @@ namespace TheOtherDarkWorld.GameObjects
                 if (value == null)
                     Colour = Color.White;
                 else
+                {
                     Colour = value.Colour;
+                }
                 _block = value;
             }
         }
         public Item[] Items { get; set; }
-        public Trigger[] Triggers { get; set; }
 
-        public Tile(int x, int y, Color Colour, Item[] Items = null, Trigger[] Triggers = null, Block Block = null)
+        public Tile(int x, int y, Color Colour, Item[] Items = null, Block Block = null)
             : base(new Vector2(x * 10, y * 10), 0, Colour, Vector2.Zero, Vector2.Zero, 0, 10, 10)
         {
             this.Block = Block;
             this.Items = Items;
-            this.Triggers = Triggers;
         }
 
-        public Tile(int x, int y, Item[] Items = null, Trigger[] Triggers = null, Block Block = null)
+        public Tile(int x, int y, Item[] Items = null, Block Block = null)
             : base(new Vector2(x * 10, y * 10), 0, Color.White, Vector2.Zero, Vector2.Zero, 0, 10, 10)
         {
             this.Block = Block;
             this.Items = Items;
-            this.Triggers = Triggers;
         }
     }
 }

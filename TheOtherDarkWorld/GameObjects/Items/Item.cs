@@ -6,28 +6,53 @@ using Microsoft.Xna.Framework;
 
 namespace TheOtherDarkWorld.GameObjects
 {
-    public class Item:Action
+    public class Item : Action
     {
+        //
+        //Default values for an item when deserialized from the xml
+        //
+        const int CONSUMES_DEFAULT = -1;
+        const int CONSUMETIME_DEFAULT = 1;
+        const int USECOOLDOWN_DEFAULT = 1;
+        const string DESCRIPTION_DEFAULT = "This item is a mystery to me!";
+
         #region Fields & Properties
 
-        public int Power { get; set; }
+        [System.Xml.Serialization.XmlIgnore()]
+        public Entity Owner { get; set; }
+
+        public float Power { get; set; }
         public bool IsAutomatic { get; set; }
         public int MaxAmount { get; set; }
-        public int Consumes { get; set; } //This refers to the item type that is consumed when this item is activated
-        public bool IsConsumable {get; set;} //If true, amount is reduced by 1 when activated
+
+        public int Consumes { get; set; }
+        public int ConsumeTime { get; set; } //The number of ticks before the item it consumes is consumed again
+        protected int ConsumeTicks { get; set; }
+
+        public bool IsConsumable { get; set; } //If true, this item consumes itself based on the consume rate
+
+        /// <summary>
+        /// The time remaining before this item can be used again
+        /// </summary>
         public int UseCooldown { get; set; }
-        public int Cooldown { get; set; }
-        public int Owner { get; set; }
+
+        /// <summary>
+        /// The original cooldown for this item(This should not be modified)
+        /// </summary>
+        public int BaseCooldown { get; set; }
         public string Description { get; set; }
 
 
-        private int _type;
-        public int Type
+        protected int _type;
+        public virtual int Type
         {
-            get { return _type; }
+            get
+            {
+                return _type;
+            }
             set
             {
-                if (value <= GameData.GameItems.Length || value >= 0)
+                if (value < GameData.GameItems.Length && value >= 0)
                     _type = value;
             }
         }
@@ -35,13 +60,13 @@ namespace TheOtherDarkWorld.GameObjects
         private int _amount;
         public int Amount
         {
-            get { return _amount; }
+            get
+            {
+                return _amount;
+            }
             set
             {
-                //if (value <= MaxAmount && value >= 0)
-                    _amount = value;
-                //else //We'll notice when debugging anyway
-                    ; // throw new Exception("Tried to set amount of an item to higher than player can hold");
+                _amount = value;
             }
         }
 
@@ -51,41 +76,116 @@ namespace TheOtherDarkWorld.GameObjects
         /// The base method of the Item class; It reduces the amount of the item if its consumable.
         /// </summary>
         /// <returns>Returns true if the item has been used up completely</returns>
-        public virtual bool Activate(float rotation, Vector2 Direction, Vector2 startPosition)
+        public virtual void Activate()
         {
-            if (IsConsumable)
+            if (UseCooldown <= 0)
             {
-                //Find out what this item does and trigger it
-                UseCooldown = Cooldown;
-                Amount--;
+                if (Consumes >= 0 || IsConsumable) //Fuel required to use this item
+                {
+                    if (IsConsumable) //This item is consumed when used
+                    {
+                        if (Amount > 0)
+                        {
+                            ApplyActive();
+
+                            ConsumeTicks++;
+                            if (ConsumeTicks >= ConsumeTime)
+                            {
+                                ConsumeTicks = 0;
+                                Amount--;
+                            }
+                        }
+                    }
+                    else //A different item is consumed when used
+                    {
+                        Item fuel = Owner.GetItem(Consumes);
+                        if (fuel != null)
+                        {
+                            ApplyActive();
+                            if (ConsumeTicks > ConsumeTime)
+                            {
+                                ConsumeTicks = 0;
+                                fuel.Amount--;
+                            }
+                            else
+                            {
+                                ConsumeTicks++;
+                            }
+                        }
+                    }
+                }
+                else //No fuel required to use this item
+                {
+                    ApplyActive();
+                }
+                UseCooldown += BaseCooldown;
             }
-            return (Amount == 0);
         }
 
-        public Item(int type, int amount = -1, int owner = -1)
+
+
+        public Item(int type, int amount = -1, Entity owner = null)
         {
             Type = type;
             Item characteristics = GameData.GameItems[type];
 
             this.IsConsumable = characteristics.IsConsumable;
             this.Consumes = characteristics.Consumes;
+            this.ConsumeTime = characteristics.ConsumeTime;
             this.MaxAmount = characteristics.MaxAmount;
             this.Name = characteristics.Name;
             this.Owner = owner;
-            this.Cooldown = characteristics.Cooldown;
+            this.BaseCooldown = characteristics.BaseCooldown;
             this.Power = characteristics.Power;
             this.IsAutomatic = characteristics.IsAutomatic;
             this.Description = characteristics.Description;
 
             if (amount < 0)
-                Amount = MaxAmount;
+                _amount = MaxAmount;
             else
-                Amount = amount;
+                _amount = amount;
         }
 
+        /// <summary>
+        /// Parameterless constructor for Xml deserialization
+        /// </summary>
         public Item()
         {
+            //
+            //Apply the default values for an item while it's being deserialized from the xml(in case they aren't specified in the xml)
+            //
+            Consumes = CONSUMES_DEFAULT;
+            ConsumeTime = CONSUMETIME_DEFAULT;
+            UseCooldown = USECOOLDOWN_DEFAULT;
+            Description = DESCRIPTION_DEFAULT;
         }
 
+        public virtual void Update()
+        {
+            if (UseCooldown > 0)
+                UseCooldown--;
+
+            ApplyPassive();
+        }
+
+        protected virtual void ApplyPassive()
+        {
+            //TODO: Apply passive effect
+            switch (Type)
+            {
+                case 0:
+                    break;
+            }
+        }
+
+        protected virtual void ApplyActive()
+        {
+            //TODO: Apply active effect
+            switch (Type)
+            {
+                case 0:
+                    break;
+            }
+        }
     }
 }

@@ -12,9 +12,9 @@ namespace TheOtherDarkWorld.GameObjects
     {
         public static List<Projectile> ProjectileList;
 
-        public int Health { get; set; }
-        private int Owner { get; set; }
-        public int Damage { get; private set; }
+        public float Health { get; set; }
+        public GameObject Owner { get; private set; }
+        public float Damage { get; private set; }
         private float Rotation { get; set; }
         private bool Collided;
 
@@ -33,7 +33,7 @@ namespace TheOtherDarkWorld.GameObjects
             get { return new Vector2(Textures.Bullet.Width / 2, Textures.Bullet.Height / 2); } 
         }
 
-        public Projectile(int damage, int penetration, float speed, Color colour, int owner, Vector2 startVelocity, Vector2 startPosition, float rotation)
+        public Projectile(float damage, int penetration, float speed, Color colour, GameObject owner, Vector2 startVelocity, Vector2 startPosition, float rotation)
             : base(startPosition, speed, colour, startVelocity * speed, new Vector2(Textures.Bullet.Width / 2, Textures.Bullet.Height / 2), 0, (int)Textures.Bullet.Width, (int)Textures.Bullet.Height)
         {
             Damage = damage;
@@ -71,7 +71,7 @@ namespace TheOtherDarkWorld.GameObjects
 
         public void Draw(SpriteBatch spriteBatch)
         {
-            spriteBatch.Draw(Textures.Bullet, Position - Player.PlayerList[0].Offset, null, Colour, Rotation, Origin * Vector2.UnitX, 1, SpriteEffects.None, 0.2f);
+            spriteBatch.Draw(Textures.Bullet, Position - Level.CurrentLevel.Players[0].Offset, null, Colour, Rotation, Origin * Vector2.UnitX, 1, SpriteEffects.None, 0.2f);
         }
 
         public override void CollideHorizontal(Collision col)

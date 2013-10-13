@@ -29,27 +29,28 @@ namespace TheOtherDarkWorld
                 {
                     int index = 0;
                     string[] Words = Text.Split(' ');
-                    Text = ""; //Clear out text as we are going to add to it, rather than replace it(Using '+=' as opposed to '=')
+                    Text = ""; 
 
                     while (index < Words.Length)
                     {
-                        string current = "";
+                        StringBuilder current = new StringBuilder();
 
                         while (Spritefont.MeasureString(current).X < LineWidth && index < Words.Length)
                         {
-                            current += Words[index++] + " ";
+                            current.Append(Words[index++]);
+                            current.Append(" ");
                         }
 
                         if (index >= Words.Length && Spritefont.MeasureString(current).X <= LineWidth)
                         {
                             //If we ran out of words
-                            Text += current;
+                            Text += current.ToString();
                         }
                         else
                         {
                             //Takes all the words except the last one, because it didn't fit on the line with the last word included
                             index--;
-                            Text += current.Substring(0, current.Length - (Words[index].Length + 1)); //1 extra needed to remove the space
+                            Text += current.ToString().Substring(0, current.Length - (Words[index].Length + 1)); //1 extra needed to remove the space
 
                             //Only add a new line if there are words still to be added
                             Text += "\n";
@@ -70,7 +71,7 @@ namespace TheOtherDarkWorld
 
             public virtual void Draw(SpriteBatch spriteBatch)
             {
-                spriteBatch.DrawString(Spritefont, Text, Position, Colour, 0f, Vector2.Zero, 1f, 0, 0.94f);
+                spriteBatch.DrawString(Spritefont, Text, Position, Colour, 0f, Vector2.Zero, 1f, 0, 0.9f);
             }
 
             public SpriteFont Spritefont

@@ -12,14 +12,16 @@ namespace TheOtherDarkWorld
     {
         public static Level CurrentLevel;
 
+        public int PlayerIndex;
         public Tile[,] Tiles;
         public Player[] Players;
         public List<FloorItem> FloorItems;
-        public List<Enemy> Enemies;
+        public List<Entity> Entities;
         public int Width;
         public int Height;
         public int Seed;
         public List<Light> Lights;
+        public static Vision PlayerVision;
 
         public int wave;
 
@@ -28,8 +30,8 @@ namespace TheOtherDarkWorld
             
             //These variables find out which blocks are currently on screen
             //This saves drawing off screen objects
-            int startX = (int)(Player.PlayerList[0].Offset.X / 10);
-            int startY = (int)(Player.PlayerList[0].Offset.Y / 10);
+            int startX = (int)(Players[0].Offset.X / 10);
+            int startY = (int)(Players[0].Offset.Y / 10);
 
             int endX = startX + (UI.ScreenX / 10) + 2;
             int endY = startY + (UI.ScreenY / 10) + 2;
@@ -58,9 +60,9 @@ namespace TheOtherDarkWorld
                 FloorItems[i].Draw(spriteBatch);
             }
 
-            for (int i = 0; i < Enemies.Count; i++)
+            for (int i = 0; i < Entities.Count; i++)
             {
-                Enemies[i].Draw(spriteBatch);
+                Entities[i].Draw(spriteBatch);
             }    
         }
 
@@ -72,11 +74,14 @@ namespace TheOtherDarkWorld
             Width = Tiles.GetLength(0);
             Height = Tiles.GetLength(1);
             this.Seed = Seed;
-            Enemies = new List<Enemy>();
+            Entities = new List<Entity>();
             wave = 0;
             Players = new Player[1];
+            PlayerIndex = 0;
+            Entities.Add(Players[0]);
 
             Lights = new List<Light>();
+            PlayerVision = new Vision(500, Vector2.Zero, Vector2.Zero, 0.8f, Tiles);
         }
 
         public static bool DamageBlock(int x, int y, int dmg)
@@ -97,27 +102,36 @@ namespace TheOtherDarkWorld
 
             for (int i = 0; i < Lights.Count; i++)
             {
-                Lights[i].Cast(Tiles);
+                Lights[i].CastAll();
             }
         }
        
 
         public void Update()
         {
-            for (int i = 0; i < Enemies.Count; i++)
+            UpdateBlocks();
+            UpdateLights();
+            Vision.ResetVision();
+
+            for (int i = 0; i < Entities.Count; i++)
             {
-                if (Enemies[i].Update())
+                Entities[i].Update(Tiles, Entities);
+
+                for (int e = i + 1; e < Level.CurrentLevel.Entities.Count; e++)
                 {
-                    Enemies.RemoveAt(i);
+                    Entities[i].CheckEntityCollision(Entities[e]);
+                }
+
+                if (!Entities[i].IsAlive)
+                {
+                    Entities.RemoveAt(i);
                     UI.Kills++;
                     //Reduce the index by 1, because the next item will replace the position of the item that
                     //was just removed from the list
                     i--;
                 }
-            }
 
-            UpdateBlocks();
-            UpdateLights();
+            }
 
             if ((InputManager.keyboardState[0].IsKeyDown(Microsoft.Xna.Framework.Input.Keys.N) && InputManager.keyboardState[1].IsKeyUp(Microsoft.Xna.Framework.Input.Keys.N)))
             {
@@ -128,41 +142,41 @@ namespace TheOtherDarkWorld
                 {
                     for (int i = 0; i < 2 + (wave); i++)
                     {
-                        Enemies.Add(new Enemy(new Vector2((float)((Level.CurrentLevel.Width * 5) * rand.NextDouble()), (float)((Level.CurrentLevel.Height * 5) + Level.CurrentLevel.Height * 5 * rand.NextDouble())), 1.6f, Vector2.Zero, 0, 1000, 20, 40, 60 + (wave * 4)));
-                        Enemies.Add(new Enemy(new Vector2((float)((Level.CurrentLevel.Width * 5) + (Level.CurrentLevel.Width * 5) * rand.NextDouble()), (float)(Level.CurrentLevel.Height * 5 * rand.NextDouble())), 1.6f, Vector2.Zero, 0, 1000, 20, 40, 60 + (wave * 4)));
+                        Entities.Add(new Enemy(new Vector2((float)((Level.CurrentLevel.Width * 5) * rand.NextDouble()), (float)((Level.CurrentLevel.Height * 5) + Level.CurrentLevel.Height * 5 * rand.NextDouble())), 1.6f, Vector2.Zero, 0, 1000, 20, 40, 60 + (wave * 4)));
+                        Entities.Add(new Enemy(new Vector2((float)((Level.CurrentLevel.Width * 5) + (Level.CurrentLevel.Width * 5) * rand.NextDouble()), (float)(Level.CurrentLevel.Height * 5 * rand.NextDouble())), 1.6f, Vector2.Zero, 0, 1000, 20, 40, 60 + (wave * 4)));
                     }
                 } 
                 else if ((wave + 2) % 5 == 0)
                 {
                     for (int i = 0; i < 10 + (7 * wave); i++)
                     {
-                        Enemies.Add(new Enemy(new Vector2((float)((Level.CurrentLevel.Width * 5) + (Level.CurrentLevel.Width * 5) * rand.NextDouble()), (float)(Level.CurrentLevel.Height * 10 * rand.NextDouble())), 1 + (wave * 0.5f), Vector2.Zero, 0, 100, 20, 8, 15));
-                        Enemies.Add(new Enemy(new Vector2((float)((Level.CurrentLevel.Width * 5) * rand.NextDouble()), (float)(Level.CurrentLevel.Height * 10 * rand.NextDouble())), 1 + (wave * 0.5f), Vector2.Zero, 0, 100, 20, 8, 15));
+                        Entities.Add(new Enemy(new Vector2((float)((Level.CurrentLevel.Width * 5) + (Level.CurrentLevel.Width * 5) * rand.NextDouble()), (float)(Level.CurrentLevel.Height * 10 * rand.NextDouble())), 1 + (wave * 0.5f), Vector2.Zero, 0, 100, 20, 8, 15));
+                        Entities.Add(new Enemy(new Vector2((float)((Level.CurrentLevel.Width * 5) * rand.NextDouble()), (float)(Level.CurrentLevel.Height * 10 * rand.NextDouble())), 1 + (wave * 0.5f), Vector2.Zero, 0, 100, 20, 8, 15));
                     }
                 }
                 else if ((wave + 3) % 5 == 0)
                 {
                     for (int i = 0; i < 10 + (4 * wave); i++)
                     {
-                        Enemies.Add(new Enemy(new Vector2((float)(Level.CurrentLevel.Width * 10 * rand.NextDouble()), (float)((Level.CurrentLevel.Height * 5) * rand.NextDouble())), 1 + (wave * 0.3f), Vector2.Zero, 0, 100, 20, 8, 30));
-                        Enemies.Add(new Enemy(new Vector2((float)((Level.CurrentLevel.Width * 5) + (Level.CurrentLevel.Width * 5) * rand.NextDouble()), (float)(Level.CurrentLevel.Height * 10 * rand.NextDouble())), 5, Vector2.Zero, 0, 50, 20, 2, 2));
+                        Entities.Add(new Enemy(new Vector2((float)(Level.CurrentLevel.Width * 10 * rand.NextDouble()), (float)((Level.CurrentLevel.Height * 5) * rand.NextDouble())), 1 + (wave * 0.3f), Vector2.Zero, 0, 100, 20, 8, 30));
+                        Entities.Add(new Enemy(new Vector2((float)((Level.CurrentLevel.Width * 5) + (Level.CurrentLevel.Width * 5) * rand.NextDouble()), (float)(Level.CurrentLevel.Height * 10 * rand.NextDouble())), 5, Vector2.Zero, 0, 50, 20, 2, 2));
                     }
                 }
                 else
                 {
                     for (int i = 0; i < (3 * wave); i++)
                     {
-                        Enemies.Add(new Enemy(new Vector2((float)(Level.CurrentLevel.Width * 10 * rand.NextDouble()), (float)((Level.CurrentLevel.Height * 5) * rand.NextDouble())), 1 + (wave * 0.3f), Vector2.Zero, 0, 100, 20, 8, 30));
+                        Entities.Add(new Enemy(new Vector2((float)(Level.CurrentLevel.Width * 10 * rand.NextDouble()), (float)((Level.CurrentLevel.Height * 5) * rand.NextDouble())), 1 + (wave * 0.3f), Vector2.Zero, 0, 100, 20, 8, 30));
                     }
                     for (int i = 0; i < (3 * (wave - 1)); i++)
                     {
-                        Enemies.Add(new Enemy(new Vector2((float)(Level.CurrentLevel.Width * 10 * rand.NextDouble()), (Level.CurrentLevel.Height * 5) + (float)(2f * Level.CurrentLevel.Height * rand.NextDouble())), 1 + (wave * 0.3f), Vector2.Zero, 0, 100, 20, 8, 30));
+                        Entities.Add(new Enemy(new Vector2((float)(Level.CurrentLevel.Width * 10 * rand.NextDouble()), (Level.CurrentLevel.Height * 5) + (float)(2f * Level.CurrentLevel.Height * rand.NextDouble())), 1 + (wave * 0.3f), Vector2.Zero, 0, 100, 20, 8, 30));
                     }
                 }
 
                 if (wave != 1)
                 {
-                    Player.PlayerList[0].PlusOneLife();
+                    Players[PlayerIndex].PlusOneLife();
                 }
             }
         }
@@ -200,6 +214,10 @@ namespace TheOtherDarkWorld
                     Generate_Hallways(width, height, seed);
                     break;
             }
+            //CurrentLevel.Lights.Add(new Light(0.5f, 200, new Vector2(200, 200), Vector2.One, MathHelper.TwoPi, Color.Yellow, Level.CurrentLevel.Tiles));
+            //CurrentLevel.Lights.Add(new Light(0.5f, 200, new Vector2(400, 500), Vector2.One, MathHelper.TwoPi, Color.Red, Level.CurrentLevel.Tiles));
+            //CurrentLevel.Lights.Add(new Light(0.5f, 200, new Vector2(600, 300), Vector2.One, MathHelper.TwoPi, Color.Blue, Level.CurrentLevel.Tiles));
+        
         }
 
         private static Tile[,] InitializeTiles(int width, int height)
@@ -281,22 +299,19 @@ namespace TheOtherDarkWorld
             int widthTaken = 1;
             int heightTaken = 1;
 
-            for (int i = 0; heightTaken < height; i++)
+            for (int i = 0; heightTaken + minimumRoomHeight < height; i++)
             {
                 int roomHeight = minimumRoomHeight + Math.Abs((seed + i + (int)Math.Pow(seed + 3 + i, 3) + (1 / (Math.Abs(seed) + 1 + i))) / (5 + i)) % (maximumRoomHeight - minimumRoomHeight);
 
                 if (roomHeight + heightTaken > height - 2)
                     roomHeight = height - 2 - heightTaken;
 
-                CreateHallway(widthTaken, Tiles, seed, minimumRoomWidth, maximumRoomWidth, width, roomHeight, heightTaken, i, new bool[]{i % 2 == 1, i % 2 == 0, false, false}); //Every corridor, the door changes sides
-                heightTaken += roomHeight + (corridorWidth * ((i+1) % 2)) + 1; //There is only a corridor every 2 rooms
+                CreateHallway(widthTaken, Tiles, seed, minimumRoomWidth, maximumRoomWidth, width, roomHeight, heightTaken, i, new bool[] { i % 2 == 1, i % 2 == 0, true, false }); //Every corridor, the door changes sides
+                heightTaken += roomHeight + (corridorWidth * ((i + 1) % 2)) + 1; //There is only a corridor every 2 rooms
             }
 
 
             CurrentLevel = new Level(Tiles, seed, FloorItems);
-            CurrentLevel.Lights.Add(new Light(0.5f, 200, new Vector2(200, 200), Vector2.One, MathHelper.TwoPi, Color.Yellow));
-            CurrentLevel.Lights.Add(new Light(0.5f, 200, new Vector2(400, 500), Vector2.One, MathHelper.TwoPi, Color.Red));
-            CurrentLevel.Lights.Add(new Light(0.5f, 200, new Vector2(600, 300), Vector2.One, MathHelper.TwoPi, Color.Blue));
         }
 
         /// <summary>
@@ -317,7 +332,7 @@ namespace TheOtherDarkWorld
             //
             //Makes an entire hallway
             //
-            for (int room = 0; widthTaken < Levelwidth - 1; room++)
+            for (int room = 0; widthTaken < Levelwidth - 2; room++)
             {
                 //
                 //Makes one room
@@ -326,8 +341,20 @@ namespace TheOtherDarkWorld
 
                 if (roomWidth + widthTaken > Levelwidth - 1)
                     roomWidth = Levelwidth - 1 - widthTaken;
-                if (roomWidth < minimumRoomWidth)
-                    return;
+
+                int widthForNextRoom = (Levelwidth - 2) - (roomWidth + widthTaken);
+                if (widthForNextRoom < minimumRoomWidth) //If the space left for next room is smaller than the minimum width
+                {
+                    //Then check if halving the amount will result in 2 sufficiently sized rooms
+                    if (widthForNextRoom + roomWidth > 2 * minimumRoomWidth)
+                    {
+                        roomWidth = widthForNextRoom + roomWidth / 2;
+                    }
+                    else //Otherwise, take the remaining width and make 1 room with it
+                    {
+                        roomWidth += widthForNextRoom;
+                    }
+                }
 
                 //Add the left and right hand walls
                 for (int i = widthTaken; i < roomWidth + widthTaken; i++)
@@ -356,10 +383,38 @@ namespace TheOtherDarkWorld
                     Tiles[doorStart + 1, heightTaken + roomHeight].Block = null;
                     Tiles[doorStart + 2, heightTaken + roomHeight].Block = null;
                 }
+                if (doors[2])
+                {
+                    int doorStart = heightTaken + 1 + Math.Abs(((seed + 3) * (room + 2) * (int)Math.Pow(corridorNum + 2, 3)) % (roomHeight - 3));
+                    Tiles[widthTaken, doorStart].Block = null;
+                    Tiles[widthTaken, doorStart + 1].Block = null;
+                    Tiles[widthTaken, doorStart + 2].Block = null;
+                }
+                if (doors[3])
+                {
+                    int doorStart = widthTaken + 1 + Math.Abs(((seed + 5) * (room + 7) * (int)Math.Pow(corridorNum + 2, 3)) % (roomHeight - 3));
+                    Tiles[widthTaken + roomWidth, doorStart].Block = null;
+                    Tiles[widthTaken + roomWidth, doorStart + 1].Block = null;
+                    Tiles[widthTaken + roomWidth, doorStart + 2].Block = null;
+                }
                 widthTaken += roomWidth;
             }
 
         }
 
+        //public void DrawPlayers(SpriteBatch spriteBatch)
+       // {
+            /*for (int i = 0; i < Players.Length; i++)
+            {
+                spriteBatch.Draw(Textures.Player, Players[i].Position + Players[i].Origin - Players[i].Offset, null, Players[i].Colour, Players[i].Rotation, Players[i].Origin, 1, SpriteEffects.None, 0.12f);
+
+                if (Players[i].Swing != null)
+                    Players[i].Swing.Draw(spriteBatch, Players[i].Offset);
+            }*/
+
+
+            //spriteBatch.DrawString(Textures.MediumFont, "Projectiles: " + Projectile.ProjectileList.Count, new Vector2(600, 50), Color.Green, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
+
+        //}
     }
 }

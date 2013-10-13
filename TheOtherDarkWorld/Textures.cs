@@ -11,17 +11,24 @@ namespace TheOtherDarkWorld
 {
     public class Textures
     {
+        public const int ITEM_SCALE = 16;
+
         public static Texture2D Block { get; private set; }
         public static Texture2D Player { get; private set; }
         public static Texture2D Bullet { get; private set; }
         public static Texture2D Crosshair { get; private set; }
-        public static Texture2D SidePanel { get; private set; }
-        public static Texture2D ItemSlot { get; private set; }
-        public static Texture2D HealthPoint { get; private set; }
+        public static Texture2D HealthBarPiece { get; private set; }
         public static Texture2D Cursor { get; private set; }
         public static Texture2D Swipe { get; private set; }
 
-        public static List<Texture2D> UITextures { get; private set; }
+        //
+        //  UI Textures
+        //
+        public static Texture2D SidePanel { get; private set; }
+        public static Texture2D ItemSlot { get; private set; }
+        public static Texture2D HealthBar { get; private set; }
+        public static Texture2D Tooltip { get; private set; }
+        public static Texture2D SmartPhoneExterior { get; private set; }
 
         public static Texture2D Foreground { get; private set; }
 
@@ -37,8 +44,7 @@ namespace TheOtherDarkWorld
         {
             MenuTextures = new Texture2D[10];
             Crosshair = Content.Load<Texture2D>("Crosshair");
-            SidePanel = Content.Load<Texture2D>("SidePanel");
-            HealthPoint = Content.Load<Texture2D>("HealthPoint");
+            HealthBarPiece = Content.Load<Texture2D>("HealthBarPiece");
             Cursor = Content.Load<Texture2D>("Cursor");
             Swipe = Content.Load<Texture2D>("swipe");
 
@@ -52,9 +58,11 @@ namespace TheOtherDarkWorld
             Fonts[2] = Content.Load<SpriteFont>("Large");
             Fonts[3] = Content.Load<SpriteFont>("Huge");
 
-            UITextures = new List<Texture2D>();
-            UITextures.Add(Content.Load<Texture2D>("ItemSlot"));
-            UITextures.Add(Content.Load<Texture2D>("Tooltip"));
+            SidePanel = Content.Load<Texture2D>("SidePanel");
+            HealthBar = Content.Load<Texture2D>("HealthBar");
+            ItemSlot = Content.Load<Texture2D>("ItemSlot");
+            Tooltip = Content.Load<Texture2D>("Tooltip");
+            SmartPhoneExterior = Content.Load<Texture2D>("SmartPhoneExterior");
 
 
             Items = Content.Load<Texture2D>("ItemSheet");
@@ -67,7 +75,7 @@ namespace TheOtherDarkWorld
 
         public static Rectangle GetItemRectangle(int Type)
         {
-             return new Rectangle((Type * 16) % Items.Width, ((Type * 16) / Items.Width) * 16, 16, 16);
+             return new Rectangle((Type * ITEM_SCALE) % Items.Width, ((Type * ITEM_SCALE) / Items.Width) * ITEM_SCALE, ITEM_SCALE, ITEM_SCALE);
         }
     }
 

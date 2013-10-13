@@ -8,7 +8,7 @@ namespace TheOtherDarkWorld.GameObjects
 {
     public class Block
     {
-        public int Health { get; set; }
+        public float Health { get; set; }
         public int Resistance { get; set; }
         public Color Colour { get;  set; }
         public Item[] Drops;

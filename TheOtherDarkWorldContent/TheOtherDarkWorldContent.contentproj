@@ -111,8 +111,8 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="HealthPoint.png">
-      <Name>HealthPoint</Name>
+    <Compile Include="HealthBar.png">
+      <Name>HealthBar</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
@@ -148,6 +148,20 @@
   <ItemGroup>
     <Compile Include="swipe.png">
       <Name>swipe</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="HealthBarPiece.bmp">
+      <Name>HealthBarPiece</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="SmartPhoneExterior.png">
+      <Name>SmartPhoneExterior</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>

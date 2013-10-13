@@ -30,12 +30,12 @@ namespace TheOtherDarkWorld
 
         protected override void LoadContent()
         {
+            Textures.LoadTextures(Content, graphics.GraphicsDevice);
+
             graphics.PreferredBackBufferWidth = UI.ScreenX = 800;
             graphics.PreferredBackBufferHeight = UI.ScreenY = 600;
-            graphics.ApplyChanges();
+            graphics.ApplyChanges(); 
 
-            Textures.LoadTextures(Content, graphics.GraphicsDevice);
-            
             //Fix the screen width so that it doesnt include the side panel
             UI.ScreenX -= Textures.SidePanel.Width;
 
@@ -70,11 +70,6 @@ namespace TheOtherDarkWorld
             {
                 Level.CurrentLevel.Update();
 
-                if (Player.PlayerList != null)
-                    Player.PlayerList[0].Update();
-
-
-
                 if (Projectile.ProjectileList != null)
                     for (int i = 0; i < Projectile.ProjectileList.Count; i++)
                     {
@@ -92,9 +87,12 @@ namespace TheOtherDarkWorld
 
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            if (Level.CurrentLevel.Players != null && Level.CurrentLevel.Players[Level.CurrentLevel.PlayerIndex].IsBlinded)
+                GraphicsDevice.Clear(Color.White);
+            else
+                GraphicsDevice.Clear(Color.Black);
 
-            spriteBatch.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend);
+            spriteBatch.Begin(SpriteSortMode.FrontToBack, BlendState.NonPremultiplied);
             if (StateManager.State == 0)
             {
                 string prompt = "Press Enter to Begin...";
@@ -104,22 +102,31 @@ namespace TheOtherDarkWorld
             if (StateManager.State == 1)
             {
                 string prompt = "Press Enter to Retry...";
-                if (!Player.PlayerList[0].IsAlive)
+                if (!Level.CurrentLevel.Players[0].IsAlive)
                     spriteBatch.DrawString(Textures.Fonts[2], prompt, new Vector2(UI.ScreenX / 2, UI.ScreenY / 2) - (Textures.Fonts[2].MeasureString(prompt) / 2f), Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
 
-
-                Level.CurrentLevel.Draw(spriteBatch);
-                Player.DrawAll(spriteBatch);
-                Projectile.DrawAll(spriteBatch);
-                if (UI.Tooltip != null)
-                    UI.Tooltip.Draw(spriteBatch);
-                UI.Draw(spriteBatch);
+                DrawGameObjects();
+                DrawHUDObjects();
             }
 
 
             spriteBatch.End();
 
             base.Draw(gameTime);
+        }
+
+        private void DrawGameObjects()
+        {
+            Level.CurrentLevel.Draw(spriteBatch);
+            Projectile.DrawAll(spriteBatch);
+            //Level.CurrentLevel.DrawPlayers(spriteBatch);
+        }
+
+        private void DrawHUDObjects()
+        {
+            UI.DrawTooltip(spriteBatch);
+            UI.Draw(spriteBatch);
+            UI.DrawHUD(spriteBatch, Level.CurrentLevel.Players[Level.CurrentLevel.PlayerIndex]);
         }
     }
 }

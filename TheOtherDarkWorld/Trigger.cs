@@ -5,9 +5,12 @@ using System.Text;
 
 namespace TheOtherDarkWorld
 {
-    public class Trigger:Action
+    /// <summary>
+    /// Contains the actions to be performed when trigger conditions are met
+    /// </summary>
+    public interface IObjectEffect
     {
-        public String Description { get; private set; }
-        public Event Event { get; set; }
+        void OnKill();
+        void OnClick();
     }
 }

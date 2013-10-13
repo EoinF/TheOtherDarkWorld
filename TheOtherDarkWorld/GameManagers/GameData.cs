@@ -50,6 +50,7 @@ namespace TheOtherDarkWorld
 
             stm.Position = 0;
 
+
             XmlSerializer ser = new XmlSerializer(typeof(T));
             T result = (ser.Deserialize(stm) as T);
 
@@ -81,7 +82,15 @@ namespace TheOtherDarkWorld
             for (int i = 0; i < node.ChildNodes.Count; i++)
             {
                 int type = int.Parse(node.ChildNodes[i].SelectSingleNode("Type").InnerText);
-                GameItems[type] = ConvertNode<Item>(node.ChildNodes[i]);
+
+                if (node.ChildNodes[i].Name == "Torch")
+                    GameItems[type] = ConvertNode<Torch>(node.ChildNodes[i]);
+                else if (node.ChildNodes[i].Name == "SmartPhone")
+                    GameItems[type] = ConvertNode<SmartPhone>(node.ChildNodes[i]);
+                else if (node.ChildNodes[i].Name == "PhoneApp")
+                    GameItems[type] = ConvertNode<PhoneApp>(node.ChildNodes[i]);
+                else
+                    GameItems[type] = ConvertNode<Item>(node.ChildNodes[i]);
             }
         }
 

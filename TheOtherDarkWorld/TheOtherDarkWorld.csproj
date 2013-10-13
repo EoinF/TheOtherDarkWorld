@@ -111,7 +111,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="GameObjects\Enemy.cs" />
-    <Compile Include="GameObjects\Light.cs" />
+    <Compile Include="GameObjects\Entity.cs" />
+    <Compile Include="GameObjects\Items\PhoneApp.cs" />
+    <Compile Include="GameObjects\Items\SmartPhone.cs" />
+    <Compile Include="GameObjects\Items\Togglable.cs" />
+    <Compile Include="GameObjects\Items\Torch.cs" />
+    <Compile Include="GameObjects\Raycast\Light.cs" />
+    <Compile Include="GameObjects\Raycast\Raycaster.cs" />
+    <Compile Include="GameObjects\Raycast\Vision.cs" />
+    <Compile Include="GameObjects\StatusEffect.cs" />
     <Compile Include="GameObjects\Tile.cs" />
     <Compile Include="UI\Action.cs" />
     <Compile Include="GameObjects\Block.cs" />
@@ -128,7 +136,6 @@
     <Compile Include="GameObjects\Items\Item.cs" />
     <Compile Include="Level.cs" />
     <Compile Include="GameObjects\Items\Melee.cs" />
-    <Compile Include="GameObjects\Player%28Inventory%29.cs" />
     <Compile Include="GameObjects\Player.cs" />
     <Compile Include="GameObjects\Projectile.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -137,6 +144,7 @@
     <Compile Include="GameManagers\StateManager.cs" />
     <Compile Include="UI\TextSprite.cs" />
     <Compile Include="Textures.cs" />
+    <Compile Include="UI\UIElement.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Game.ico" />

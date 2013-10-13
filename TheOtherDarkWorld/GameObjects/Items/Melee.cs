@@ -11,11 +11,12 @@ namespace TheOtherDarkWorld.GameObjects
     {
         public int Reach { get; set; }
         public MeleeType AttackType { get; set; }
-        private int Knockback { get; set; }
+        public int Knockback { get; set; }
+        public int SwingLength { get; set; }
 
 
-        public Melee(int Type, int StartingDurability = -1)
-            : base(Type, StartingDurability)
+        public Melee(int Type, int StartingDurability = -1, Entity Owner = null)
+            : base(Type, StartingDurability, Owner)
         {
             Melee characteristics = (Melee)GameData.GameItems[Type];
             this.Reach = characteristics.Reach;
@@ -23,25 +24,19 @@ namespace TheOtherDarkWorld.GameObjects
             this.Knockback = characteristics.Knockback;
         }
 
+
         public Melee()
         {
         }
 
-        /// <summary>
-        /// The acrivate method of the Melee class; It reduces the durability of the weapon(if its consumable).
-        /// </summary>
-        /// <returns>Returns true if the weapon has been destroyed</returns>
-        public override bool Activate(float rotation, Vector2 Direction, Vector2 startPosition)
+        protected override void ApplyActive()
         {
-            if (IsConsumable)
-            {
-                //Find out what this item does and trigger it
-                Player.PlayerList[0].Swing = new Swing(Player.PlayerList[0].Rotation, this.Reach, this.Power, this.Cooldown, Knockback, (int)Player.PlayerList[0].Rect.Width, Player.PlayerList[0].ID);
-                UseCooldown = Cooldown;
-                Amount--;
-            }
+            Owner.Swing = new Swing(Owner.Rotation, this.Reach, this.Power, this.BaseCooldown, Knockback, (int)Owner.Rect.Width, Owner);
 
-            return (Amount == 0);
+
+            //Melee items work differently than normal items. The time taken to swing the weapon is added
+            //to the base cooldown
+            UseCooldown += SwingLength;
         }
     }
 
@@ -62,8 +57,8 @@ namespace TheOtherDarkWorld.GameObjects
         /// The distance the swing reaches in pixels
         /// </summary>
         private int Reach;
-        private int Owner;
-        private int Damage;
+        private Entity Owner;
+        private float Damage;
         private int Knockback;
         private float SwingSpeed;
         private float AddedRotation;
@@ -81,16 +76,15 @@ namespace TheOtherDarkWorld.GameObjects
         /// <param name="Reach">How many pixels the swing will reach</param>
         /// <param name="Damage">The damage caused by the swing</param>
         /// <param name="SwingSpeed">How quickly the swing ends</param>
-        /// <param name="Owner">The ID of the entity that initiated the swing</param>
-        public Swing(float Rotation, int Reach, int Damage, int TotalCooldown, int Knockback, int OwnerDiameter, int Owner)
+        /// <param name="Owner">The entity that initiated the swing</param>
+        public Swing(float Rotation, int Reach, float Damage, int SwingLength, int Knockback, int OwnerDiameter, Entity Owner)
         {
             this.Rotation = Rotation + (MathHelper.Pi * 1.65f);
             this.Knockback = Knockback;
             this.Reach = Reach;
             this.Damage = Damage;
 
-            //Two Pi is used, because we want the swing to end in half the time it takes the cooldown to end.
-            this.SwingSpeed =  MathHelper.TwoPi / TotalCooldown;
+            this.SwingSpeed = MathHelper.Pi / SwingLength;
             this.Owner = Owner;
             AddedRotation = 0;
             SourceRect = new Rectangle(0, 0, Textures.Swipe.Width, Reach);
@@ -119,17 +113,20 @@ namespace TheOtherDarkWorld.GameObjects
 
         private void CheckCollisions()
         {
-            for (int i = 0; i < Level.CurrentLevel.Enemies.Count; i++)
+            for (int i = 0; i < Level.CurrentLevel.Entities.Count; i++)
             {
-                Enemy e = Level.CurrentLevel.Enemies[i];
-                if (e.HitCooldown <= 0)
-                    if (Vector2.Distance(Position, e.Position + e.Origin) < Reach + (e.Texture.Width / 2))
-                    {
-                        e.Health -= Damage;
-                        e.HitVelocity += (HitVector
-                            * Knockback) / e.Weight;
-                        e.HitCooldown = 50;
-                    }
+                Entity e = Level.CurrentLevel.Entities[i];
+                if (e != Owner) //An entity can't hit itself with its own melee attack
+                {
+                    if (e.HitCooldown <= 0)
+                        if (Vector2.Distance(Position, e.Position + e.Origin) < Reach + (e.Texture.Width / 2))
+                        {
+                            e.ApplyDamage(Damage);
+                            e.HitVelocity += (HitVector
+                                * Knockback) / e.Weight;
+                            e.HitCooldown = Knockback;
+                        }
+                }
             }
         }
 

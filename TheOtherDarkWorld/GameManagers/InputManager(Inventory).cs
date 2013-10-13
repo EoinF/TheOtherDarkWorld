@@ -12,7 +12,6 @@ namespace TheOtherDarkWorld
         private static int ItemHeld = -1;
         private static int ItemHoveringOver = -1; //The item the mouse is hovering over
         private static int ItemRestingOver = -1; //The item the mouse was left on in the last frame
-        public static int TooltipCounter; //When this reaches 60(1 second), a tooltip appears for the item
         
         private static void InventoryInput()
         {
@@ -20,18 +19,20 @@ namespace TheOtherDarkWorld
             ItemHoveringOver = -1;
             ItemHeld = -1;
 
-            if (UI.Inventory != null)
+            if (UI.Inventory_UI != null)
             {
-                for (int i = 0; i < UI.Inventory.Count; i++)
+                for (int i = 0; i < UI.Inventory_UI.Count; i++)
                 {
-                    if (UI.Inventory[i].IsMouseOver)
+                    UI.Inventory_UI[i].Update();
+
+                    if (UI.Inventory_UI[i].IsMouseOver)
                     {
                         ItemHoveringOver = i;
                     }
-                    if (UI.Inventory[i].IsHeld)
+                    if (UI.Inventory_UI[i].IsHeld)
                     {
                         ItemHeld = i;
-                        UI.Inventory[ItemHeld].Position = new Vector2(MousePositionP.X - 10, MousePositionP.Y - 10);
+                        UI.Inventory_UI[ItemHeld].Position = new Vector2(MousePositionP.X - 10, MousePositionP.Y - 10);
                     }
                 }
             }
@@ -42,7 +43,7 @@ namespace TheOtherDarkWorld
 
                 if (ItemHoveringOver >= 0)
                 {
-                    UI.Inventory[ItemHoveringOver].DoubleClick(ItemHoveringOver);
+                    UI.Inventory_UI[ItemHoveringOver].DoubleClick();
                 }
             }
             else if (JustLeftClicked)
@@ -50,13 +51,13 @@ namespace TheOtherDarkWorld
                 UI.DisableTooltip(); //If the player is clicking, the tooltip should be removed
 
                 if (ItemHoveringOver >= 0) //The player has just started clicking the left mouse button
-                    UI.Inventory[ItemHoveringOver].JustLeftClicked(ItemHoveringOver);
+                    UI.Inventory_UI[ItemHoveringOver].JustLeftClicked();
             }
             else if (mouseState[0].LeftButton == ButtonState.Released) //This means the player isn't clicking
             {
                 if (ItemHeld >= 0)
                 {
-                    UI.Inventory[ItemHeld].JustLeftReleased(ItemHeld, ItemHoveringOver);
+                    UI.Inventory_UI[ItemHeld].JustLeftReleased(ItemHeld, ItemHoveringOver);
                 }
             }
             else
@@ -69,29 +70,28 @@ namespace TheOtherDarkWorld
 
         private static void CheckTooltip()
         {
-            if (ItemHoveringOver != -1 && Player.PlayerList[0].Inventory[ItemHoveringOver] != null)
+            if (ItemHoveringOver != -1 && Level.CurrentLevel.Players[0].Inventory[ItemHoveringOver] != null)
             {
-                TooltipCounter++;
+                UI.IncrementTooltipCounter();
 
                 if (ItemRestingOver != ItemHoveringOver) //The Item the player is hovering over has changed
-                    TooltipCounter = 0; //This prevents the counter from appearing too quickly for the new item
-                else
-                {
+                    UI.ResetTooltipCounter(); //This prevents the tooltip from appearing too quickly for the new item
+                //else
+                //{
                     //If the mouse is still over the item, while the tooltip is being displayed
-                    if (UI.Tooltip != null)
-                        UI.Tooltip.Timeout = 60;
-                }
+                    //UI.RefreshTooltip(60);
+                //}
 
 
-                if (TooltipCounter > 60)
+                if (UI.TooltipCounterLimitReached())
                 {
                     string Header;
                     string Text;
 
-                    if (Player.PlayerList[0].Inventory[ItemHoveringOver] != null)
+                    if (Level.CurrentLevel.Players[0].Inventory[ItemHoveringOver] != null)
                     {
-                        Header = Player.PlayerList[0].Inventory[ItemHoveringOver].Name;
-                        Text = Player.PlayerList[0].Inventory[ItemHoveringOver].Description;
+                        Header = Level.CurrentLevel.Players[0].Inventory[ItemHoveringOver].Name;
+                        Text = Level.CurrentLevel.Players[0].Inventory[ItemHoveringOver].Description;
                     }
                     else
                         return; //If there is no item, then we can't display a tooltip
@@ -100,13 +100,12 @@ namespace TheOtherDarkWorld
                     int ttPosY = MousePositionP.Y;
 
                     //Make sure that the tooltip is always visible, if it's being shown
-                    if (MousePositionP.X + Textures.UITextures[1].Width > UI.ScreenX)
-                        ttPosX = MousePositionP.X - Textures.UITextures[1].Width;
-                    if (MousePositionP.Y + Textures.UITextures[1].Height > UI.ScreenY)
-                        ttPosY = MousePositionP.Y - Textures.UITextures[1].Height;
+                    if (MousePositionP.X + Textures.Tooltip.Width > UI.ScreenX)
+                        ttPosX = MousePositionP.X - Textures.Tooltip.Width;
+                    if (MousePositionP.Y + Textures.Tooltip.Height > UI.ScreenY)
+                        ttPosY = MousePositionP.Y - Textures.Tooltip.Height;
 
-                    UI.Tooltip = new Tooltip(new Vector2(ttPosX, ttPosY), Header, Text);
-                    TooltipCounter = 0;
+                    UI.EnableTooltip(new Vector2(ttPosX, ttPosY), Header, Text, 0);
                 }
             }
         }
