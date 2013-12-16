@@ -110,10 +110,15 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="GameManagers\DebugManager.cs" />
     <Compile Include="GameObjects\Enemy.cs" />
     <Compile Include="GameObjects\Entity.cs" />
-    <Compile Include="GameObjects\Items\PhoneApp.cs" />
-    <Compile Include="GameObjects\Items\SmartPhone.cs" />
+    <Compile Include="GameObjects\Items\Goggles.cs" />
+    <Compile Include="GameObjects\Items\ItemEffect.cs" />
+    <Compile Include="GameObjects\Items\PhoneItems\FlashlightApp.cs" />
+    <Compile Include="GameObjects\Items\PhoneItems\MainMenuApp.cs" />
+    <Compile Include="GameObjects\Items\PhoneItems\PhoneApp.cs" />
+    <Compile Include="GameObjects\Items\PhoneItems\SmartPhone.cs" />
     <Compile Include="GameObjects\Items\Togglable.cs" />
     <Compile Include="GameObjects\Items\Torch.cs" />
     <Compile Include="GameObjects\Raycast\Light.cs" />
@@ -121,7 +126,6 @@
     <Compile Include="GameObjects\Raycast\Vision.cs" />
     <Compile Include="GameObjects\StatusEffect.cs" />
     <Compile Include="GameObjects\Tile.cs" />
-    <Compile Include="UI\Action.cs" />
     <Compile Include="GameObjects\Block.cs" />
     <Compile Include="UI\Button.cs" />
     <Compile Include="GameObjects\Collision.cs" />
@@ -142,9 +146,16 @@
     <Compile Include="Program.cs" />
     <Compile Include="Game1.cs" />
     <Compile Include="GameManagers\StateManager.cs" />
+    <Compile Include="UI\CursorType.cs" />
+    <Compile Include="UI\DragAndDropType.cs" />
+    <Compile Include="UI\InventoryContainer.cs" />
+    <Compile Include="UI\InventoryElement.cs" />
     <Compile Include="UI\TextSprite.cs" />
     <Compile Include="Textures.cs" />
+    <Compile Include="UI\UIContainer.cs" />
     <Compile Include="UI\UIElement.cs" />
+    <Compile Include="UI\UIGrid.cs" />
+    <Compile Include="UI\UISlider.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Game.ico" />
@@ -189,7 +200,6 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="UI\Tooltip.cs" />
     <Compile Include="Trigger.cs" />
     <Compile Include="UI\UI.cs" />
   </ItemGroup>

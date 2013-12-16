@@ -56,18 +56,14 @@ namespace TheOtherDarkWorld.GameObjects
             {
                 Item fuel = Owner.GetItem(Consumes);
                 if (Consumes == -1 //If consumes is set to -1 it's free to use
-                    || (fuel != null && fuel.Amount > 0)) //otherwise check for fuel
+                    || (fuel != null && fuel.Consume(this.ConsumeRate))) //otherwise check for fuel
                 {
                     ApplyToggledPassive();
-                    ConsumeTicks++;
-                    if (ConsumeTicks >= ConsumeTime)
-                    {
-                        ConsumeTicks = 0;
-                        fuel.Amount--;
-                    }
                 }
                 else
+                {
                     Toggle();
+                }
             }
         }
 

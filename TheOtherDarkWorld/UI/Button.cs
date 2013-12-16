@@ -8,67 +8,86 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace TheOtherDarkWorld
 {
-    public class Button
+    public class Button : UIContainer
     {
-        public static List<Button> ButtonList { get; set; }
+        private Color _clickColour;
+        private Color _originalColour;
+        public Action<object> OnPressed;
+        private bool _startedClickHere;
 
-        public Vector2 Position { get; private set; }
-        public Rectangle Rect { get; private set; }
-        private byte _sfxCounter;
-        public bool WasMouseClicking { get; set; }
-        public TextSprite Text { get; set; }
-
-        private int _texture;
-        public Texture2D Texture { get { return Textures.MenuTextures[_texture]; } }
-
-
-        public Button(Vector2 Position, TextSprite Text, int texture)
+        public Button(Texture2D Texture = null, Vector2 Position = new Vector2(), Rectangle? SrcRect = null,
+            int Width = UI_AUTO, int Height = UI_AUTO,
+            bool IsActive = true, bool IsDraggable = false, CursorType CursorType = UI.CURSOR_DEFAULT,
+            bool CentreHorizontal = false, bool CentreVertical = false,
+            float MarginLeft = UI_AUTO, float MarginRight = UI_AUTO, float MarginTop = UI_AUTO, float MarginBottom = UI_AUTO,
+            float opacity = UI_INHERIT, float layerDepth = UI_INHERIT,
+            DragAndDropType DragAndDropType = DragAndDropType.None,
+            string Text = "")
+            : base(Texture, Position, SrcRect, Width, Height, IsActive, IsDraggable, CursorType, MarginLeft, MarginRight, MarginTop, MarginBottom, opacity, layerDepth, true, true, DragAndDropType)
         {
-            this.Position = Position;
-            this.Text = Text;
-            this._texture = texture;
-        }
+            AddElement(new TextSprite(Text, 2, Color.White, CursorType));
 
-        private bool IsMouseOver()
-        {
-            return (InputManager.MousePositionP.X > Rect.Left
-                && InputManager.MousePositionP.X < Rect.Right
-                && InputManager.MousePositionP.Y > Rect.Top
-                && InputManager.MousePositionP.Y < Rect.Bottom);
-        }
+            this.OnPressed = new Action<object>(x => { });
 
-        public void Activate()
-        {
-
-        }
-
-        public void Update()
-        {
-            if (WasMouseClicking) //If the mouse was already clicking on the button
+            this.OnLeftClicked += (x) =>
             {
-                if (InputManager.JustLeftReleased)//and then the mouse was released
-                    this.Activate(); //Then the button was activated
-                _sfxCounter++;
-            }
-            else //If the button wasn't already being clicked
+                _startedClickHere = true;
+            };
+            this.OnLeftReleased += (x) =>
             {
-                if (InputManager.JustLeftClicked)
-                    WasMouseClicking = IsMouseOver();
-                else
-                    WasMouseClicking = false;
-            }
-
-            //If the mouse isn't being clicked now, then switch WasMouseClicking to false
-            if (InputManager.JustLeftReleased)
-                WasMouseClicking = false;
-
+                if (_startedClickHere)
+                {
+                    this.OnPressed(this);
+                }
+            };
         }
 
-        public void Draw(SpriteBatch spriteBatch)
+        public Button(Color Colour, Color HighlightColour, Color ClickColour, Texture2D Texture = null, Vector2 Position = new Vector2(), Rectangle? SrcRect = null,
+           int Width = UI_AUTO, int Height = UI_AUTO,
+           bool IsActive = true, bool IsDraggable = false, CursorType CursorType = UI.CURSOR_DEFAULT,
+           float MarginLeft = UI_AUTO, float MarginRight = UI_AUTO, float MarginTop = UI_AUTO, float MarginBottom = UI_AUTO,
+           float opacity = UI_INHERIT, float layerDepth = UI_INHERIT,
+           bool CentreHorizontal = false, bool CentreVertical = false,
+           DragAndDropType DragAndDropType = DragAndDropType.None,
+           string Text = "")
+            : base(Colour, HighlightColour, Texture, Position, SrcRect, Width, Height, IsActive, IsDraggable, CursorType, MarginLeft, MarginRight, MarginTop, MarginBottom, opacity, layerDepth, true, true, DragAndDropType)
         {
+            _originalColour = HighlightColour;
+            _clickColour = ClickColour;
 
+            this.OnPressed = new Action<object>(x => { });
+
+            this.OnLeftClicked += (x) =>
+            {
+                _startedClickHere = true;
+                (x as Button)._highlightColour = _clickColour;
+            };
+            this.OnLeftReleased += (x) =>
+            {
+                if (_startedClickHere)
+                {
+                    this.OnPressed(this);
+                }
+            };
+
+            if (Text == null)
+                System.Diagnostics.Debugger.Break();
+            else
+                AddElement(new TextSprite(Text, 2, Colour, 0, CursorType: CursorType));
         }
 
 
+        public override void Update()
+        {
+            base.Update();
+            if (IsActive)
+            {
+                if (!InputManager.LeftClicking)
+                {
+                    _highlightColour = _originalColour;
+                    _startedClickHere = false;
+                }
+            }
+        }
     }
 }

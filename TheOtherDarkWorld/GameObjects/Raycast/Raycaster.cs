@@ -8,7 +8,7 @@ namespace TheOtherDarkWorld.GameObjects
 {
     public abstract class Raycaster
     {
-        public float Radius { get; private set; }
+        public float Radius { get; set; }
         public bool IsActive { get; set; }
 
         public Vector2 Position { get; private set; }

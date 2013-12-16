@@ -10,10 +10,19 @@ namespace TheOtherDarkWorld.GameObjects
 {
     public class Gun : Item
     {
+        //
+        //TODO: Fix bug where muzzle flash flickers twice instead of just once
+        //      when trying to fire a non-automatic gun rapidly
+        //
+        private const float bright_begin = 0.2f;
+        private const float bright_rate = 0.145f;
+
         #region Properties & Fields
 
         //State variables
         public int ReloadCooldown { get; set; }
+        private Light flash { get; set; }
+        private float currentLight { get; set; }
 
         //Characteristics
         public int Penetration { get; set; }
@@ -22,6 +31,7 @@ namespace TheOtherDarkWorld.GameObjects
         public Color BulletColour { get; set; }
         public int BulletType { get; set; }
         public GunType AttackType { get; set; }
+        public float MuzzleFlashMagnitude { get; set; }
 
         #endregion
 
@@ -35,6 +45,10 @@ namespace TheOtherDarkWorld.GameObjects
             this.BulletSpeed = characteristics.BulletSpeed;
             this.ReloadTime = characteristics.ReloadTime;
             this.AttackType = characteristics.AttackType;
+            this.MuzzleFlashMagnitude = characteristics.MuzzleFlashMagnitude;
+
+            flash = new Light(bright_begin, 1000 * MuzzleFlashMagnitude, Owner.Position, Vector2.Zero, MathHelper.Pi, Color.Yellow, Level.CurrentLevel.Tiles, false);
+            Level.CurrentLevel.AddLight(flash);
         }
 
         /// <summary>
@@ -48,7 +62,7 @@ namespace TheOtherDarkWorld.GameObjects
         {
             if (Amount <= 0)
                 Reload();
-            else
+            else if (ReloadCooldown <= 0)
                 base.Activate();
         }
 
@@ -56,31 +70,27 @@ namespace TheOtherDarkWorld.GameObjects
         {
             Vector2 direction = new Vector2((float)Math.Cos(Owner.Rotation - MathHelper.PiOver2), (float)Math.Sin(Owner.Rotation - MathHelper.PiOver2));
             direction.Normalize();
-            Vector2 startPosition = new Vector2(Owner.Rect.Center.X - 5, Owner.Rect.Center.Y - 5) + (direction * 3);
+            Vector2 startPosition = (Owner.Rect.Center + (Owner.Origin / 2));
 
             Random rand = new Random();
             switch (AttackType)
             {
                 case GunType.Single:
-                    if (ReloadCooldown <= 0)
-                    {
-                        Projectile.ProjectileList.Add(new Projectile(Power, Penetration, BulletSpeed, BulletColour, Owner, direction, startPosition, Owner.Rotation));
-                    }
+                    Projectile.ProjectileList.Add(new Projectile(Power, Penetration, BulletSpeed, BulletColour, Owner, direction, startPosition, Owner.Rotation));
                     break;
                 case GunType.Shotgun:
-                    if (ReloadCooldown <= 0)
+                    for (int numShots = 0; numShots < 20; numShots++)
                     {
-                        for (int numShots = 0; numShots < 20; numShots++)
-                        {
-                            //Creates a new rotation that is close to the original rotation
-                            float newRotation = Owner.Rotation + (float)(rand.NextDouble() / 4) - 0.125f;
-                            direction = new Vector2((float)Math.Cos(newRotation - MathHelper.PiOver2), (float)Math.Sin(newRotation - MathHelper.PiOver2));
-                            direction.Normalize();
-                            Projectile.ProjectileList.Add(new Projectile(Power, Penetration, BulletSpeed, BulletColour, Owner, direction, startPosition, newRotation));
-                        }
+                        //Creates a new rotation that is close to the original rotation
+                        float newRotation = Owner.Rotation + (float)(rand.NextDouble() / 4) - 0.125f;
+                        direction = new Vector2((float)Math.Cos(newRotation - MathHelper.PiOver2), (float)Math.Sin(newRotation - MathHelper.PiOver2));
+                        direction.Normalize();
+                        Projectile.ProjectileList.Add(new Projectile(Power, Penetration, BulletSpeed, BulletColour, Owner, direction, startPosition, newRotation));
                     }
                     break;
             }
+            flash.IsActive = true;
+            currentLight = bright_begin;
         }
 
         public override void Update()
@@ -92,6 +102,23 @@ namespace TheOtherDarkWorld.GameObjects
 
             ApplyPassive();
         }
+
+        protected override void ApplyPassive()
+        {
+            base.ApplyPassive();
+            if (currentLight < MuzzleFlashMagnitude)
+            {
+                flash.Brightness = currentLight;
+                currentLight += bright_rate;
+                flash.Update(Owner.Position, Owner.Direction);
+            }
+            else
+            {
+                flash.IsActive = false;
+            }
+
+        }
+
         public void Reload()
         {
             //If the gun doesn't need to be reloaded

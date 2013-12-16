@@ -26,18 +26,13 @@ namespace TheOtherDarkWorld
             Content.RootDirectory = "Content";
         }
 
-
-
         protected override void LoadContent()
         {
             Textures.LoadTextures(Content, graphics.GraphicsDevice);
 
             graphics.PreferredBackBufferWidth = UI.ScreenX = 800;
             graphics.PreferredBackBufferHeight = UI.ScreenY = 600;
-            graphics.ApplyChanges(); 
-
-            //Fix the screen width so that it doesnt include the side panel
-            UI.ScreenX -= Textures.SidePanel.Width;
+            graphics.ApplyChanges();
 
             Window.Title = "The Other Dark World";
 
@@ -61,72 +56,74 @@ namespace TheOtherDarkWorld
 
         protected override void Update(GameTime gameTime)
         {
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
-                this.Exit();
-
-            InputManager.Update();
-
-            if (StateManager.State == 1)
+            //try
             {
-                Level.CurrentLevel.Update();
+                if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
+                    this.Exit();
 
-                if (Projectile.ProjectileList != null)
-                    for (int i = 0; i < Projectile.ProjectileList.Count; i++)
-                    {
-                        if (Projectile.ProjectileList[i].Update()) //returns true if the projectile was destroyed
+                InputManager.Update();
+
+                if (StateManager.State == 1)
+                {
+                    Level.CurrentLevel.Update();
+
+                    if (Projectile.ProjectileList != null)
+                        for (int i = 0; i < Projectile.ProjectileList.Count; i++)
                         {
-                            Projectile.ProjectileList.RemoveAt(i);
-                            i--;
+                            if (Projectile.ProjectileList[i].Update()) //returns true if the projectile was destroyed
+                            {
+                                Projectile.ProjectileList.RemoveAt(i);
+                                i--;
+                            }
                         }
-                    }
-                UI.Update();
-            }
+                    UI.Update();
+                }
 
-            base.Update(gameTime);
+                base.Update(gameTime);
+            }
+            try { }
+            catch (Exception ex)
+            {
+                DebugManager.WriteError(ex);
+            }
         }
 
         protected override void Draw(GameTime gameTime)
         {
-            if (Level.CurrentLevel.Players != null && Level.CurrentLevel.Players[Level.CurrentLevel.PlayerIndex].IsBlinded)
-                GraphicsDevice.Clear(Color.White);
-            else
-                GraphicsDevice.Clear(Color.Black);
-
-            spriteBatch.Begin(SpriteSortMode.FrontToBack, BlendState.NonPremultiplied);
-            if (StateManager.State == 0)
+            GraphicsDevice.Clear(Color.Black);
+            //try
             {
-                string prompt = "Press Enter to Begin...";
-                spriteBatch.DrawString(Textures.Fonts[2], prompt, new Vector2(graphics.PreferredBackBufferWidth / 2, UI.ScreenY / 2) - (Textures.Fonts[2].MeasureString(prompt) / 2f), Color.White);
+                if (StateManager.State == 0)
+                {
+                    spriteBatch.Begin(SpriteSortMode.FrontToBack, BlendState.NonPremultiplied);
+                    string prompt = "Press Enter to Begin...\n\n    Double click items to activate them\n    Press n to send the next wave\n    Press enter to restart the game";
+                    spriteBatch.DrawString(Textures.Fonts[2], prompt, new Vector2(graphics.PreferredBackBufferWidth / 2, UI.ScreenY / 2) - (Textures.Fonts[2].MeasureString(prompt) / 2f), Color.White);
 
+                }
+                if (StateManager.State == 1)
+                {
+                    spriteBatch.Begin(SpriteSortMode.FrontToBack, BlendState.NonPremultiplied);
+                    if (Level.CurrentLevel.Players != null && Level.CurrentLevel.Players[Level.CurrentLevel.PlayerIndex].IsBlinded)
+                        GraphicsDevice.Clear(Color.White);
+
+                    string prompt = "Press Enter to Retry...\n\n    Double click items to activate them\n    Press n to send the next wave\n    Press enter to restart the game";
+                    if (!Level.CurrentLevel.Players[0].IsAlive)
+                        spriteBatch.DrawString(Textures.Fonts[2], prompt, new Vector2(UI.ScreenX / 2, UI.ScreenY / 2) - (Textures.Fonts[2].MeasureString(prompt) / 2f), Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
+
+                    Level.CurrentLevel.Draw(spriteBatch);
+                    Projectile.DrawAll(spriteBatch);
+                    UI.DrawHUD(spriteBatch, Level.CurrentLevel.Players[Level.CurrentLevel.PlayerIndex]);
+                }
+
+                spriteBatch.End();
+
+                base.Draw(gameTime);
             }
-            if (StateManager.State == 1)
+            try { }
+            catch (Exception ex)
             {
-                string prompt = "Press Enter to Retry...";
-                if (!Level.CurrentLevel.Players[0].IsAlive)
-                    spriteBatch.DrawString(Textures.Fonts[2], prompt, new Vector2(UI.ScreenX / 2, UI.ScreenY / 2) - (Textures.Fonts[2].MeasureString(prompt) / 2f), Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
-
-                DrawGameObjects();
-                DrawHUDObjects();
+                DebugManager.WriteError(ex);
             }
-
-
-            spriteBatch.End();
-
-            base.Draw(gameTime);
-        }
-
-        private void DrawGameObjects()
-        {
-            Level.CurrentLevel.Draw(spriteBatch);
-            Projectile.DrawAll(spriteBatch);
-            //Level.CurrentLevel.DrawPlayers(spriteBatch);
-        }
-
-        private void DrawHUDObjects()
-        {
-            UI.DrawTooltip(spriteBatch);
-            UI.Draw(spriteBatch);
-            UI.DrawHUD(spriteBatch, Level.CurrentLevel.Players[Level.CurrentLevel.PlayerIndex]);
         }
     }
 }

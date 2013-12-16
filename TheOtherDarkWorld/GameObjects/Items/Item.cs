@@ -6,13 +6,15 @@ using Microsoft.Xna.Framework;
 
 namespace TheOtherDarkWorld.GameObjects
 {
-    public class Item : Action
+    public class Item
     {
+        const int CONSUMETICKS_LIMIT = 600; //1 second to consume a 10 ConsumeRate item if consumed every frame for 1 second
+
         //
         //Default values for an item when deserialized from the xml
         //
         const int CONSUMES_DEFAULT = -1;
-        const int CONSUMETIME_DEFAULT = 1;
+        const int CONSUMERATE_DEFAULT = 600; //Consumed once per use
         const int USECOOLDOWN_DEFAULT = 1;
         const string DESCRIPTION_DEFAULT = "This item is a mystery to me!";
 
@@ -26,10 +28,25 @@ namespace TheOtherDarkWorld.GameObjects
         public int MaxAmount { get; set; }
 
         public int Consumes { get; set; }
-        public int ConsumeTime { get; set; } //The number of ticks before the item it consumes is consumed again
+        private int _consumeRate;
+        public virtual int ConsumeRate
+        {
+            get
+            {
+                return _consumeRate;
+            }
+            set
+            {
+                _consumeRate = value;
+            }
+        } //The amount of the item that has been consumed
         protected int ConsumeTicks { get; set; }
 
         public bool IsConsumable { get; set; } //If true, this item consumes itself based on the consume rate
+        public bool DestroyedWhenEmpty { get; set; } //The item is discarded when amount = 0
+
+        public ItemEffect[] ActiveEffects { get; set; }
+        public ItemEffect[] PassiveEffects { get; set; }
 
         /// <summary>
         /// The time remaining before this item can be used again
@@ -40,6 +57,8 @@ namespace TheOtherDarkWorld.GameObjects
         /// The original cooldown for this item(This should not be modified)
         /// </summary>
         public int BaseCooldown { get; set; }
+
+        public string Name { get; set; }
         public string Description { get; set; }
 
 
@@ -57,23 +76,13 @@ namespace TheOtherDarkWorld.GameObjects
             }
         }
 
-        private int _amount;
-        public int Amount
-        {
-            get
-            {
-                return _amount;
-            }
-            set
-            {
-                _amount = value;
-            }
-        }
+        //private int _amount;
+        public int Amount { get; set; }
 
         #endregion
 
         /// <summary>
-        /// The base method of the Item class; It reduces the amount of the item if its consumable.
+        /// The base method of the Item class; It reduces the amount of the item if its consumable. Otherwise, it consumes the fuel
         /// </summary>
         /// <returns>Returns true if the item has been used up completely</returns>
         public virtual void Activate()
@@ -84,32 +93,17 @@ namespace TheOtherDarkWorld.GameObjects
                 {
                     if (IsConsumable) //This item is consumed when used
                     {
-                        if (Amount > 0)
-                        {
+                        if (Consume(this.ConsumeRate))
                             ApplyActive();
-
-                            ConsumeTicks++;
-                            if (ConsumeTicks >= ConsumeTime)
-                            {
-                                ConsumeTicks = 0;
-                                Amount--;
-                            }
-                        }
                     }
                     else //A different item is consumed when used
                     {
                         Item fuel = Owner.GetItem(Consumes);
                         if (fuel != null)
                         {
-                            ApplyActive();
-                            if (ConsumeTicks > ConsumeTime)
+                            if (fuel.Consume(this.ConsumeRate)) //If there is enough fuel
                             {
-                                ConsumeTicks = 0;
-                                fuel.Amount--;
-                            }
-                            else
-                            {
-                                ConsumeTicks++;
+                                ApplyActive();
                             }
                         }
                     }
@@ -122,28 +116,54 @@ namespace TheOtherDarkWorld.GameObjects
             }
         }
 
+        public bool Consume(int rate)
+        {
+            if (Amount > 0)
+            {
+                ConsumeTicks += rate;
+                if (ConsumeTicks >= CONSUMETICKS_LIMIT)
+                {
+                    ConsumeTicks -= CONSUMETICKS_LIMIT;
+                    Amount--;
+                }
+                return true;
+            }
+            else
+                return false; //Nothing left to consume
+        }
 
 
         public Item(int type, int amount = -1, Entity owner = null)
         {
-            Type = type;
+            this.Type = type;
+            this.Owner = owner;
             Item characteristics = GameData.GameItems[type];
 
-            this.IsConsumable = characteristics.IsConsumable;
-            this.Consumes = characteristics.Consumes;
-            this.ConsumeTime = characteristics.ConsumeTime;
-            this.MaxAmount = characteristics.MaxAmount;
-            this.Name = characteristics.Name;
-            this.Owner = owner;
-            this.BaseCooldown = characteristics.BaseCooldown;
-            this.Power = characteristics.Power;
-            this.IsAutomatic = characteristics.IsAutomatic;
-            this.Description = characteristics.Description;
+            if (characteristics == null)
+            {
+                DebugManager.WriteError("Item type " + type + " not define in GameContent.xml");
+            }
+            else
+            {
+                this.IsConsumable = characteristics.IsConsumable;
+                this.Consumes = characteristics.Consumes;
+                this.ConsumeRate = characteristics.ConsumeRate;
+                this.PassiveEffects = characteristics.PassiveEffects;
+                this.ActiveEffects = characteristics.ActiveEffects;
+                this.MaxAmount = characteristics.MaxAmount;
+                this.Name = characteristics.Name;
+                this.BaseCooldown = characteristics.BaseCooldown;
+                this.Power = characteristics.Power;
+                this.IsAutomatic = characteristics.IsAutomatic;
+                this.Description = characteristics.Description;
+                this.DestroyedWhenEmpty = characteristics.DestroyedWhenEmpty;
+            }
+
 
             if (amount < 0)
-                _amount = MaxAmount;
+                Amount = MaxAmount;
             else
-                _amount = amount;
+                Amount = amount;
         }
 
         /// <summary>
@@ -155,9 +175,12 @@ namespace TheOtherDarkWorld.GameObjects
             //Apply the default values for an item while it's being deserialized from the xml(in case they aren't specified in the xml)
             //
             Consumes = CONSUMES_DEFAULT;
-            ConsumeTime = CONSUMETIME_DEFAULT;
+            ConsumeRate = CONSUMERATE_DEFAULT;
             UseCooldown = USECOOLDOWN_DEFAULT;
             Description = DESCRIPTION_DEFAULT;
+            DestroyedWhenEmpty = true;
+            PassiveEffects = new ItemEffect[0];
+            ActiveEffects = new ItemEffect[0];
         }
 
         public virtual void Update()
@@ -170,21 +193,17 @@ namespace TheOtherDarkWorld.GameObjects
 
         protected virtual void ApplyPassive()
         {
-            //TODO: Apply passive effect
-            switch (Type)
+            foreach (ItemEffect ie in PassiveEffects)
             {
-                case 0:
-                    break;
+                ie.Activate(this.Owner);
             }
         }
 
         protected virtual void ApplyActive()
         {
-            //TODO: Apply active effect
-            switch (Type)
+            foreach (ItemEffect ie in ActiveEffects)
             {
-                case 0:
-                    break;
+                ie.Activate(this.Owner);
             }
         }
     }

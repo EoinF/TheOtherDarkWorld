@@ -16,7 +16,7 @@ namespace TheOtherDarkWorld.GameObjects
 
         public Vector2 Position { get; set; }
         public Vector2 Velocity { get; set; }
-        public float Speed { get; set; }
+        public virtual float Speed { get; set; }
         public virtual Color Colour { get; set; }
         public Vector2 Origin { get; private set; }
         public int Resistance { get; set; }
@@ -129,8 +129,6 @@ namespace TheOtherDarkWorld.GameObjects
                         if (Tiles[i, j].Block == null) //If there is no block here,
                             continue; //go to the next tile
 
-                        //TODO: Decide if this rough check is actually necessary when only the
-                        //nearby blocks are checked anyway
                         if (RoughRect.Intersects(Tiles[i, j].Rect))
                         {
                             collisions.Add(new Collision(this, Tiles[i, j], i, j));
@@ -204,7 +202,7 @@ namespace TheOtherDarkWorld.GameObjects
         public virtual void Draw(SpriteBatch spriteBatch)
         {
             if (IsVisible)
-                spriteBatch.Draw(Textures.Block, Position + Origin - Level.CurrentLevel.Players[0].Offset, null, getLightColour(), 0, Vector2.Zero, 1, SpriteEffects.None, 0.1f);
+                spriteBatch.Draw(Textures.Block, Position + Origin - Level.CurrentLevel.Players[0].Offset, null, getLightColour(), 0, Vector2.Zero, 1, SpriteEffects.None, UI.GAMEOBJECT_DEPTH_DEFAULT);
         }
     }
 }

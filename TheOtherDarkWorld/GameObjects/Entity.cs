@@ -42,6 +42,12 @@ namespace TheOtherDarkWorld.GameObjects
         public bool IsFrozen { get; protected set; }
         public bool IsInvisible { get; protected set; }
         public bool IsBinded { get; protected set; }
+        public float SpeedBonus { get; protected set; }
+        public override float Speed 
+        {
+            get { return base.Speed + SpeedBonus; } 
+            set { base.Speed = value; } 
+        }
 
         private static Color COLOUR_POISON = Color.Green;
         private static Color COLOUR_BURNING = Color.Red;
@@ -74,6 +80,14 @@ namespace TheOtherDarkWorld.GameObjects
 
         protected virtual Vector2 Target { get; set; }
 
+        public Vector2 Direction
+        {
+            get
+            {
+                return new Vector2((float)Math.Sin(Rotation), (float)Math.Cos(Rotation));
+            }
+        }
+
         public float Rotation
         {
             get
@@ -90,7 +104,7 @@ namespace TheOtherDarkWorld.GameObjects
             Inventory = new Item[inventorySize];
             StatusEffects = new List<StatusEffect>();
             BurnLight = new Light(0, 30, Vector2.Zero, Vector2.UnitX, MathHelper.Pi, Color.PaleVioletRed, Level.CurrentLevel.Tiles, false);
-            Level.CurrentLevel.Lights.Add(BurnLight);
+            Level.CurrentLevel.AddLight(BurnLight);
                             
         }
 
@@ -114,9 +128,78 @@ namespace TheOtherDarkWorld.GameObjects
             return false;
         }
 
+        /// <summary>
+        /// Places an item onto the floor of the map near the entity's position
+        /// </summary>
+        /// <param name="item">A pointer to the item to be dropped(Must be the actual pointer to the item in the Inventory array)</param>
+        /// <returns>True if the item actually exists in the entity's inventory</returns>
+        public virtual bool DropItem(Item item)
+        {
+            for (int i = 0; i < Inventory.Length; i++)
+            {
+                if (Inventory[i] != null && Inventory[i].Equals(item))
+                {
+                    Level.CurrentLevel.FloorItems.Add(new FloorItem(item, Position + Level.CurrentLevel.Players[0].Origin));
+                    item = null;
+                    Inventory[i] = null;
+                    return true;
+                }
+            }
+            return false;
+        }
+        /// <summary>
+        /// Removes an item from the game
+        /// </summary>
+        /// <param name="item">A pointer to the item to be trashed(Must be the actual pointer to the item in the Inventory array)</param>
+        /// <returns>True if the item actually exists in the entity's inventory</returns>
+        public virtual bool TrashItem(Item item)
+        {
+            for (int i = 0; i < Inventory.Length; i++)
+            {
+                if (Inventory[i] != null && Inventory[i].Equals(item))
+                {
+                    item = null;
+                    Inventory[i] = null;
+                    return true;
+                }
+            }
+            return false;
+        }
+        
+        /// <summary>
+        /// Removes an item from the game
+        /// </summary>
+        /// <param name="item">A pointer to the item to be trashed(Must be the actual pointer to the item in the Inventory array)</param>
+        /// <returns>True if the item actually exists in the entity's inventory</returns>
+        public virtual bool TrashItem(int index)
+        {
+            if (index >= 0 && index < Inventory.Length)
+            {
+                Inventory[index] = null;
+                return true;
+            }
+            return false;
+        }
+
         public void Update(Tile[,] Tiles, List<Entity> Entities)
         {
             UpdateStatusEffects();
+
+            //
+            //Apply passive effects of items and restore cooldowns
+            //
+            for (int i = 0; i < Inventory.Length; i++)
+            {
+                if (Inventory[i] != null)
+                {
+                    Inventory[i].Update();
+                    if (Inventory[i].Amount == 0)
+                    {
+                        if (Inventory[i].DestroyedWhenEmpty)
+                            TrashItem(i);
+                    }
+                }
+            }
 
             //
             //Check if the entity is lit up and/or visible
@@ -206,11 +289,12 @@ namespace TheOtherDarkWorld.GameObjects
             IsConfused = false;
             IsPoisoned = false;
             IsBurning = false;
+            SpeedBonus = 0;
 
 
             for (int i = 0; i < StatusEffects.Count; i++)
             {
-                if (StatusEffects[i].RemainingSeconds < 0)
+                if (StatusEffects[i].RemainingTicks < 0)
                 {
                     StatusEffects.RemoveAt(i);
                     i--;
@@ -242,6 +326,12 @@ namespace TheOtherDarkWorld.GameObjects
                         case StatusType.Poison:
                             IsPoisoned = true;
                             ApplyDamage(StatusEffects[i].Potency);
+                            break;
+                        case StatusType.Healing:
+                            ApplyHealing(StatusEffects[i].Potency);
+                            break;
+                        case StatusType.QuickFooted:
+                            SpeedBonus += StatusEffects[i].Potency;
                             break;
                     }
                 }
@@ -382,6 +472,20 @@ namespace TheOtherDarkWorld.GameObjects
                     return Inventory[i];
             }
             return null;
+
+        }/// <summary>
+        /// Get's the index of the first occurrence of an item within this entity's inventory, or if none is found, returns -1
+        /// </summary>
+        /// <param name="type">The type of item required</param>
+        /// <returns>The index of the item with the requested type, or if there is no item, returns -1</returns>
+        public int GetItemIndex(int type)
+        {
+            for (int i = 0; i < Inventory.Length; i++)
+            {
+                if (Inventory[i] != null && Inventory[i].Type == type && Inventory[i].Amount != 0)
+                    return i;
+            }
+            return -1;
         }
     }
 }

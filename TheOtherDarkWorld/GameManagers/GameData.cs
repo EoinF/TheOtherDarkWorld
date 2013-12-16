@@ -83,14 +83,21 @@ namespace TheOtherDarkWorld
             {
                 int type = int.Parse(node.ChildNodes[i].SelectSingleNode("Type").InnerText);
 
-                if (node.ChildNodes[i].Name == "Torch")
-                    GameItems[type] = ConvertNode<Torch>(node.ChildNodes[i]);
-                else if (node.ChildNodes[i].Name == "SmartPhone")
-                    GameItems[type] = ConvertNode<SmartPhone>(node.ChildNodes[i]);
-                else if (node.ChildNodes[i].Name == "PhoneApp")
-                    GameItems[type] = ConvertNode<PhoneApp>(node.ChildNodes[i]);
-                else
-                    GameItems[type] = ConvertNode<Item>(node.ChildNodes[i]);
+                switch (node.ChildNodes[i].Name)
+                {
+                    case "Torch":
+                        GameItems[type] = ConvertNode<Torch>(node.ChildNodes[i]);
+                        break;
+                    case "SmartPhone":
+                        GameItems[type] = ConvertNode<SmartPhone>(node.ChildNodes[i]);
+                        break;
+                    case "Goggles":
+                        GameItems[type] = ConvertNode<Goggles>(node.ChildNodes[i]);
+                        break;
+                    default:
+                        GameItems[type] = ConvertNode<Item>(node.ChildNodes[i]);
+                        break;
+                }
             }
         }
 

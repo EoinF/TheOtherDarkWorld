@@ -8,7 +8,7 @@ using TheOtherDarkWorld.GameObjects;
 
 namespace TheOtherDarkWorld
 {
-    public struct Level
+    public class Level
     {
         public static Level CurrentLevel;
 
@@ -17,17 +17,17 @@ namespace TheOtherDarkWorld
         public Player[] Players;
         public List<FloorItem> FloorItems;
         public List<Entity> Entities;
-        public int Width;
-        public int Height;
-        public int Seed;
-        public List<Light> Lights;
+        public int Width { get; private set; }
+        public int Height { get; private set; }
+        public int Seed { get; private set; }
+        public LevelType Type { get; private set; }
+        private List<Light> Lights;
         public static Vision PlayerVision;
 
         public int wave;
 
         public void Draw(SpriteBatch spriteBatch)
         {
-            
             //These variables find out which blocks are currently on screen
             //This saves drawing off screen objects
             int startX = (int)(Players[0].Offset.X / 10);
@@ -67,13 +67,13 @@ namespace TheOtherDarkWorld
         }
 
 
-        private Level(Tile[,] Tiles, int Seed, List<FloorItem> FloorItems)
+        public Level(LevelType Type, int Seed, int Width, int Height)
         {
-            this.FloorItems = FloorItems;
-            this.Tiles = Tiles;
-            Width = Tiles.GetLength(0);
-            Height = Tiles.GetLength(1);
+            this.Width = Width;
+            this.Height = Height;
+            this.Tiles = new Tile[Width, Height];
             this.Seed = Seed;
+            this.Type = Type;
             Entities = new List<Entity>();
             wave = 0;
             Players = new Player[1];
@@ -94,7 +94,17 @@ namespace TheOtherDarkWorld
             return false;
         }
 
-        
+        public void AddLight(Light light)
+        {
+            if (light.Position.X < (CurrentLevel.Width * Tile.WIDTH) && light.Position.X >= 0
+                && light.Position.Y < (CurrentLevel.Height * Tile.HEIGHT) && light.Position.Y >= 0)
+                Lights.Add(light);
+        }
+
+        public void RemoveLight(Light light)
+        {
+            Lights.Remove(light);
+        }
 
         private void UpdateLights()
         {
@@ -133,6 +143,11 @@ namespace TheOtherDarkWorld
 
             }
 
+            for (int i = 0; i < FloorItems.Count; i++)
+            {
+                FloorItems[i].Update(Tiles);
+            }
+
             if ((InputManager.keyboardState[0].IsKeyDown(Microsoft.Xna.Framework.Input.Keys.N) && InputManager.keyboardState[1].IsKeyUp(Microsoft.Xna.Framework.Input.Keys.N)))
             {
                 Random rand = new Random();
@@ -166,7 +181,7 @@ namespace TheOtherDarkWorld
                 {
                     for (int i = 0; i < (3 * wave); i++)
                     {
-                        Entities.Add(new Enemy(new Vector2((float)(Level.CurrentLevel.Width * 10 * rand.NextDouble()), (float)((Level.CurrentLevel.Height * 5) * rand.NextDouble())), 1 + (wave * 0.3f), Vector2.Zero, 0, 100, 20, 8, 30));
+                        Entities.Add(new Enemy(new Vector2((float)(Level.CurrentLevel.Width * 10 * rand.NextDouble()), (float)((Level.CurrentLevel.Height * 5) * rand.NextDouble())), 1 + (wave * 0.3f), Vector2.Zero, 0, 100, 20, 800, 30));
                     }
                     for (int i = 0; i < (3 * (wave - 1)); i++)
                     {
@@ -200,91 +215,81 @@ namespace TheOtherDarkWorld
             Scattered
         }
 
-        public static void GenerateLevel(LevelType type, int seed, int width, int height)
+        public void Generate()
         {
-            switch (type)
+            InitializeTiles();
+            FloorItems = new List<FloorItem>();
+
+            switch (Type)
             {
                 case LevelType.Open:
-                    Generate_Open(width, height, seed);
+                    Generate_Open();
                     break;
                 case LevelType.Box:
-                    Generate_Box(width, height, seed);
+                    Generate_Box();
                     break;
                 case LevelType.Hallways:
-                    Generate_Hallways(width, height, seed);
+                    Generate_Hallways();
                     break;
             }
-            //CurrentLevel.Lights.Add(new Light(0.5f, 200, new Vector2(200, 200), Vector2.One, MathHelper.TwoPi, Color.Yellow, Level.CurrentLevel.Tiles));
-            //CurrentLevel.Lights.Add(new Light(0.5f, 200, new Vector2(400, 500), Vector2.One, MathHelper.TwoPi, Color.Red, Level.CurrentLevel.Tiles));
-            //CurrentLevel.Lights.Add(new Light(0.5f, 200, new Vector2(600, 300), Vector2.One, MathHelper.TwoPi, Color.Blue, Level.CurrentLevel.Tiles));
-        
+            /*
+            CurrentLevel.AddLight(new Light(0.5f, 200, new Vector2(200, 200), Vector2.One, MathHelper.TwoPi, Color.Yellow, Level.CurrentLevel.Tiles));
+            CurrentLevel.AddLight(new Light(0.5f, 200, new Vector2(400, 500), Vector2.One, MathHelper.TwoPi, Color.Red, Level.CurrentLevel.Tiles));
+            CurrentLevel.AddLight(new Light(0.5f, 200, new Vector2(600, 300), Vector2.One, MathHelper.TwoPi, Color.Blue, Level.CurrentLevel.Tiles));
+
+            CurrentLevel.AddLight(new Light(0.3f, 100, new Vector2(400, 200), Vector2.One, MathHelper.TwoPi, Color.Green, Level.CurrentLevel.Tiles));
+            CurrentLevel.AddLight(new Light(0.3f, 100, new Vector2(400, 100), Vector2.One, MathHelper.TwoPi, Color.Violet, Level.CurrentLevel.Tiles));
+            CurrentLevel.AddLight(new Light(0.3f, 100, new Vector2(300, 600), Vector2.One, MathHelper.TwoPi, Color.Magenta, Level.CurrentLevel.Tiles));
+            */
         }
 
-        private static Tile[,] InitializeTiles(int width, int height)
+        private void InitializeTiles()
         {
-            Tile[,] Tiles = new Tile[width, height];
-
-            for (int i = 0; i < width; i++)
+            for (int i = 0; i < Width; i++)
             {
-                for (int j = 0; j < height; j++)
+                for (int j = 0; j < Height; j++)
                 {
                     Tiles[i, j] = new Tile(i, j);
                 }
             }
-
-            return Tiles;
         }
 
-        private static void CreateBorders(Tile[,] Tiles)
+        private void CreateBorders()
         {
-            int width = Tiles.GetLength(0);
-            int height = Tiles.GetLength(1);
-
             byte type = 0;
 
             int j = 0;
             int i = 1;
 
-            while (j < height)
+            while (j < Height)
             {
                 type ^= 1; //Alernate between 2 different types of block
                 Tiles[0, j].Block = new Block(0, j, (type));
-                Tiles[width - 1, j].Block = new Block(width - 1, j, (type));
+                Tiles[Width - 1, j].Block = new Block(Width - 1, j, (type));
                 j++;
             }
 
-            while (i < width)
+            while (i < Width)
             {
                 Tiles[i, 0].Block = new Block(i, 0, (type));
-                Tiles[i, height - 1].Block = new Block(i, height - 1, (type));
+                Tiles[i, Height - 1].Block = new Block(i, Height - 1, (type));
                 type ^= 1;
                 i++;
             }
         }
-
-        private static void Generate_Open(int width, int height, int seed)
+        
+        private void Generate_Open()
         {
-            Tile[,] Tiles = InitializeTiles(width, height);
-
-            List<FloorItem> FloorItems = new List<FloorItem>();
-            CurrentLevel = new Level(Tiles, seed, FloorItems);
         }
 
-        private static void Generate_Box(int width, int height, int seed)
+        private void Generate_Box()
         {
-            Tile[,] Tiles = InitializeTiles(width, height);
-            CreateBorders(Tiles);
-
-            List<FloorItem> FloorItems = new List<FloorItem>();
-            CurrentLevel = new Level(Tiles, seed, FloorItems);
+            CreateBorders();
         }
 
-        private static void Generate_Hallways(int width, int height, int seed)
+        private void Generate_Hallways()
         {
-            Tile[,] Tiles = InitializeTiles(width, height);
-            CreateBorders(Tiles);
-
-            List<FloorItem> FloorItems = new List<FloorItem>();
+            CreateBorders();
 
             int minimumRoomWidth = 5;
             int minimumRoomHeight = 8;
@@ -294,24 +299,21 @@ namespace TheOtherDarkWorld
             int maximumCorridorWidth = 7;
             int minimumCorridorWidth = 4;
 
-            int corridorWidth = minimumCorridorWidth + Math.Abs((seed + (int)Math.Pow(seed + 3, 3) + (1 / (Math.Abs(seed) + 1))) / 15) % (maximumCorridorWidth - minimumCorridorWidth);
+            int corridorWidth = minimumCorridorWidth + Math.Abs((Seed + (int)Math.Pow(Seed + 3, 3) + (1 / (Math.Abs(Seed) + 1))) / 15) % (maximumCorridorWidth - minimumCorridorWidth);
 
             int widthTaken = 1;
             int heightTaken = 1;
 
-            for (int i = 0; heightTaken + minimumRoomHeight < height; i++)
+            for (int i = 0; heightTaken + minimumRoomHeight < Height; i++)
             {
-                int roomHeight = minimumRoomHeight + Math.Abs((seed + i + (int)Math.Pow(seed + 3 + i, 3) + (1 / (Math.Abs(seed) + 1 + i))) / (5 + i)) % (maximumRoomHeight - minimumRoomHeight);
+                int roomHeight = minimumRoomHeight + Math.Abs((Seed + i + (int)Math.Pow(Seed + 3 + i, 3) + (1 / (Math.Abs(Seed) + 1 + i))) / (5 + i)) % (maximumRoomHeight - minimumRoomHeight);
 
-                if (roomHeight + heightTaken > height - 2)
-                    roomHeight = height - 2 - heightTaken;
+                if (roomHeight + heightTaken > Height - 2)
+                    roomHeight = Height - 2 - heightTaken;
 
-                CreateHallway(widthTaken, Tiles, seed, minimumRoomWidth, maximumRoomWidth, width, roomHeight, heightTaken, i, new bool[] { i % 2 == 1, i % 2 == 0, true, false }); //Every corridor, the door changes sides
+                CreateHallway(widthTaken, minimumRoomWidth, maximumRoomWidth, Width, roomHeight, heightTaken, i, new bool[] { i % 2 == 1, i % 2 == 0, true, false }); //Every corridor, the door changes sides
                 heightTaken += roomHeight + (corridorWidth * ((i + 1) % 2)) + 1; //There is only a corridor every 2 rooms
             }
-
-
-            CurrentLevel = new Level(Tiles, seed, FloorItems);
         }
 
         /// <summary>
@@ -319,7 +321,7 @@ namespace TheOtherDarkWorld
         /// </summary>
         /// <param name="widthTaken"></param>
         /// <param name="blockList"></param>
-        /// <param name="seed"></param>
+        /// <param name="Seed"></param>
         /// <param name="minimumRoomWidth"></param>
         /// <param name="maximumRoomWidth"></param>
         /// <param name="Levelwidth"></param>
@@ -327,7 +329,7 @@ namespace TheOtherDarkWorld
         /// <param name="heightTaken"></param>
         /// <param name="corridorNum"></param>
         /// <param name="doors">Tells whether a door should exist on a particular side. Indexed from 0 to 3 - Top, Bottom, Left, Right </param>
-        private static void CreateHallway(int widthTaken, Tile[,] Tiles, int seed, int minimumRoomWidth, int maximumRoomWidth, int Levelwidth, int roomHeight, int heightTaken, int corridorNum, bool[] doors)
+        private void CreateHallway(int widthTaken, int minimumRoomWidth, int maximumRoomWidth, int Levelwidth, int roomHeight, int heightTaken, int corridorNum, bool[] doors)
         {
             //
             //Makes an entire hallway
@@ -337,7 +339,7 @@ namespace TheOtherDarkWorld
                 //
                 //Makes one room
                 //
-                int roomWidth = minimumRoomWidth + Math.Abs((seed + room + (int)Math.Pow(room + (seed % 50), 4 + corridorNum) + (3 / (Math.Abs(seed + corridorNum) + 1))) / ((room % 10) + 5 + corridorNum)) % (maximumRoomWidth - minimumRoomWidth);
+                int roomWidth = minimumRoomWidth + Math.Abs((Seed + room + (int)Math.Pow(room + (Seed % 50), 4 + corridorNum) + (3 / (Math.Abs(Seed + corridorNum) + 1))) / ((room % 10) + 5 + corridorNum)) % (maximumRoomWidth - minimumRoomWidth);
 
                 if (roomWidth + widthTaken > Levelwidth - 1)
                     roomWidth = Levelwidth - 1 - widthTaken;
@@ -371,50 +373,41 @@ namespace TheOtherDarkWorld
 
                 if (doors[0])
                 {
-                    int doorStart = widthTaken + 1 + Math.Abs(((seed + 3) * (room + 2) * (int)Math.Pow(corridorNum + 4, 5)) % (roomWidth - 3));
+                    int doorStart = widthTaken + 1 + Math.Abs(((Seed + 3) * (room + 2) * (int)Math.Pow(corridorNum + 4, 5)) % (roomWidth - 3));
                     Tiles[doorStart, heightTaken].Block = null;
                     Tiles[doorStart + 1, heightTaken].Block = null;
                     Tiles[doorStart + 2, heightTaken].Block = null;
                 }
                 if (doors[1])
                 {
-                    int doorStart = widthTaken + 1 + Math.Abs(((seed + 5) * (room + 7) * (int)Math.Pow(corridorNum + 2, 3)) % (roomWidth - 3));
+                    int doorStart = widthTaken + 1 + Math.Abs(((Seed + 5) * (room + 7) * (int)Math.Pow(corridorNum + 2, 3)) % (roomWidth - 3));
                     Tiles[doorStart, heightTaken + roomHeight].Block = null;
                     Tiles[doorStart + 1, heightTaken + roomHeight].Block = null;
                     Tiles[doorStart + 2, heightTaken + roomHeight].Block = null;
                 }
                 if (doors[2])
                 {
-                    int doorStart = heightTaken + 1 + Math.Abs(((seed + 3) * (room + 2) * (int)Math.Pow(corridorNum + 2, 3)) % (roomHeight - 3));
+                    int doorStart = heightTaken + 1 + Math.Abs(((Seed + 3) * (room + 2) * (int)Math.Pow(corridorNum + 2, 3)) % (roomHeight - 3));
                     Tiles[widthTaken, doorStart].Block = null;
                     Tiles[widthTaken, doorStart + 1].Block = null;
                     Tiles[widthTaken, doorStart + 2].Block = null;
                 }
                 if (doors[3])
                 {
-                    int doorStart = widthTaken + 1 + Math.Abs(((seed + 5) * (room + 7) * (int)Math.Pow(corridorNum + 2, 3)) % (roomHeight - 3));
+                    int doorStart = widthTaken + 1 + Math.Abs(((Seed + 5) * (room + 7) * (int)Math.Pow(corridorNum + 2, 3)) % (roomHeight - 3));
                     Tiles[widthTaken + roomWidth, doorStart].Block = null;
                     Tiles[widthTaken + roomWidth, doorStart + 1].Block = null;
                     Tiles[widthTaken + roomWidth, doorStart + 2].Block = null;
                 }
+
+                //Add in a light for the room
+                //AddLight(new Light(0.7f, Math.Max(roomWidth * Tile.WIDTH, roomHeight * Tile.HEIGHT),
+                 //   new Vector2((widthTaken + roomWidth / 2) * Tile.WIDTH, (heightTaken + roomHeight / 2) * Tile.HEIGHT), Vector2.UnitX,
+                 //   MathHelper.TwoPi, Color.Orange, Tiles));
+                
                 widthTaken += roomWidth;
             }
 
         }
-
-        //public void DrawPlayers(SpriteBatch spriteBatch)
-       // {
-            /*for (int i = 0; i < Players.Length; i++)
-            {
-                spriteBatch.Draw(Textures.Player, Players[i].Position + Players[i].Origin - Players[i].Offset, null, Players[i].Colour, Players[i].Rotation, Players[i].Origin, 1, SpriteEffects.None, 0.12f);
-
-                if (Players[i].Swing != null)
-                    Players[i].Swing.Draw(spriteBatch, Players[i].Offset);
-            }*/
-
-
-            //spriteBatch.DrawString(Textures.MediumFont, "Projectiles: " + Projectile.ProjectileList.Count, new Vector2(600, 50), Color.Green, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
-
-        //}
     }
 }

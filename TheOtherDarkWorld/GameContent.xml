@@ -19,7 +19,9 @@
       <BulletSpeed>15</BulletSpeed>
       <IsAutomatic>true</IsAutomatic>
       <ReloadTime>220</ReloadTime>
+      <MuzzleFlashMagnitude>0.5</MuzzleFlashMagnitude>
       <Description>An old, yet reliable machine-gun</Description>
+      <DestroyedWhenEmpty>false</DestroyedWhenEmpty>
     </Gun>
     <Gun>
       <Type>1</Type>
@@ -27,7 +29,7 @@
       <BaseCooldown>10</BaseCooldown>
       <Consumes>100</Consumes>
       <IsConsumable>true</IsConsumable>
-      <MaxAmount>7</MaxAmount>
+      <MaxAmount>10</MaxAmount> <!-- Possible capacities for the glock are 10, 17, 19(optional floor plate) and 33 -->
       <Power>30</Power>
       <Penetration>50</Penetration>
       <BulletColour>
@@ -37,9 +39,10 @@
         <B>180</B>
       </BulletColour>
       <BulletSpeed>12</BulletSpeed>
-      <IsAutomatic>false</IsAutomatic>
       <ReloadTime>170</ReloadTime>
+      <MuzzleFlashMagnitude>0.3</MuzzleFlashMagnitude>
       <Description>An old handgun. Still works though.</Description>
+      <DestroyedWhenEmpty>false</DestroyedWhenEmpty>
     </Gun>
     <Gun>
       <Type>2</Type>
@@ -57,13 +60,57 @@
         <B>180</B>
       </BulletColour>
       <BulletSpeed>8</BulletSpeed>
-      <IsAutomatic>false</IsAutomatic>
       <AttackType>Shotgun</AttackType>
       <ReloadTime>100</ReloadTime>
+      <MuzzleFlashMagnitude>0.75</MuzzleFlashMagnitude>
       <Description>A double barrel shotgun.</Description>
+      <DestroyedWhenEmpty>false</DestroyedWhenEmpty>
+    </Gun>
+    <Gun>
+      <Type>3</Type>
+      <Name>MP5</Name>
+      <BaseCooldown>4</BaseCooldown>
+      <Consumes>101</Consumes>
+      <IsConsumable>true</IsConsumable>
+      <MaxAmount>30</MaxAmount>
+      <Power>30</Power>
+      <Penetration>10</Penetration>
+      <BulletColour>
+        <A>255</A>
+        <R>0</R>
+        <G>0</G>
+        <B>0</B>
+      </BulletColour>
+      <BulletSpeed>10</BulletSpeed>
+      <IsAutomatic>true</IsAutomatic>
+      <ReloadTime>185</ReloadTime>
+      <MuzzleFlashMagnitude>0.4</MuzzleFlashMagnitude>
+      <Description>A sub-machine gun. Pray and spray!</Description>
+      <DestroyedWhenEmpty>false</DestroyedWhenEmpty>
+    </Gun>
+    <Gun>
+      <Type>4</Type>
+      <Name>Magnum</Name>
+      <BaseCooldown>40</BaseCooldown>
+      <Consumes>100</Consumes>
+      <IsConsumable>true</IsConsumable>
+      <MaxAmount>6</MaxAmount>
+      <Power>30</Power>
+      <Penetration>50</Penetration>
+      <BulletColour>
+        <A>255</A>
+        <R>180</R>
+        <G>180</G>
+        <B>180</B>
+      </BulletColour>
+      <BulletSpeed>14</BulletSpeed>
+      <ReloadTime>300</ReloadTime>
+      <MuzzleFlashMagnitude>0.7</MuzzleFlashMagnitude>
+      <Description>A .44 caliber revolver</Description>
+      <DestroyedWhenEmpty>false</DestroyedWhenEmpty>
     </Gun>
     <Melee>
-      <Type>3</Type>
+      <Type>10</Type>
       <Name>Knife"</Name>
       <BaseCooldown>5</BaseCooldown>
       <SwingLength>5</SwingLength>
@@ -72,11 +119,10 @@
       <Power>50</Power>
       <Knockback>10</Knockback>
       <Reach>7</Reach>
-      <IsAutomatic>false</IsAutomatic>
       <Description>A sharp blade. This could save me in close combat situations.</Description>
     </Melee>
     <Melee>
-      <Type>4</Type>
+      <Type>11</Type>
       <Name>Steel-Pipe</Name>
       <BaseCooldown>20</BaseCooldown>
       <SwingLength>20</SwingLength>
@@ -85,29 +131,41 @@
       <Power>20</Power>
       <Knockback>50</Knockback>
       <Reach>15</Reach>
-      <IsAutomatic>false</IsAutomatic>
       <Description>A metal pipe. It's hard to swing, but it'll do a lot of damage.</Description>
       </Melee>
     <Melee>
-      <Type>5</Type>
+      <Type>12</Type>
       <Name>Diamond Crucifix</Name>
       <BaseCooldown>3</BaseCooldown>
       <SwingLength>30</SwingLength>
       <IsConsumable>true</IsConsumable>
       <MaxAmount>999</MaxAmount>
-      <Power>0</Power>
+      <Power>20</Power>
       <Knockback>75</Knockback>
       <Reach>50</Reach>
       <IsAutomatic>true</IsAutomatic>
       <Description>A curious looking crucifix made from pure diamond! It looks unbreakable...</Description>
+    </Melee>
+    <Melee>
+      <Type>12</Type>
+      <Name>Crowbar</Name>
+      <BaseCooldown>15</BaseCooldown>
+      <SwingLength>15</SwingLength>
+      <IsConsumable>true</IsConsumable>
+      <MaxAmount>100</MaxAmount>
+      <Power>19</Power>
+      <Knockback>40</Knockback>
+      <Reach>14</Reach>
+      <Description>A crowbar. This could be handy</Description>
     </Melee>
   </Weapons>
   <Items>
     <Item>
       <Type>50</Type>
       <Name>Battery</Name>
+      <DestroyedWhenEmpty>false</DestroyedWhenEmpty>
       <IsConsumable>false</IsConsumable>
-      <MaxAmount>50</MaxAmount>
+      <MaxAmount>999</MaxAmount>
     </Item>
     <Item>
       <Type>100</Type>
@@ -134,7 +192,7 @@
       <Name>Torch</Name>
       <BaseCooldown>10</BaseCooldown>
       <Consumes>50</Consumes>
-      <ConsumeTime>150</ConsumeTime>
+      <ConsumeRate>1</ConsumeRate>
       <MaxAmount>1</MaxAmount>
       <Range>500</Range>
       <Span>0.6</Span>
@@ -153,27 +211,115 @@
       <Name>Smart Phone</Name>
       <BaseCooldown>10</BaseCooldown>
       <Consumes>50</Consumes>
-      <ConsumeTime>150</ConsumeTime>
+      <ConsumeRate>1</ConsumeRate>
       <MaxAmount>1</MaxAmount>
       <IsTogglable>true</IsTogglable>
       <Description>A smart phone. Apps may be installed on it</Description>
     </SmartPhone>
-    <PhoneApp>
+    <Goggles>
+      <Type>114</Type>
+      <Name>Thermal goggles</Name>
+      <BaseCooldown>10</BaseCooldown>
+      <Consumes>50</Consumes>
+      <ConsumeRate>2</ConsumeRate>
+      <MaxAmount>1</MaxAmount>
+      <IsTogglable>true</IsTogglable>
+      <Description>Used to detect heat sources</Description>
+    </Goggles>
+    <Item>
       <Name>SD Card (Flashlight App)</Name>
       <Type>120</Type>
       <IsConsumable>false</IsConsumable>
-      <ConsumeTime>150</ConsumeTime>
+      <ConsumeRate>50</ConsumeRate>
       <MaxAmount>1</MaxAmount>
       <Description>A memory chip containing a flashlight app for a smartphone</Description>
-    </PhoneApp>
-    <PhoneApp>
+    </Item>
+    <Item>
       <Type>121</Type>
       <Name>SD Card (Medic App)</Name>
       <IsConsumable>false</IsConsumable>
-      <ConsumeTime>150</ConsumeTime>
+      <ConsumeRate>50</ConsumeRate>
       <MaxAmount>1</MaxAmount>
       <Description>A memory chip containing a medic app for a smartphone</Description>
-    </PhoneApp>
+    </Item>
+    <Item>
+      <Name>Apple</Name>
+      <Type>130</Type>
+      <IsConsumable>true</IsConsumable>
+      <MaxAmount>1</MaxAmount>
+      <ActiveEffects>
+        <ItemEffect>
+          <Type>Heal_Self</Type>
+          <Potency>25</Potency>
+        </ItemEffect>
+      </ActiveEffects>
+      <Description>A juicy apple!</Description>
+    </Item>
+    <Item>
+      <Name>Chocolate</Name>
+      <Type>131</Type>
+      <IsConsumable>true</IsConsumable>
+      <MaxAmount>1</MaxAmount>
+      <ActiveEffects>
+        <ItemEffect>
+          <Type>Heal_Self</Type>
+          <Potency>5</Potency>
+        </ItemEffect>
+        <ItemEffect>
+          <Type>QuickFooted_Self</Type>
+          <Potency>5</Potency>
+          <Duration>300</Duration>
+        </ItemEffect>
+      </ActiveEffects>
+      <Description>A tasty chocolate bar! Contains lots of sugar!</Description>
+    </Item>
+    <Item>
+      <Name>Cupcake</Name>
+      <Type>132</Type>
+      <IsConsumable>true</IsConsumable>
+      <ConsumeRate>150</ConsumeRate>
+      <MaxAmount>1</MaxAmount>
+      <ActiveEffects>
+        <ItemEffect>
+          <Type>Heal_Self</Type>
+          <Potency>1</Potency>
+        </ItemEffect>
+      </ActiveEffects>
+      <Description>A tasty cupcake!</Description>
+    </Item>
+    <Item>
+      <Name>Banana</Name>
+      <Type>133</Type>
+      <IsConsumable>true</IsConsumable>
+      <MaxAmount>1</MaxAmount>
+      <ActiveEffects>
+        <ItemEffect>
+          <Type>Heal_Self</Type>
+          <Potency>20</Potency>
+        </ItemEffect>
+      </ActiveEffects>
+      <Description>A healthy banana!</Description>
+    </Item>
+    <Item>
+      <Name>First Aid Kit</Name>
+      <Type>134</Type>
+      <IsConsumable>true</IsConsumable>
+      <MaxAmount>1</MaxAmount>
+      <ActiveEffects>
+        <ItemEffect>
+          <Type>Healing_Self</Type>
+          <Potency>0.1</Potency>
+          <Duration>600</Duration>
+        </ItemEffect>
+        <ItemEffect>
+          <Type>Cure_Injured_Self</Type>
+        </ItemEffect>
+        <ItemEffect>
+          <Type>Cure_Bleeding_Self</Type>
+        </ItemEffect>
+      </ActiveEffects>
+      <Description>A kit that can be used to heal injuries</Description>
+    </Item>
   </Items>
   
   <Blocks>

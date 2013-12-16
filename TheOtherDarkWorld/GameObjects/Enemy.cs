@@ -63,7 +63,7 @@ namespace TheOtherDarkWorld.GameObjects
         public override void Draw(SpriteBatch spriteBatch)
         {
             if (IsVisible)
-                spriteBatch.Draw(Textures.Enemies[Type], Position + Origin - Level.CurrentLevel.Players[0].Offset, null, getLightColour(), Rotation, Origin, 1, SpriteEffects.None, 0.12f);
+                spriteBatch.Draw(Textures.Enemies[Type], Position + Origin - Level.CurrentLevel.Players[0].Offset, null, getLightColour(), Rotation, Origin, 1, SpriteEffects.None, UI.ENEMY_DEPTH_DEFAULT);
             if (Swing != null)
             {
                 Swing.Draw(spriteBatch, Level.CurrentLevel.Players[Level.CurrentLevel.PlayerIndex].Offset);

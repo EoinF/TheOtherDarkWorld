@@ -69,9 +69,9 @@ namespace TheOtherDarkWorld.GameObjects
             }
         }
 
-        public void Draw(SpriteBatch spriteBatch)
+        public override void Draw(SpriteBatch spriteBatch)
         {
-            spriteBatch.Draw(Textures.Bullet, Position - Level.CurrentLevel.Players[0].Offset, null, Colour, Rotation, Origin * Vector2.UnitX, 1, SpriteEffects.None, 0.2f);
+            spriteBatch.Draw(Textures.Bullet, Position - Level.CurrentLevel.Players[0].Offset, null, Colour, Rotation, Origin * Vector2.UnitX, 1, SpriteEffects.None, UI.PROJECTILE_DEPTH_DEFAULT);
         }
 
         public override void CollideHorizontal(Collision col)

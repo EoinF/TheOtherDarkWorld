@@ -132,7 +132,7 @@ namespace TheOtherDarkWorld.GameObjects
 
         public void Draw(SpriteBatch spriteBatch, Vector2 Offset)
         {
-            spriteBatch.Draw(Textures.Swipe, Position - Offset, SourceRect, Color.White, Rotation, Vector2.Zero, 1, SpriteEffects.None, 0.7f);
+            spriteBatch.Draw(Textures.Swipe, Position - Offset, SourceRect, Color.White, Rotation, Vector2.Zero, 1, SpriteEffects.None, UI.MELEE_DEPTH_DEFAULT);
         }
     }
 }

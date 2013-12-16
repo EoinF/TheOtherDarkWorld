@@ -18,18 +18,14 @@ namespace TheOtherDarkWorld.GameObjects
         {
             get { return (RemainingTicks % 60) == 0; }
         }
-        public int RemainingSeconds
-        {
-            get { return RemainingTicks / 60; }
-        }
-        private int RemainingTicks;
+        public int RemainingTicks;
         public string Description { get; private set; }
 
-        public StatusEffect(StatusType Type, float Potency, int Duration_Seconds, string Description )
+        public StatusEffect(StatusType Type, float Potency, int Duration_Ticks, string Description )
         {
             this.Type = Type;
             this.Potency = Potency;
-            RemainingTicks = Duration_Seconds * 60;
+            RemainingTicks = Duration_Ticks;
             this.Description = Description;
         }
 
@@ -42,7 +38,7 @@ namespace TheOtherDarkWorld.GameObjects
     public enum StatusType
     {
         Blinded, //Screen goes white and can't see any in game objects
-        Stunned, //Intelligence method isn't called
+        Stunned, //Intelligence method isn't called. Therefore movement is disabled
         Confused, //The character's direction is altered
         Burning, //Health quickly degenerates. Flammable objects have a chance to burst into flames
         Poison, //Health slowly degenerates
@@ -52,9 +48,9 @@ namespace TheOtherDarkWorld.GameObjects
         Slowed, //Slower movement speed
         Cursed, //Item cooldowns never refresh
         Invincible, //Takes 0 damage
-        Healing, //Recovering 1% of health per second
-        Injured, //Reduces Max Health cap by 20%
-        Bleeding, //Health slowly degenerates. Can attract certain monsters without having vision
+        Healing, //Recovers x health per tick
+        Injured, //Reduces Max Health cap by x
+        Bleeding, //Health slowly degenerates. Can attract certain monsters without them having vision
         QuickFooted, //Increased Speed
         Perceptive, //Displays hp and status effects of other entities(Player only)
         Ghost, //Can walk through walls and enemies

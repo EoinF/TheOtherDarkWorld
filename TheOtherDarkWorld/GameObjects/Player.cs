@@ -36,7 +36,6 @@ namespace TheOtherDarkWorld
             }
         }
 
-
         private bool ObserverMode { get; set; }
 
 
@@ -74,38 +73,23 @@ namespace TheOtherDarkWorld
         private void StatusEffectDebugMethod()
         {
             if (InputManager.JustPressed(Keys.D1))
-                StatusEffects.Add(new StatusEffect(StatusType.Blinded, 1, 3, "Blinded"));
+                StatusEffects.Add(new StatusEffect(StatusType.Blinded, 1, 180, "Blinded"));
             if (InputManager.JustPressed(Keys.D2))
-                StatusEffects.Add(new StatusEffect(StatusType.Stunned, 1, 3, "Stunned"));
+                StatusEffects.Add(new StatusEffect(StatusType.Stunned, 1, 180, "Stunned"));
             if (InputManager.JustPressed(Keys.D3))
-                StatusEffects.Add(new StatusEffect(StatusType.Confused, 30, 3, "Confused"));
+                StatusEffects.Add(new StatusEffect(StatusType.Confused, 30, 180, "Confused"));
             if (InputManager.JustPressed(Keys.D4))
-                StatusEffects.Add(new StatusEffect(StatusType.Burning, 0.7f, 3, "Burning"));
+                StatusEffects.Add(new StatusEffect(StatusType.Burning, 0.7f, 180, "Burning"));
             if (InputManager.JustPressed(Keys.D5))
-                StatusEffects.Add(new StatusEffect(StatusType.Poison, 0.5f, 3, "Poison"));
+                StatusEffects.Add(new StatusEffect(StatusType.Poison, 0.5f, 180, "Poison"));
         }
 
         protected override void Intelligence()
         {
-
             StatusEffectDebugMethod();
-
 
             if (IsStunned || IsFrozen)
                 return;
-
-            if (InputManager.keyboardState[0].IsKeyDown(Keys.K))
-            {
-                Speed+= 1.139f;
-            }
-            if (InputManager.keyboardState[0].IsKeyDown(Keys.L))
-            {
-                Speed--;
-            }
-            if (InputManager.keyboardState[0].IsKeyDown(Keys.O))
-            {
-                Speed = 1;
-            }
 
             if (InputManager.keyboardState[0].IsKeyDown(Keys.R))
             {
@@ -115,11 +99,11 @@ namespace TheOtherDarkWorld
                 }
             }
 
-            Vector2 direction = new Vector2((float)Math.Sin(Rotation), (float)Math.Cos(Rotation));
-            Level.PlayerVision.Update(Position + (Origin / 2), direction);
+            Level.PlayerVision.Update(Position + (Origin / 2), Direction);
             Level.PlayerVision.CastAll();
 
-            if (!UI.CursorMode && !ObserverMode) //Make sure the user is clicking on the actual map and not the ui
+            if (UI.CursorMode == CursorType.Crosshair 
+                && !ObserverMode) //Make sure the user is clicking on the actual map and not the ui
             {
                 Item itemP = Inventory[0];
                 if (itemP != null)
@@ -144,15 +128,6 @@ namespace TheOtherDarkWorld
             {
                 CheckCollisions(Level.CurrentLevel.Tiles);
                 Offset = Position - new Vector2(UI.ScreenX / 2, UI.ScreenY / 2);
-            }
-
-            //
-            //Apply passive effects of items and restore cooldowns
-            //
-            for (int i = 0; i < Inventory.Length; i++)
-            {
-                if (Inventory[i] != null)
-                    Inventory[i].Update();
             }
 
             if (InputManager.keyboardState[0].IsKeyDown(Keys.W))
@@ -191,17 +166,55 @@ namespace TheOtherDarkWorld
                 if (Inventory[i] == null)
                 {
                     Inventory[i] = item;
-                    UI.Inventory_UI[i].item = item;
+                    UIContainer con = UI.Inventory_UI[i] as UIContainer; //First get the container that holds the inventory
+                    (con[0] as InventoryElement).Item = item;
                     item.Owner = this;
                     return true;
                 }
             }
             return false;
         }
+        
+        /// <summary>
+        /// Removes an item from the game
+        /// </summary>
+        /// <param name="item">A pointer to the item to be trashed(Must be the actual pointer to the item in the Inventory array)</param>
+        /// <returns>True if the item actually exists in the entity's inventory</returns>
+        public override bool TrashItem(Item item)
+        {
+            for (int i = 0; i < Inventory.Length; i++)
+            {
+                if (Inventory[i] != null && Inventory[i].Equals(item))
+                {
+                    Inventory[i] = null;
+                    UIContainer con = UI.Inventory_UI[i] as UIContainer; //First get the container that holds the inventory
+                    (con[0] as InventoryElement).Item = null;
+                    return true;
+                }
+            }
+            return false;
+        }
+        
+        /// <summary>
+        /// Removes an item from the game
+        /// </summary>
+        /// <param name="item">A pointer to the item to be trashed(Must be the actual pointer to the item in the Inventory array)</param>
+        /// <returns>True if the item actually exists in the entity's inventory</returns>
+        public override bool TrashItem(int index)
+        {
+            if (index >= 0 && index < Inventory.Length)
+            {
+                Inventory[index] = null;
+                UIContainer con = UI.Inventory_UI[index] as UIContainer; //First get the container that holds the inventory
+                (con[0] as InventoryElement).Item = null;
+                return true;
+            }
+            return false;
+        }
 
         public override void Draw(SpriteBatch spriteBatch)
         {
-            spriteBatch.Draw(Textures.Player, Position + Origin - Offset, null, StatusColour, Rotation, Origin, 1, SpriteEffects.None, 0.12f);
+            spriteBatch.Draw(Textures.Player, Position + Origin - Offset, null, StatusColour, Rotation, Origin, 1, SpriteEffects.None, UI.PLAYER_DEPTH_DEFAULT);
             if (Swing != null)
                 Swing.Draw(spriteBatch, Offset);
         }

@@ -35,14 +35,15 @@ namespace TheOtherDarkWorld
 
         public static Texture2D Items { get; private set; }
         public static Texture2D Blocks { get; private set; }
+        public static Texture2D SmartPhoneButton { get; private set; }
+        public static Texture2D SmartPhoneSlider { get; private set; }
+        public static Texture2D SmartPhoneSliderPiece { get; private set; }
 
         public static Texture2D[] Enemies { get; private set; }
-        public static Texture2D[] MenuTextures { get; private set; }
         public static SpriteFont[] Fonts { get; private set; }
 
         public static void LoadTextures(ContentManager Content, GraphicsDevice device)
         {
-            MenuTextures = new Texture2D[10];
             Crosshair = Content.Load<Texture2D>("Crosshair");
             HealthBarPiece = Content.Load<Texture2D>("HealthBarPiece");
             Cursor = Content.Load<Texture2D>("Cursor");
@@ -63,6 +64,9 @@ namespace TheOtherDarkWorld
             ItemSlot = Content.Load<Texture2D>("ItemSlot");
             Tooltip = Content.Load<Texture2D>("Tooltip");
             SmartPhoneExterior = Content.Load<Texture2D>("SmartPhoneExterior");
+            SmartPhoneButton = Content.Load<Texture2D>("SmartPhoneButton");
+            SmartPhoneSlider = Content.Load<Texture2D>("SmartPhoneSlider");
+            SmartPhoneSliderPiece = Content.Load<Texture2D>("SmartPhoneSliderPiece");
 
 
             Items = Content.Load<Texture2D>("ItemSheet");

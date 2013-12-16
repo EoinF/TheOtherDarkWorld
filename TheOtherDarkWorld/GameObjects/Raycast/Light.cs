@@ -10,7 +10,7 @@ namespace TheOtherDarkWorld.GameObjects
     public class Light : Raycaster
     {
         public float Brightness { get; set; }
-        public Color Colour { get; private set; }
+        public Color Colour { get; set; }
 
         private bool[,] _lightmap;
 
