@@ -16,6 +16,8 @@ namespace TheOtherDarkWorld.GameObjects
         const int CONSUMES_DEFAULT = -1;
         const int CONSUMERATE_DEFAULT = 600; //Consumed once per use
         const int USECOOLDOWN_DEFAULT = 1;
+        const int MAXAMOUNT_DEFAULT = 1;
+        const bool DESTROYED_WHEN_EMPTY_DEFAULT = true;
         const string DESCRIPTION_DEFAULT = "This item is a mystery to me!";
 
         #region Fields & Properties
@@ -98,7 +100,7 @@ namespace TheOtherDarkWorld.GameObjects
                     }
                     else //A different item is consumed when used
                     {
-                        Item fuel = Owner.GetItem(Consumes);
+                        Item fuel = (Owner as IItemHolder).GetItem(Consumes);
                         if (fuel != null)
                         {
                             if (fuel.Consume(this.ConsumeRate)) //If there is enough fuel
@@ -178,7 +180,8 @@ namespace TheOtherDarkWorld.GameObjects
             ConsumeRate = CONSUMERATE_DEFAULT;
             UseCooldown = USECOOLDOWN_DEFAULT;
             Description = DESCRIPTION_DEFAULT;
-            DestroyedWhenEmpty = true;
+            MaxAmount = MAXAMOUNT_DEFAULT;
+            DestroyedWhenEmpty = DESTROYED_WHEN_EMPTY_DEFAULT;
             PassiveEffects = new ItemEffect[0];
             ActiveEffects = new ItemEffect[0];
         }

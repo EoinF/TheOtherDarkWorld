@@ -59,7 +59,7 @@ namespace TheOtherDarkWorld
 
             if (keyboardState[0].IsKeyDown(Keys.Enter))
             {
-                StartLevel();
+                StateManager.StartLevel();
 
                 if (UI.Kills > UI.HighScore)
                     UI.HighScore = UI.Kills;
@@ -87,50 +87,6 @@ namespace TheOtherDarkWorld
         public static bool JustReleased(Keys key)
         {
             return keyboardState[1].IsKeyDown(key) && keyboardState[0].IsKeyUp(key);
-        }
-
-        public static void StartLevel()
-        {
-            Random rand = new Random();
-            Level.CurrentLevel = new Level(Level.LevelType.Hallways, rand.Next(), 76, 60);
-            Level.CurrentLevel.Generate();
-            Level.CurrentLevel.Entities = new List<Entity>();
-
-            int InventorySize = 14;
-
-            Level.CurrentLevel.Players = new Player[1] { new Player(new Vector2(230, 200), 500, 3, 14, Vector2.Zero, 0, 5) };
-           
-            Player player = Level.CurrentLevel.Players[0];
-            Level.CurrentLevel.Entities.Add(player);
-
-            UI.InitializeHUD(InventorySize);
-
-            player.PickUpItem(new Gun(0, -1, player));
-            player.PickUpItem(new Melee(11, -1, player));
-            player.PickUpItem(new Melee(12, -1, player));
-
-            player.PickUpItem(new Item(101, 999, player));
-            player.PickUpItem(new Item(50, -1, player));
-            player.PickUpItem(new Item(50, -1, player));
-            player.PickUpItem(new Torch(110, player));
-            player.PickUpItem(new SmartPhone(112, player));
-            player.PickUpItem(new Gun(1, Owner: player));
-            player.PickUpItem(new Gun(4, Owner: player));
-            player.PickUpItem(new Item(130, -1, player));
-            player.PickUpItem(new Item(131, -1, player));
-            player.PickUpItem(new Item(132, -1, player));
-            player.PickUpItem(new Item(120, -1, player));
-
-            Projectile.ProjectileList = new List<Projectile>();
-            
-            /*
-             * An idea for later on:
-             *      When the player starts, pick 3 random weapons in the game. The player gets to choose one of them
-             *      to start with. Then give 3 random utility items(like medic packs) and then 3 other random items
-             *      
-             *      Could also include classes. Like bonus health tank. Or ability to carry more items. Or being able
-             *      to see a wider radius. Or being able to see in the dark better
-             */
         }
 
         private static void UpdateStates()

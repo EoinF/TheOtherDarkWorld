@@ -11,7 +11,7 @@ namespace TheOtherDarkWorld.GameObjects
     {
         private static Random statusGen;
 
-        public int ID;
+        //public int ID;
         public int Health
         {
             get 
@@ -26,11 +26,12 @@ namespace TheOtherDarkWorld.GameObjects
         private float _health;
 
         public int MaxHealth { get; protected set; }
-        public bool IsAlive { get { return Health > 0; } }
+        public virtual bool IsAlive { get { return Health > 0; } }
         public int HitCooldown { get; set; }
         public int Weight { get; protected set; }
-        public Item[] Inventory { get; protected set; }
 
+
+        public Light AuraLight { get; protected set; }
         public List<StatusEffect> StatusEffects;
         public bool IsBlinded { get; protected set; }
         public bool IsStunned { get; protected set; }
@@ -38,10 +39,11 @@ namespace TheOtherDarkWorld.GameObjects
         public Vector2 ConfusionVector { get; protected set; }
         public bool IsPoisoned { get; protected set; }
         public bool IsBurning { get; protected set; }
-        public Light BurnLight { get; protected set; }
         public bool IsFrozen { get; protected set; }
         public bool IsInvisible { get; protected set; }
         public bool IsBinded { get; protected set; }
+        public bool IsProtected { get; protected set; }
+        public bool IsBleeding { get; protected set; }
         public float SpeedBonus { get; protected set; }
         public override float Speed 
         {
@@ -49,8 +51,9 @@ namespace TheOtherDarkWorld.GameObjects
             set { base.Speed = value; } 
         }
 
+        private static Color COLOUR_PROTECTED = Color.WhiteSmoke;
         private static Color COLOUR_POISON = Color.Green;
-        private static Color COLOUR_BURNING = Color.Red;
+        private static Color COLOUR_BURNING = Color.PaleVioletRed;
         private static Color COLOUR_FROZEN = Color.Aqua;
         private static Color COLOUR_INVISIBLE = Color.Transparent;
 
@@ -71,8 +74,6 @@ namespace TheOtherDarkWorld.GameObjects
 
         public abstract Texture2D Texture { get; }
 
-        public Swing Swing;
-
         /// <summary>
         /// This is the velocity that is added to the standard velocity of the entity. e.g. When pushed by a bullet or other entity
         /// </summary>
@@ -88,24 +89,23 @@ namespace TheOtherDarkWorld.GameObjects
             }
         }
 
-        public float Rotation
+        public virtual float Rotation
         {
             get
             {
                 return (float)Math.Atan2(Target.Y - Rect.Center.Y, Target.X - Rect.Center.X) + MathHelper.PiOver2;
             }
+            protected set { throw new NotImplementedException("This method exists so that the Projectile class can derive its own Rotation setter method"); }
         }
 
-        public Entity(int MaxHealth, int inventorySize, Vector2 startPosition, float speed, Color colour, Vector2 startVelocity, Vector2 Origin, int Resistance, int width, int height)
+        public Entity(int MaxHealth, Vector2 startPosition, float speed, Color colour, Vector2 startVelocity, Vector2 Origin, int Resistance, int width, int height)
             : base(startPosition, speed, colour, startVelocity, Origin, Resistance, width, height)
         {
             this.MaxHealth = MaxHealth;
             this.Health = this.MaxHealth;
-            Inventory = new Item[inventorySize];
             StatusEffects = new List<StatusEffect>();
-            BurnLight = new Light(0, 30, Vector2.Zero, Vector2.UnitX, MathHelper.Pi, Color.PaleVioletRed, Level.CurrentLevel.Tiles, false);
-            Level.CurrentLevel.AddLight(BurnLight);
-                            
+            StatusColour = Color.White;
+            AuraLight = StateManager.CreateLight(0, 30, Vector2.Zero, Vector2.UnitX, MathHelper.Pi, Color.White, false);
         }
 
         static Entity()
@@ -113,126 +113,19 @@ namespace TheOtherDarkWorld.GameObjects
             statusGen = new Random();
         }
 
-        public virtual bool PickUpItem(Item item)
-        {
-            //Check if there's space to fit the new item in the inventory
-            for (int i = 0; i < Inventory.Length; i++)
-            {
-                if (Inventory[i] == null)
-                {
-                    Inventory[i] = item;
-                    item.Owner = this;
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        /// <summary>
-        /// Places an item onto the floor of the map near the entity's position
-        /// </summary>
-        /// <param name="item">A pointer to the item to be dropped(Must be the actual pointer to the item in the Inventory array)</param>
-        /// <returns>True if the item actually exists in the entity's inventory</returns>
-        public virtual bool DropItem(Item item)
-        {
-            for (int i = 0; i < Inventory.Length; i++)
-            {
-                if (Inventory[i] != null && Inventory[i].Equals(item))
-                {
-                    Level.CurrentLevel.FloorItems.Add(new FloorItem(item, Position + Level.CurrentLevel.Players[0].Origin));
-                    item = null;
-                    Inventory[i] = null;
-                    return true;
-                }
-            }
-            return false;
-        }
-        /// <summary>
-        /// Removes an item from the game
-        /// </summary>
-        /// <param name="item">A pointer to the item to be trashed(Must be the actual pointer to the item in the Inventory array)</param>
-        /// <returns>True if the item actually exists in the entity's inventory</returns>
-        public virtual bool TrashItem(Item item)
-        {
-            for (int i = 0; i < Inventory.Length; i++)
-            {
-                if (Inventory[i] != null && Inventory[i].Equals(item))
-                {
-                    item = null;
-                    Inventory[i] = null;
-                    return true;
-                }
-            }
-            return false;
-        }
         
-        /// <summary>
-        /// Removes an item from the game
-        /// </summary>
-        /// <param name="item">A pointer to the item to be trashed(Must be the actual pointer to the item in the Inventory array)</param>
-        /// <returns>True if the item actually exists in the entity's inventory</returns>
-        public virtual bool TrashItem(int index)
-        {
-            if (index >= 0 && index < Inventory.Length)
-            {
-                Inventory[index] = null;
-                return true;
-            }
-            return false;
-        }
-
         public void Update(Tile[,] Tiles, List<Entity> Entities)
         {
+            if (this is IItemHolder)
+            {
+                (this as IItemHolder).UpdateInventory();
+            }
+
             UpdateStatusEffects();
-
-            //
-            //Apply passive effects of items and restore cooldowns
-            //
-            for (int i = 0; i < Inventory.Length; i++)
-            {
-                if (Inventory[i] != null)
-                {
-                    Inventory[i].Update();
-                    if (Inventory[i].Amount == 0)
-                    {
-                        if (Inventory[i].DestroyedWhenEmpty)
-                            TrashItem(i);
-                    }
-                }
-            }
-
-            //
-            //Check if the entity is lit up and/or visible
-            //
-            int tilex = (int)(Position.X / 10);
-            int tiley = (int)(Position.Y / 10);
-
-            if (tilex >= 0 && tilex + 1 < Tiles.GetLength(0)
-                && tiley >= 0 && tiley + 1 < Tiles.GetLength(1))
-            {
-                float averageBrightness = (Tiles[tilex, tiley].Brightness
-                    + Tiles[tilex + 1, tiley].Brightness
-                    + Tiles[tilex, tiley + 1].Brightness
-                    + Tiles[tilex + 1, tiley + 1].Brightness) 
-                        / 4f;
-
-                Brightness = averageBrightness;
-
-                IsVisible = Tiles[tilex, tiley].IsVisible
-                    || Tiles[tilex + 1, tiley].IsVisible
-                    || Tiles[tilex, tiley + 1].IsVisible
-                    || Tiles[tilex + 1, tiley + 1].IsVisible;
-            }
-
-            if (IsBurning)
-            {
-                BurnLight.IsActive = true;
-                BurnLight.Update(Position + (Origin / 2), Vector2.UnitX);
-            }
-            else
-                BurnLight.IsActive = false;
+            UpdateVisibility(Tiles);
 
             Velocity = Vector2.Zero; //Reset velocity every frame because previous velocity is recorded in HitVelocity anyway
+
 
             if (!IsStunned) //The entity can't do anything intelligent while stunned
             {
@@ -240,13 +133,6 @@ namespace TheOtherDarkWorld.GameObjects
                     Intelligence();
             }
             HitCooldown--;
-
-            //Update the swing of the melee weapon if the weapon is being swung
-            if (Swing != null)
-            {
-                if (Swing.Update(Position))
-                    Swing = null;
-            }
 
             if (IsFrozen)
             {
@@ -276,7 +162,32 @@ namespace TheOtherDarkWorld.GameObjects
             }
 
             CheckCollisions(Tiles);
-            CheckProjectileCollisions();
+        }
+
+        protected void UpdateVisibility(Tile[,] Tiles)
+        {
+            //
+            //Check if the entity is lit up and/or visible
+            //
+            int tilex = (int)(Position.X / 10);
+            int tiley = (int)(Position.Y / 10);
+
+            if (tilex >= 0 && tilex + 1 < Tiles.GetLength(0)
+                && tiley >= 0 && tiley + 1 < Tiles.GetLength(1))
+            {
+                float averageBrightness = (Tiles[tilex, tiley].Brightness
+                    + Tiles[tilex + 1, tiley].Brightness
+                    + Tiles[tilex, tiley + 1].Brightness
+                    + Tiles[tilex + 1, tiley + 1].Brightness)
+                        / 4f;
+
+                Brightness = averageBrightness;
+
+                IsVisible = Tiles[tilex, tiley].IsVisible
+                    || Tiles[tilex + 1, tiley].IsVisible
+                    || Tiles[tilex, tiley + 1].IsVisible
+                    || Tiles[tilex + 1, tiley + 1].IsVisible;
+            }
         }
 
         private void UpdateStatusEffects()
@@ -321,7 +232,7 @@ namespace TheOtherDarkWorld.GameObjects
                         case StatusType.Burning:
                             IsBurning = true;
                             ApplyDamage(StatusEffects[i].Potency);
-                            BurnLight.Brightness = StatusEffects[i].Potency;
+                            AuraLight.Brightness = StatusEffects[i].Potency;
                             break;
                         case StatusType.Poison:
                             IsPoisoned = true;
@@ -332,6 +243,16 @@ namespace TheOtherDarkWorld.GameObjects
                             break;
                         case StatusType.QuickFooted:
                             SpeedBonus += StatusEffects[i].Potency;
+                            break;
+                        case StatusType.Benediction:
+                            AuraLight.Brightness = StatusEffects[i].Potency;
+                            IsProtected = true;
+                            break;
+                        case StatusType.Binded:
+                            IsBinded = true;
+                            break;
+                        case StatusType.Bleeding:
+                            IsBleeding = true;
                             break;
                     }
                 }
@@ -346,10 +267,23 @@ namespace TheOtherDarkWorld.GameObjects
             {
                 StatusColour = Color.Lerp(StatusColour, COLOUR_POISON, 0.5f);
             }
-            if (IsBurning)
+            if (IsProtected)
+            {
+                StatusColour = Color.Lerp(StatusColour, COLOUR_PROTECTED, 0.5f);
+                AuraLight.Colour = COLOUR_PROTECTED;
+                AuraLight.IsActive = true;
+                AuraLight.Update(Position + (Origin / 2), Vector2.UnitX);
+            }
+            else if (IsBurning)
             {
                 StatusColour = Color.Lerp(StatusColour, COLOUR_BURNING, 0.5f);
+                AuraLight.Colour = COLOUR_BURNING;
+                AuraLight.IsActive = true;
+                AuraLight.Update(Position + (Origin / 2), Vector2.UnitX);
             }
+            else
+                AuraLight.IsActive = false;
+
             if (IsFrozen)
             {
                 StatusColour = Color.Lerp(StatusColour, COLOUR_FROZEN, 0.5f);
@@ -358,29 +292,7 @@ namespace TheOtherDarkWorld.GameObjects
             {
                 StatusColour = Color.Lerp(StatusColour, COLOUR_INVISIBLE, 0.5f);
             }
-        }
 
-
-        private void CheckProjectileCollisions()
-        {
-            for (int i = 0; i < Projectile.ProjectileList.Count; i++)
-            {
-                Projectile p = Projectile.ProjectileList[i];
-
-                if (p.Owner != this) //The owner of a projectile can't hit itself
-                {
-                    if (Collision.SquareVsSquare(this, p))
-                    {
-                        ApplyDamage(p.Damage);
-                        p.Health -= this.Resistance;
-                        this.HitVelocity += p.Velocity / Weight;
-                        HitCooldown = 30;
-
-                        //The entity won't absorb too many bullets if we stop the checks early
-                        return; //By returning, rather than moving on to the next projectile
-                    }
-                }
-            }
         }
 
         protected abstract void Intelligence();
@@ -391,28 +303,31 @@ namespace TheOtherDarkWorld.GameObjects
             {
                 if (Collision.SquareVsSquare(this, entity))
                 {
-                    //Collision c = GetCollisionDetails(e.Rect, 0, 0);
-
-                    Vector2 Bounce = this.Position - entity.Position;
-                    Bounce.Normalize();
-                    if (float.IsNaN(Bounce.X))
-                        Bounce = Vector2.UnitX;
-                    //Bounce *= (Velocity.Length() + e.Velocity.Length()) / 2f;
-
-                    float push = ((float)this.Weight / (float)(this.Weight + entity.Weight)) / 2f;
-                    //push += ((float)this.Velocity.Length() / (e.Velocity.Length() + this.Velocity.Length())) / 2f;
-
-                    //Add the percentage of push that this entity should recieve
-                    this.HitVelocity += Bounce * (1 - push);
-                    //Add the remainder to the other entity
-                    entity.HitVelocity -= Bounce * push;
-
-                    if (float.IsNaN(HitVelocity.X) || float.IsNaN(HitVelocity.Y))
-                        System.Diagnostics.Debugger.Break();
-                     
+                    OnCollideWith(entity);
                 }
-
             }
+        }
+
+        protected virtual void OnCollideWith(Entity entity)
+        {
+            //Collision c = GetCollisionDetails(e.Rect, 0, 0);
+
+            Vector2 Bounce = this.Position - entity.Position;
+            Bounce.Normalize();
+            if (float.IsNaN(Bounce.X))
+                Bounce = Vector2.UnitX;
+            //Bounce *= (Velocity.Length() + e.Velocity.Length()) / 2f;
+
+            float push = ((float)this.Weight / (float)(this.Weight + entity.Weight)) / 2f;
+            //push += ((float)this.Velocity.Length() / (e.Velocity.Length() + this.Velocity.Length())) / 2f;
+
+            //Add the percentage of push that this entity should recieve
+            this.HitVelocity += Bounce * (1 - push);
+            //Add the remainder to the other entity
+            entity.HitVelocity -= Bounce * push;
+
+            if (float.IsNaN(HitVelocity.X) || float.IsNaN(HitVelocity.Y))
+                System.Diagnostics.Debugger.Break();
         }
 
         /// <summary>
@@ -459,33 +374,6 @@ namespace TheOtherDarkWorld.GameObjects
             }
         }
 
-        /// <summary>
-        /// Get's the first occurrence of an item within this entity's inventory, or if none is found, returns null
-        /// </summary>
-        /// <param name="type">The type of item required</param>
-        /// <returns>The item with the requested type, or if there is no item, returns null</returns>
-        public Item GetItem(int type)
-        {
-            for (int i = 0; i < Inventory.Length; i++)
-            {
-                if (Inventory[i] != null && Inventory[i].Type == type && Inventory[i].Amount != 0)
-                    return Inventory[i];
-            }
-            return null;
-
-        }/// <summary>
-        /// Get's the index of the first occurrence of an item within this entity's inventory, or if none is found, returns -1
-        /// </summary>
-        /// <param name="type">The type of item required</param>
-        /// <returns>The index of the item with the requested type, or if there is no item, returns -1</returns>
-        public int GetItemIndex(int type)
-        {
-            for (int i = 0; i < Inventory.Length; i++)
-            {
-                if (Inventory[i] != null && Inventory[i].Type == type && Inventory[i].Amount != 0)
-                    return i;
-            }
-            return -1;
-        }
     }
 }
+

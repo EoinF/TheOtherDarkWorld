@@ -55,7 +55,7 @@ namespace TheOtherDarkWorld.GameObjects
         Perceptive, //Displays hp and status effects of other entities(Player only)
         Ghost, //Can walk through walls and enemies
         Hardened, //Reduces damage received
-        DivineProtection, //Health cannot fall below 1
+        Benediction, //Health cannot fall below 1 (Costs -1 potency each time the entity is prevented from falling below 1 health)
         FastHands //Reduces item usage cooldowns
     }
 }

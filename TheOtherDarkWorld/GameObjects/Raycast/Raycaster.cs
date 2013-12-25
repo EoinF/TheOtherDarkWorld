@@ -110,7 +110,7 @@ namespace TheOtherDarkWorld.GameObjects
             int srcY = (int)(Position.Y / Tile.HEIGHT);
 
             //
-            //Use the raycast algorithm on the outer edges of the light source
+            //Use the raycast algorithm on the outer edges of the ray source
             //
             for (int i = startX; i < endX; i++)
             {

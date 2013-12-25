@@ -54,7 +54,7 @@ namespace TheOtherDarkWorld.GameObjects
             public override void Draw(SpriteBatch spriteBatch)
             {
                 if (IsVisible)
-                    spriteBatch.Draw(Textures.Items, Position - Level.CurrentLevel.Players[0].Offset, Textures.GetItemRectangle(Item.Type), getLightColour(), Rotation, Vector2.One * 8, 0.7f, SpriteEffects.None, UI.FLOORITEM_DEPTH_DEFAULT);
+                    spriteBatch.Draw(Textures.Items, Position - StateManager.Offset, Textures.GetItemRectangle(Item.Type), getLightColour(), Rotation, Vector2.One * 8, 0.7f, SpriteEffects.None, UI.FLOORITEM_DEPTH_DEFAULT);
             }
         }
     }

@@ -31,7 +31,7 @@ namespace TheOtherDarkWorld.GameObjects
 
         protected override void ApplyActive()
         {
-            Owner.Swing = new Swing(Owner.Rotation, this.Reach, this.Power, this.BaseCooldown, Knockback, (int)Owner.Rect.Width, Owner);
+            (Owner as IMelee).Swing = new Swing(Owner.Rotation, this.Reach, this.Power, this.BaseCooldown, Knockback, (int)Owner.Rect.Width, Owner);
 
 
             //Melee items work differently than normal items. The time taken to swing the weapon is added
@@ -100,22 +100,22 @@ namespace TheOtherDarkWorld.GameObjects
         /// 
         /// </summary>
         /// <returns>True if the swing has ended</returns>
-        public bool Update(Vector2 newPosition)
+        public bool Update(Vector2 newPosition, List<Entity> Entities)
         {
             AddedRotation += SwingSpeed;
             Rotation -= SwingSpeed;
             this.Position = newPosition + RotationVector;
 
-            CheckCollisions();
+            CheckCollisions(Entities);
 
             return (AddedRotation > MathHelper.Pi);
         }
 
-        private void CheckCollisions()
+        private void CheckCollisions(List<Entity> Entities)
         {
-            for (int i = 0; i < Level.CurrentLevel.Entities.Count; i++)
+            for (int i = 0; i < Entities.Count; i++)
             {
-                Entity e = Level.CurrentLevel.Entities[i];
+                Entity e = Entities[i];
                 if (e != Owner) //An entity can't hit itself with its own melee attack
                 {
                     if (e.HitCooldown <= 0)

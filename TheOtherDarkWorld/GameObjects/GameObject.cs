@@ -26,10 +26,8 @@ namespace TheOtherDarkWorld.GameObjects
         /// This object is visible to the player
         /// </summary>
         public bool IsVisible 
-        { 
-            get { return FULL_VISION ||
-                (_isVisible 
-                && !Level.CurrentLevel.Players[Level.CurrentLevel.PlayerIndex].IsBlinded); } 
+        {
+            get { return FULL_VISION || _isVisible; }
             set { _isVisible = value; } 
         }
         private bool _isVisible;
@@ -84,7 +82,7 @@ namespace TheOtherDarkWorld.GameObjects
         }
 
 
-        public void CheckCollisions(Tile[,] Tiles)
+        public virtual void CheckCollisions(Tile[,] Tiles)
         {
             for (int checks = 0; checks < 2 && Velocity != Vector2.Zero; checks++)
             {
@@ -202,7 +200,7 @@ namespace TheOtherDarkWorld.GameObjects
         public virtual void Draw(SpriteBatch spriteBatch)
         {
             if (IsVisible)
-                spriteBatch.Draw(Textures.Block, Position + Origin - Level.CurrentLevel.Players[0].Offset, null, getLightColour(), 0, Vector2.Zero, 1, SpriteEffects.None, UI.GAMEOBJECT_DEPTH_DEFAULT);
+                spriteBatch.Draw(Textures.Block, Position + Origin - StateManager.Offset, null, getLightColour(), 0, Vector2.Zero, 1, SpriteEffects.None, UI.GAMEOBJECT_DEPTH_DEFAULT);
         }
     }
 }

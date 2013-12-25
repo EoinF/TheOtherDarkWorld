@@ -26,8 +26,7 @@ namespace TheOtherDarkWorld.GameObjects
             this.Range = characteristics.Range;
             this.Colour = characteristics.Colour;
 
-            light = new Light(Power, Range, Vector2.Zero, Vector2.UnitX, Span, Colour, Level.CurrentLevel.Tiles, false);
-            Level.CurrentLevel.AddLight(light);
+            light = StateManager.CreateLight(Power, Range, Vector2.Zero, Vector2.UnitX, Span, Colour, false);
         }
 
         public Torch()  //Parameterless constructor for Xml serialization
@@ -40,7 +39,7 @@ namespace TheOtherDarkWorld.GameObjects
         ~Torch()
         {
             if (light != null)
-                Level.CurrentLevel.RemoveLight(light);
+                StateManager.RemoveLight(light);
         }
 
         public override void Deactivate()

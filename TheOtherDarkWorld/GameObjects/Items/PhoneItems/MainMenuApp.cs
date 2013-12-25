@@ -17,12 +17,14 @@ namespace TheOtherDarkWorld.GameObjects
         {
             this.InstalledApps = InstalledApps;
             this.HeldApps = new List<int>();
-            for (int i = 0; i < Owner.Inventory.Length; i++)
+
+            Item[] Inventory = (Owner as IItemHolder).Inventory;
+            for (int i = 0; i < Inventory.Length; i++)
             {
-                if (Owner.Inventory[i] != null)
-                    if (Owner.Inventory[i].Type >= APP_TYPE_START && Owner.Inventory[i].Type <= APP_TYPE_END)
+                if (Inventory[i] != null)
+                    if (Inventory[i].Type >= APP_TYPE_START && Inventory[i].Type <= APP_TYPE_END)
                     {
-                        HeldApps.Add(Owner.Inventory[i].Type);
+                        HeldApps.Add(Inventory[i].Type);
                     }
             }
             UpdateUI();
@@ -36,26 +38,27 @@ namespace TheOtherDarkWorld.GameObjects
             //
             bool isChanged = false;
 
+            Item[] Inventory = (Owner as IItemHolder).Inventory;
             int a = 0; //The first item in the heldapps list
-            for (int i = 0; i < Owner.Inventory.Length; i++)
+            for (int i = 0; i < Inventory.Length; i++)
             {
-                if (Owner.Inventory[i] != null)
-                    if (Owner.Inventory[i].Type >= APP_TYPE_START && Owner.Inventory[i].Type <= APP_TYPE_END)
+                if (Inventory[i] != null)
+                    if (Inventory[i].Type >= APP_TYPE_START && Inventory[i].Type <= APP_TYPE_END)
                     {
                         if (a < HeldApps.Count)
                         {
-                            if (Owner.Inventory[i].Type == HeldApps[a])
+                            if (Inventory[i].Type == HeldApps[a])
                                 a++;
                             else //The order has changed, or a new app is in the inventory
                             {
                                 isChanged = true;
-                                HeldApps[a] = Owner.Inventory[i].Type;
+                                HeldApps[a] = Inventory[i].Type;
                             }
                         }
                         else //More apps than there were in the last frame
                         {
                             isChanged = true;
-                            HeldApps.Add(Owner.Inventory[i].Type);
+                            HeldApps.Add(Inventory[i].Type);
                         }
                     }
             }
@@ -80,20 +83,21 @@ namespace TheOtherDarkWorld.GameObjects
                 PageContent.AddElement(CreateSwitchAppButton(InstalledApps[i].Name, InstalledApps[i].Type));
             }
 
-            for (int i = 0; i < Owner.Inventory.Length; i++)
+            Item[] Inventory = (Owner as IItemHolder).Inventory;
+            for (int i = 0; i < Inventory.Length; i++)
             {
                 //Check if this is actually an app item
-                if (Owner.Inventory[i] != null
-                    && Owner.Inventory[i].Type >= APP_TYPE_START && Owner.Inventory[i].Type <= APP_TYPE_END)
+                if (Inventory[i] != null
+                    && Inventory[i].Type >= APP_TYPE_START && Inventory[i].Type <= APP_TYPE_END)
                 {
                     //
                     //First, make sure this app is not already installed
                     //
-                    if (!phone.IsInstalled(Owner.Inventory[i].Type))
+                    if (!phone.IsInstalled(Inventory[i].Type))
                     {
-                        string appname = Owner.Inventory[i].Name.Split('(')[1].Split(')')[0]; //App items come in the form "SD Card(app_name)"
+                        string appname = Inventory[i].Name.Split('(')[1].Split(')')[0]; //App items come in the form "SD Card(app_name)"
 
-                        int apptype = Owner.Inventory[i].Type;
+                        int apptype = Inventory[i].Type;
                         CreateInstallAppButton(appname, apptype, phone, Owner, InstalledApps);
                     }
                 }
@@ -112,11 +116,11 @@ namespace TheOtherDarkWorld.GameObjects
 
             button.OnPressed += (obj) =>
             {
-                int itemIndex = owner.GetItemIndex(apptype);
+                int itemIndex = (owner as IItemHolder).GetItemIndex(apptype);
                 if (itemIndex != -1)
                 {
-                    int consumeRate = owner.GetItem(apptype).ConsumeRate;
-                    owner.TrashItem(itemIndex);
+                    int consumeRate = (owner as IItemHolder).GetItem(apptype).ConsumeRate;
+                    (owner as IItemHolder).TrashItem(itemIndex);
                     //Remove the item from the HUD as well
                     ((UI.Inventory_UI[itemIndex] as UIContainer)[0] as InventoryElement).Item = null;
 

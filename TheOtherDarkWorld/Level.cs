@@ -10,9 +10,6 @@ namespace TheOtherDarkWorld
 {
     public class Level
     {
-        public static Level CurrentLevel;
-
-        public int PlayerIndex;
         public Tile[,] Tiles;
         public Player[] Players;
         public List<FloorItem> FloorItems;
@@ -22,6 +19,7 @@ namespace TheOtherDarkWorld
         public int Seed { get; private set; }
         public LevelType Type { get; private set; }
         private List<Light> Lights;
+        private List<Projectile> Projectiles;
         public static Vision PlayerVision;
 
         public int wave;
@@ -30,8 +28,8 @@ namespace TheOtherDarkWorld
         {
             //These variables find out which blocks are currently on screen
             //This saves drawing off screen objects
-            int startX = (int)(Players[0].Offset.X / 10);
-            int startY = (int)(Players[0].Offset.Y / 10);
+            int startX = (int)(StateManager.Offset.X / 10);
+            int startY = (int)(StateManager.Offset.Y / 10);
 
             int endX = startX + (UI.ScreenX / 10) + 2;
             int endY = startY + (UI.ScreenY / 10) + 2;
@@ -63,7 +61,11 @@ namespace TheOtherDarkWorld
             for (int i = 0; i < Entities.Count; i++)
             {
                 Entities[i].Draw(spriteBatch);
-            }    
+            }
+            for (int i = 0; i < Projectiles.Count; i++)
+            {
+                Projectiles[i].Draw(spriteBatch);
+            }
         }
 
 
@@ -77,18 +79,18 @@ namespace TheOtherDarkWorld
             Entities = new List<Entity>();
             wave = 0;
             Players = new Player[1];
-            PlayerIndex = 0;
             Entities.Add(Players[0]);
 
             Lights = new List<Light>();
             PlayerVision = new Vision(500, Vector2.Zero, Vector2.Zero, 0.8f, Tiles);
+            Projectiles = new List<Projectile>();
         }
 
-        public static bool DamageBlock(int x, int y, int dmg)
+        public bool DamageBlock(int x, int y, int dmg)
         {
-            if ((CurrentLevel.Tiles[x, y].Block.Health -= dmg) <= 0) //Decreases the blocks health by the damage specified and checks if the result is less than 0, indicating that the block is destroyed
+            if ((Tiles[x, y].Block.Health -= dmg) <= 0) //Decreases the blocks health by the damage specified and checks if the result is less than 0, indicating that the block is destroyed
             {
-                CurrentLevel.Tiles[x, y].Block = null;
+                Tiles[x, y].Block = null;
                 return true;
             }
             return false;
@@ -96,8 +98,8 @@ namespace TheOtherDarkWorld
 
         public void AddLight(Light light)
         {
-            if (light.Position.X < (CurrentLevel.Width * Tile.WIDTH) && light.Position.X >= 0
-                && light.Position.Y < (CurrentLevel.Height * Tile.HEIGHT) && light.Position.Y >= 0)
+            if (light.Position.X < (Width * Tile.WIDTH) && light.Position.X >= 0
+                && light.Position.Y < (Height * Tile.HEIGHT) && light.Position.Y >= 0)
                 Lights.Add(light);
         }
 
@@ -115,6 +117,16 @@ namespace TheOtherDarkWorld
                 Lights[i].CastAll();
             }
         }
+
+        public void AddProjectile(Projectile projectile)
+        {
+            Projectiles.Add(projectile);
+        }
+
+        public void RemoveProjectile(Projectile projectile)
+        {
+            Projectiles.Remove(projectile);
+        }
        
 
         public void Update()
@@ -126,8 +138,18 @@ namespace TheOtherDarkWorld
             for (int i = 0; i < Entities.Count; i++)
             {
                 Entities[i].Update(Tiles, Entities);
+                if (Entities[i] is IMelee)
+                {
+                    Swing swing = (Entities[i] as IMelee).Swing;
+                    //Update the swing of the melee weapon if the weapon is being swung
+                    if (swing != null)
+                    {
+                        if (swing.Update(Entities[i].Position, Entities))
+                            swing = null;
+                    }
+                }
 
-                for (int e = i + 1; e < Level.CurrentLevel.Entities.Count; e++)
+                for (int e = i + 1; e < Entities.Count; e++)
                 {
                     Entities[i].CheckEntityCollision(Entities[e]);
                 }
@@ -140,7 +162,23 @@ namespace TheOtherDarkWorld
                     //was just removed from the list
                     i--;
                 }
+            }
 
+            for (int i = 0; i < Projectiles.Count; i++)
+            {
+                Projectiles[i].Update(Tiles);
+                for (int e = 0; e < Entities.Count; e++)
+                {
+                    if (Entities[e] != Projectiles[i].Owner)
+                        Projectiles[i].CheckEntityCollision(Entities[e]);
+                }
+                if (!Projectiles[i].IsAlive)
+                {
+                    Projectiles.RemoveAt(i);
+                    //Reduce the index by 1, because the next item will replace the position of the item that
+                    //was just removed from the list
+                    i--;
+                }
             }
 
             for (int i = 0; i < FloorItems.Count; i++)
@@ -157,49 +195,49 @@ namespace TheOtherDarkWorld
                 {
                     for (int i = 0; i < 2 + (wave); i++)
                     {
-                        Entities.Add(new Enemy(new Vector2((float)((Level.CurrentLevel.Width * 5) * rand.NextDouble()), (float)((Level.CurrentLevel.Height * 5) + Level.CurrentLevel.Height * 5 * rand.NextDouble())), 1.6f, Vector2.Zero, 0, 1000, 20, 40, 60 + (wave * 4)));
-                        Entities.Add(new Enemy(new Vector2((float)((Level.CurrentLevel.Width * 5) + (Level.CurrentLevel.Width * 5) * rand.NextDouble()), (float)(Level.CurrentLevel.Height * 5 * rand.NextDouble())), 1.6f, Vector2.Zero, 0, 1000, 20, 40, 60 + (wave * 4)));
+                        Entities.Add(new Enemy(new Vector2((float)((Width * 5) * rand.NextDouble()), (float)((Height * 5) + Height * 5 * rand.NextDouble())), 1.6f, Vector2.Zero, 0, 0,  1000, 20, 40, 60 + (wave * 4)));
+                        Entities.Add(new Enemy(new Vector2((float)((Width * 5) + (Width * 5) * rand.NextDouble()), (float)(Height * 5 * rand.NextDouble())), 1.6f, Vector2.Zero, 0, 0, 1000, 20, 40, 60 + (wave * 4)));
                     }
                 } 
                 else if ((wave + 2) % 5 == 0)
                 {
                     for (int i = 0; i < 10 + (7 * wave); i++)
                     {
-                        Entities.Add(new Enemy(new Vector2((float)((Level.CurrentLevel.Width * 5) + (Level.CurrentLevel.Width * 5) * rand.NextDouble()), (float)(Level.CurrentLevel.Height * 10 * rand.NextDouble())), 1 + (wave * 0.5f), Vector2.Zero, 0, 100, 20, 8, 15));
-                        Entities.Add(new Enemy(new Vector2((float)((Level.CurrentLevel.Width * 5) * rand.NextDouble()), (float)(Level.CurrentLevel.Height * 10 * rand.NextDouble())), 1 + (wave * 0.5f), Vector2.Zero, 0, 100, 20, 8, 15));
+                        Entities.Add(new Enemy(new Vector2((float)((Width * 5) + (Width * 5) * rand.NextDouble()), (float)(Height * 10 * rand.NextDouble())), 1 + (wave * 0.5f), Vector2.Zero, 0, 1, 100, 20, 8, 15));
+                        Entities.Add(new Enemy(new Vector2((float)((Width * 5) * rand.NextDouble()), (float)(Height * 10 * rand.NextDouble())), 1 + (wave * 0.5f), Vector2.Zero, 0, 1, 100, 20, 8, 15));
                     }
                 }
                 else if ((wave + 3) % 5 == 0)
                 {
                     for (int i = 0; i < 10 + (4 * wave); i++)
                     {
-                        Entities.Add(new Enemy(new Vector2((float)(Level.CurrentLevel.Width * 10 * rand.NextDouble()), (float)((Level.CurrentLevel.Height * 5) * rand.NextDouble())), 1 + (wave * 0.3f), Vector2.Zero, 0, 100, 20, 8, 30));
-                        Entities.Add(new Enemy(new Vector2((float)((Level.CurrentLevel.Width * 5) + (Level.CurrentLevel.Width * 5) * rand.NextDouble()), (float)(Level.CurrentLevel.Height * 10 * rand.NextDouble())), 5, Vector2.Zero, 0, 50, 20, 2, 2));
+                        Entities.Add(new Enemy(new Vector2((float)(Width * 10 * rand.NextDouble()), (float)((Height * 5) * rand.NextDouble())), 1 + (wave * 0.3f), Vector2.Zero, 0, 1, 100, 20, 8, 30));
+                        Entities.Add(new Enemy(new Vector2((float)((Width * 5) + (Width * 5) * rand.NextDouble()), (float)(Height * 10 * rand.NextDouble())), 5, Vector2.Zero, 0, 1, 50, 20, 2, 2));
                     }
                 }
                 else
                 {
                     for (int i = 0; i < (3 * wave); i++)
                     {
-                        Entities.Add(new Enemy(new Vector2((float)(Level.CurrentLevel.Width * 10 * rand.NextDouble()), (float)((Level.CurrentLevel.Height * 5) * rand.NextDouble())), 1 + (wave * 0.3f), Vector2.Zero, 0, 100, 20, 800, 30));
+                        Entities.Add(new Enemy(new Vector2((float)(Width * 10 * rand.NextDouble()), (float)((Height * 5) * rand.NextDouble())), 1 + (wave * 0.3f), Vector2.Zero, 0, 1, 100, 20, 800, 30));
                     }
                     for (int i = 0; i < (3 * (wave - 1)); i++)
                     {
-                        Entities.Add(new Enemy(new Vector2((float)(Level.CurrentLevel.Width * 10 * rand.NextDouble()), (Level.CurrentLevel.Height * 5) + (float)(2f * Level.CurrentLevel.Height * rand.NextDouble())), 1 + (wave * 0.3f), Vector2.Zero, 0, 100, 20, 8, 30));
+                        Entities.Add(new Enemy(new Vector2((float)(Width * 10 * rand.NextDouble()), (Height * 5) + (float)(2f * Height * rand.NextDouble())), 1 + (wave * 0.3f), Vector2.Zero, 0, 1, 100, 20, 8, 30));
                     }
                 }
 
                 if (wave != 1)
                 {
-                    Players[PlayerIndex].PlusOneLife();
+                    StateManager.CurrentPlayer.PlusOneLife();
                 }
             }
         }
 
         private void UpdateBlocks()
         {
-            for (int i = 0; i < Level.CurrentLevel.Width; i++)
-                for (int j = 0; j < Level.CurrentLevel.Height; j++)
+            for (int i = 0; i < Width; i++)
+                for (int j = 0; j < Height; j++)
                 {
                     if (Tiles[i,j].Block != null)
                         if (Tiles[i, j].Block.Health < 0)

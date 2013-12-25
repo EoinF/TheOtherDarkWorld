@@ -1,0 +1,261 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+  <xs:element name="GameContent">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="Weapons"/>
+        <xs:element ref="Items"/>
+        <xs:element ref="Blocks"/>
+      </xs:sequence>
+    </xs:complexType>
+    <xs:unique name="UniqueWeaponIDKey">
+      <xs:selector xpath="./Weapons/Gun|Melee" />
+      <xs:field xpath="Type"/>
+    </xs:unique>
+    <xs:unique name="UniqueItemIDKey">
+      <xs:selector xpath="./Item/Item|SmartPhone|Torch|Goggles" />
+      <xs:field xpath="Type"/>
+    </xs:unique>
+  </xs:element>
+  <xs:element name="Weapons">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="Gun"/>
+        <xs:element maxOccurs="unbounded" ref="Melee"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Gun">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="Type"/>
+        <xs:element ref="Name" minOccurs="0" maxOccurs="1"/>
+        <xs:element ref="BaseCooldown" minOccurs="0" maxOccurs="1"/>
+        <xs:element ref="Consumes" minOccurs="0" maxOccurs="1"/>
+        <xs:element ref="IsConsumable" minOccurs="0" maxOccurs="1"/>
+        <xs:element ref="MaxAmount" minOccurs="0" maxOccurs="1"/>
+        <xs:element ref="Power" minOccurs="0" maxOccurs="1"/>
+        <xs:element ref="DestroyedWhenEmpty" minOccurs="0" maxOccurs="1"/>
+        <xs:element ref="Penetration" minOccurs="0" maxOccurs="1"/>
+        <xs:element ref="BulletColour" minOccurs="0" maxOccurs="1"/>
+        <xs:element ref="BulletSpeed" minOccurs="0" maxOccurs="1"/>
+        <xs:element ref="IsAutomatic" minOccurs="0" maxOccurs="1"/>
+        <xs:element ref="AttackType" minOccurs="0" maxOccurs="1"/>
+        <xs:element ref="ReloadTime" minOccurs="0" maxOccurs="1"/>
+        <xs:element ref="MuzzleFlashMagnitude" minOccurs="0" maxOccurs="1"/>
+        <xs:element ref="Description" minOccurs="0" maxOccurs="1"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Penetration" type="xs:integer"/>
+  <xs:element name="BulletColour">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="A"/>
+        <xs:element ref="R"/>
+        <xs:element ref="G"/>
+        <xs:element ref="B"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="BulletSpeed" type="xs:integer"/>
+  <xs:element name="AttackType" type="xs:NCName"/>
+  <xs:element name="ReloadTime" type="xs:integer"/>
+  <xs:element name="MuzzleFlashMagnitude" type="xs:decimal"/>
+  <xs:element name="Melee">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="Type"/>
+        <xs:element ref="Name"/>
+        <xs:element ref="BaseCooldown"/>
+        <xs:element ref="SwingLength"/>
+        <xs:element ref="IsConsumable"/>
+        <xs:element ref="MaxAmount"/>
+        <xs:element ref="Power"/>
+        <xs:element ref="Knockback"/>
+        <xs:element ref="Reach"/>
+        <xs:element minOccurs="0" ref="IsAutomatic"/>
+        <xs:element ref="Description"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="SwingLength" type="xs:integer"/>
+  <xs:element name="Knockback" type="xs:integer"/>
+  <xs:element name="Reach" type="xs:integer"/>
+  <xs:element name="Items">
+    <xs:complexType>
+      <xs:choice maxOccurs="unbounded">
+        <xs:element ref="Goggles"/>
+        <xs:element ref="Item"/>
+        <xs:element ref="SmartPhone"/>
+        <xs:element ref="Torch"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Goggles">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="Type"/>
+        <xs:element ref="Name"/>
+        <xs:element ref="BaseCooldown" minOccurs="0" maxOccurs="1"/>
+        <xs:element ref="Consumes" minOccurs="0" maxOccurs="1"/>
+        <xs:element ref="ConsumeRate" minOccurs="0" maxOccurs="1"/>
+        <xs:element ref="MaxAmount" minOccurs="0" maxOccurs="1"/>
+        <xs:element ref="IsTogglable" minOccurs="0" maxOccurs="1"/>
+        <xs:element ref="Description" minOccurs="0" maxOccurs="1"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Item">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="Type"/>
+        <xs:element ref="Name"/>
+        <xs:element ref="DestroyedWhenEmpty" minOccurs="0" maxOccurs="1"/>
+        <xs:element ref="IsConsumable" minOccurs="0" maxOccurs="1"/>
+        <xs:element ref="ConsumeRate" minOccurs="0" maxOccurs="1"/>
+        <xs:element ref="Consumes" minOccurs="0" maxOccurs="1"/>
+        <xs:element ref="MaxAmount" minOccurs="0" maxOccurs="1"/>
+        <xs:element ref="ActiveEffects" minOccurs="0" maxOccurs="1"/>
+        <xs:element ref="Description" minOccurs="0" maxOccurs="1"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ActiveEffects">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="ItemEffect"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ItemEffect">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Type">
+          <xs:simpleType>
+            <xs:restriction base="xs:Name">
+              <xs:enumeration value="Heal"/>
+              <xs:enumeration value="Healing"/>
+              <xs:enumeration value="Blind"/>
+              <xs:enumeration value="Stun"/>
+              <xs:enumeration value="Confuse"/>
+              <xs:enumeration value="Burn"/>
+              <xs:enumeration value="Poison"/>
+              <xs:enumeration value="Freeze"/>
+              <xs:enumeration value="Invisible"/>
+              <xs:enumeration value="Bind"/>
+              <xs:enumeration value="Slow"/>
+              <xs:enumeration value="Curse"/>
+              <xs:enumeration value="Invincible"/>
+              <xs:enumeration value="Injure"/>
+              <xs:enumeration value="Bleed"/>
+              <xs:enumeration value="SpeedBoost"/>
+              <xs:enumeration value="Perceptive"/>
+              <xs:enumeration value="Ghost"/>
+              <xs:enumeration value="Harden"/>
+              <xs:enumeration value="Protect"/>
+              <xs:enumeration value="FastHands"/>
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:element>
+        <xs:element ref="Potency" minOccurs="0" maxOccurs="1"/>
+        <xs:element ref="Duration" minOccurs="0" maxOccurs="1"/>
+        <xs:element ref="Negate" minOccurs="0" maxOccurs="1"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Potency" type="xs:decimal"/>
+  <xs:element name="Duration" type="xs:integer"/>
+  <xs:element name="Negate" type="xs:boolean"/>
+  <xs:element name="SmartPhone">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="Type"/>
+        <xs:element ref="Name"/>
+        <xs:element ref="BaseCooldown" minOccurs="0" maxOccurs="1"/>
+        <xs:element ref="Consumes" minOccurs="0" maxOccurs="1"/>
+        <xs:element ref="ConsumeRate" minOccurs="0" maxOccurs="1"/>
+        <xs:element ref="MaxAmount" minOccurs="0" maxOccurs="1"/>
+        <xs:element ref="IsTogglable" minOccurs="0" maxOccurs="1"/>
+        <xs:element ref="Description" minOccurs="0" maxOccurs="1"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Torch">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="Type"/>
+        <xs:element ref="Name"/>
+        <xs:element ref="BaseCooldown" minOccurs="0" maxOccurs="1"/>
+        <xs:element ref="Consumes" minOccurs="0" maxOccurs="1"/>
+        <xs:element ref="ConsumeRate" minOccurs="0" maxOccurs="1"/>
+        <xs:element ref="MaxAmount" minOccurs="0" maxOccurs="1"/>
+        <xs:element ref="Range" minOccurs="0" maxOccurs="1"/>
+        <xs:element ref="Span" minOccurs="0" maxOccurs="1"/>
+        <xs:element ref="Color" minOccurs="0" maxOccurs="1"/>
+        <xs:element ref="IsTogglable" minOccurs="0" maxOccurs="1"/>
+        <xs:element ref="Power" minOccurs="0" maxOccurs="1"/>
+        <xs:element ref="Description" minOccurs="0" maxOccurs="1"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Range" type="xs:integer"/>
+  <xs:element name="Span" type="xs:decimal"/>
+  <xs:element name="Color">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="A"/>
+        <xs:element ref="R"/>
+        <xs:element ref="G"/>
+        <xs:element ref="B"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Blocks">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="Block"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Block">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="Type"/>
+        <xs:element ref="Name"/>
+        <xs:element ref="Health"/>
+        <xs:element ref="Resistance"/>
+        <xs:element ref="Colour"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Health" type="xs:integer"/>
+  <xs:element name="Resistance" type="xs:integer"/>
+  <xs:element name="Colour">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="A"/>
+        <xs:element ref="R"/>
+        <xs:element ref="G"/>
+        <xs:element ref="B"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Type" type ="xs:integer"/>
+  <xs:element name="Name" type="xs:string"/>
+  <xs:element name="BaseCooldown" type="xs:integer"/>
+  <xs:element name="Consumes" type="xs:integer"/>
+  <xs:element name="IsConsumable" type="xs:boolean"/>
+  <xs:element name="MaxAmount" type="xs:integer"/>
+  <xs:element name="Power" type="xs:decimal"/>
+  <xs:element name="A" type="xs:integer"/>
+  <xs:element name="R" type="xs:integer"/>
+  <xs:element name="G" type="xs:integer"/>
+  <xs:element name="B" type="xs:integer"/>
+  <xs:element name="IsAutomatic" type="xs:boolean"/>
+  <xs:element name="Description" type="xs:string"/>
+  <xs:element name="DestroyedWhenEmpty" type="xs:boolean"/>
+  <xs:element name="ConsumeRate" type="xs:integer"/>
+  <xs:element name="IsTogglable" type="xs:boolean"/>
+</xs:schema>

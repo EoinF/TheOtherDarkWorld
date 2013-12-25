@@ -54,7 +54,7 @@ namespace TheOtherDarkWorld.GameObjects
         {
             if (IsActive)
             {
-                Item fuel = Owner.GetItem(Consumes);
+                Item fuel = (Owner as IItemHolder).GetItem(Consumes);
                 if (Consumes == -1 //If consumes is set to -1 it's free to use
                     || (fuel != null && fuel.Consume(this.ConsumeRate))) //otherwise check for fuel
                 {

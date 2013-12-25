@@ -9,41 +9,19 @@ using TheOtherDarkWorld.GameObjects;
 
 namespace TheOtherDarkWorld
 {
-    public class Player : Entity
+    public class Player : Entity, IMelee, IItemHolder
     {
-
         public override Texture2D Texture { get { return Textures.Player; } }
-        private Vector2 _offset;
-        public Vector2 Offset
-        {
-            get { return _offset;}
-            set 
-            {
-                //We only need to alter the offset in this way if the level is larger than the actual screen
-                if ((Level.CurrentLevel.Width * 10) < UI.ScreenX
-                    || value.X < 0)
-                    value.X = 0;
-                else if (value.X > (Level.CurrentLevel.Width * 10) - UI.ScreenX)
-                    value.X = (Level.CurrentLevel.Width * 10) - UI.ScreenX;
-
-                if ((Level.CurrentLevel.Height * 10) < UI.ScreenY
-                    || value.Y < 0)
-                    value.Y = 0;
-                else if (value.Y > (Level.CurrentLevel.Height * 10) - UI.ScreenY)
-                    value.Y = (Level.CurrentLevel.Height * 10) - UI.ScreenY;
-
-                _offset = value;
-            }
-        }
-
         private bool ObserverMode { get; set; }
-
+        public Swing Swing { get; set; }
+        public Item[] Inventory { get; set; }
 
         public Player(Vector2 startPosition, int MaxHealth, float walkSpeed, int inventorySize, Vector2 startVelocity, int ID, int Resistance)
-            : base(MaxHealth, inventorySize, startPosition, walkSpeed, Color.White, startVelocity, new Vector2(Textures.Player.Width / 2, Textures.Player.Height / 2), Resistance, (int)Textures.Player.Height, (int)Textures.Player.Width)
+            : base(MaxHealth, startPosition, walkSpeed, Color.White, startVelocity, new Vector2(Textures.Player.Width / 2, Textures.Player.Height / 2), Resistance, (int)Textures.Player.Height, (int)Textures.Player.Width)
         {
+            Inventory = new Item[inventorySize];
             Weight = 5;
-            this.ID = ID;
+            //this.ID = ID;
         }
 
         public static Vector2 CrosshairOrigin
@@ -65,10 +43,9 @@ namespace TheOtherDarkWorld
         {
             get
             {
-                return InputManager.MousePositionV + Offset; 
+                return InputManager.MousePositionV + StateManager.Offset; 
             }
         }
-
 
         private void StatusEffectDebugMethod()
         {
@@ -124,12 +101,6 @@ namespace TheOtherDarkWorld
 
             ObserverMode = InputManager.keyboardState[0].IsKeyDown(Keys.Space);
 
-            if (Velocity != Vector2.Zero)
-            {
-                CheckCollisions(Level.CurrentLevel.Tiles);
-                Offset = Position - new Vector2(UI.ScreenX / 2, UI.ScreenY / 2);
-            }
-
             if (InputManager.keyboardState[0].IsKeyDown(Keys.W))
             {
                 Velocity -= Vector2.UnitY;
@@ -157,8 +128,7 @@ namespace TheOtherDarkWorld
             ApplyHealing(-1);
         }
 
-
-        public override bool PickUpItem(Item item)
+        public bool PickUpItem(Item item)
         {
             //Check if there's space to fit the new item in the inventory
             for (int i = 0; i < Inventory.Length; i++)
@@ -174,13 +144,32 @@ namespace TheOtherDarkWorld
             }
             return false;
         }
+
+        /// <summary>
+        /// Places an item onto the floor of the map near the entity's position
+        /// </summary>
+        /// <param name="item">A pointer to the item to be dropped(Must be the actual pointer to the item in the Inventory array)</param>
+        /// <returns>True if the item actually exists in the entity's inventory</returns>
+        public virtual bool DropItem(Item item)
+        {
+            for (int i = 0; i < Inventory.Length; i++)
+            {
+                if (Inventory[i] != null && Inventory[i].Equals(item))
+                {
+                    StateManager.DropItem(item, Position + Origin);
+                    Inventory[i] = null;
+                    return true;
+                }
+            }
+            return false;
+        }
         
         /// <summary>
         /// Removes an item from the game
         /// </summary>
         /// <param name="item">A pointer to the item to be trashed(Must be the actual pointer to the item in the Inventory array)</param>
         /// <returns>True if the item actually exists in the entity's inventory</returns>
-        public override bool TrashItem(Item item)
+        public bool TrashItem(Item item)
         {
             for (int i = 0; i < Inventory.Length; i++)
             {
@@ -200,7 +189,7 @@ namespace TheOtherDarkWorld
         /// </summary>
         /// <param name="item">A pointer to the item to be trashed(Must be the actual pointer to the item in the Inventory array)</param>
         /// <returns>True if the item actually exists in the entity's inventory</returns>
-        public override bool TrashItem(int index)
+        public bool TrashItem(int index)
         {
             if (index >= 0 && index < Inventory.Length)
             {
@@ -212,11 +201,62 @@ namespace TheOtherDarkWorld
             return false;
         }
 
+        public void UpdateInventory()
+        {
+
+            //
+            //Apply passive effects of items and restore cooldowns
+            //
+            for (int i = 0; i < Inventory.Length; i++)
+            {
+                if (Inventory[i] != null)
+                {
+                    Inventory[i].Update();
+                    if (Inventory[i].Amount == 0)
+                    {
+                        if (Inventory[i].DestroyedWhenEmpty)
+                            TrashItem(i);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Get's the first occurrence of an item within this entity's inventory, or if none is found, returns null
+        /// </summary>
+        /// <param name="type">The type of item required</param>
+        /// <returns>The item with the requested type, or if there is no item, returns null</returns>
+        public Item GetItem(int type)
+        {
+            for (int i = 0; i < Inventory.Length; i++)
+            {
+                if (Inventory[i] != null && Inventory[i].Type == type && Inventory[i].Amount != 0)
+                    return Inventory[i];
+            }
+            return null;
+
+        }
+        
+        /// <summary>
+        /// Get's the index of the first occurrence of an item within this entity's inventory, or if none is found, returns -1
+        /// </summary>
+        /// <param name="type">The type of item required</param>
+        /// <returns>The index of the item with the requested type, or if there is no item, returns -1</returns>
+        public int GetItemIndex(int type)
+        {
+            for (int i = 0; i < Inventory.Length; i++)
+            {
+                if (Inventory[i] != null && Inventory[i].Type == type && Inventory[i].Amount != 0)
+                    return i;
+            }
+            return -1;
+        }
+
         public override void Draw(SpriteBatch spriteBatch)
         {
-            spriteBatch.Draw(Textures.Player, Position + Origin - Offset, null, StatusColour, Rotation, Origin, 1, SpriteEffects.None, UI.PLAYER_DEPTH_DEFAULT);
+            spriteBatch.Draw(Textures.Player, Position + Origin - StateManager.Offset, null, StatusColour, Rotation, Origin, 1, SpriteEffects.None, UI.PLAYER_DEPTH_DEFAULT);
             if (Swing != null)
-                Swing.Draw(spriteBatch, Offset);
+                Swing.Draw(spriteBatch, StateManager.Offset);
         }
         
     }

@@ -57,7 +57,7 @@ namespace TheOtherDarkWorld
             Tooltip.OnLeftClicked += x => { Tooltip.IsActive = false; };
 
             UIControls = new UIContainer(Width: (int)PANEL_POSITION.X, Height: ScreenY, DragAndDropType: DragAndDropType.DropElement);
-            Inventory_UI = new InventoryContainer(Position: INVENTORY_POSITION + Vector2.UnitY * ts.Height, Width: PANEL_WIDTH, Height: (int)(400 - INVENTORY_POSITION.Y), GridColumns: 2, GridRows: 7, RowHeight: Textures.ItemSlot.Height, CursorType: CursorType.Cursor, DragAndDropType: DragAndDropType.SwapElement, DataBinding: Level.CurrentLevel.Players[Level.CurrentLevel.PlayerIndex].Inventory );
+            Inventory_UI = new InventoryContainer(Position: INVENTORY_POSITION + Vector2.UnitY * ts.Height, Width: PANEL_WIDTH, Height: (int)(400 - INVENTORY_POSITION.Y), GridColumns: 2, GridRows: 7, RowHeight: Textures.ItemSlot.Height, CursorType: CursorType.Cursor, DragAndDropType: DragAndDropType.SwapElement, DataBinding: StateManager.CurrentPlayer.Inventory );
 
             SidePanel.AddElement(ts);
             SidePanel.AddElement(new TextSprite("Status", 1, Color.Violet, PANEL_WIDTH, STATUS_EFFECTS_POSITION, CursorType.Cursor));
@@ -102,7 +102,7 @@ namespace TheOtherDarkWorld
                 {
                     InventoryElement ie = ItemHeld as InventoryElement;
                     //Inventory items can be dropped onto the map
-                    Level.CurrentLevel.Players[Level.CurrentLevel.PlayerIndex].DropItem(ie.Item);
+                    StateManager.CurrentPlayer.DropItem(ie.Item);
                     ie.Item = null;
                     ItemHeld.IsHeld = false;
                     ItemHeld = null;
@@ -171,8 +171,8 @@ namespace TheOtherDarkWorld
             HUDElements.Draw(spriteBatch);
             //spriteBatch.DrawString(Textures.Fonts[1], "Seed = " + Level.CurrentLevel.Seed, new Vector2(400, 400), Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 0.85f);
             spriteBatch.DrawString(Textures.Fonts[1], "Enemies Killed = " + Kills, new Vector2(250, 20), Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 0.85f);
-            spriteBatch.DrawString(Textures.Fonts[1], "Wave: " + Level.CurrentLevel.wave, new Vector2(100, 20), Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 0.85f);
-            spriteBatch.DrawString(Textures.Fonts[0], "Remaining: " + (Level.CurrentLevel.Entities.Count - 1), new Vector2(95, 33), Color.Aqua, 0, Vector2.Zero, 1, SpriteEffects.None, 0.85f);
+            //spriteBatch.DrawString(Textures.Fonts[1], "Wave: " , new Vector2(100, 20), Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 0.85f);
+            //spriteBatch.DrawString(Textures.Fonts[0], "Remaining: " + (StateManager.Entities.Count - 1), new Vector2(95, 33), Color.Aqua, 0, Vector2.Zero, 1, SpriteEffects.None, 0.85f);
             spriteBatch.DrawString(Textures.Fonts[1], "High Score = " + UI.HighScore, new Vector2(250, 40), Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 0.85f);
             //spriteBatch.DrawString(Textures.Fonts[1], "Projectiles: " + Projectile.ProjectileList.Count, new Vector2(100, 100), Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 0.85f);
 

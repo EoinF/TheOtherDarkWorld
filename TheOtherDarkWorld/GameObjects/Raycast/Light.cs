@@ -72,7 +72,7 @@ namespace TheOtherDarkWorld.GameObjects
                         float tileBrightness = getLightOnTile(combX, combY);
                         if (tileBrightness > 0)
                         {
-                            _tiles[combX, combY].LightColour = Color.Lerp(_tiles[combX, combY].LightColour, Colour, tileBrightness);
+                            _tiles[combX, combY].LightColour = Color.Lerp(_tiles[combX, combY].LightColour, Colour, 0.5f);
                             //Lerp is used to limit the amount of colour that this light introduces based on the brightness of this light
 
                             if (_tiles[combX, combY].Brightness > 0)

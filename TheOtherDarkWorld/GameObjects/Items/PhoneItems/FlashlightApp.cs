@@ -34,8 +34,7 @@ namespace TheOtherDarkWorld.GameObjects
             this.Colour = Color.White;
             this.Power = POWER_DEFAULT;
 
-            light = new Light(Power, Range, Vector2.Zero, Vector2.UnitX, Span, Colour, Level.CurrentLevel.Tiles, false);
-            Level.CurrentLevel.AddLight(light);
+            light = StateManager.CreateLight(Power, Range, Vector2.Zero, Vector2.UnitX, Span, Colour, false);
 
             UIGrid flashlightControls = new UIGrid(Width: SmartPhone.SCREEN_RECT.Width, GridColumns: 1, CursorType: CursorType.Cursor, MarginBottom: 20);
             UISlider brightnessSlider = new UISlider(Color.Aqua, Color.Aqua, Textures.SmartPhoneSliderPiece, Textures.SmartPhoneSlider, CursorType: CursorType.Cursor, MarginBottom: 10);
@@ -72,7 +71,7 @@ namespace TheOtherDarkWorld.GameObjects
         ~FlashlightApp()
         {
             if (light != null)
-                Level.CurrentLevel.RemoveLight(light);
+                StateManager.RemoveLight(light);
         }
 
         public override void Update()

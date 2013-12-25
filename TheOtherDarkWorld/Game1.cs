@@ -8,7 +8,6 @@ using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
-using TheOtherDarkWorld.GameObjects;
 
 namespace TheOtherDarkWorld
 {
@@ -62,22 +61,7 @@ namespace TheOtherDarkWorld
                     this.Exit();
 
                 InputManager.Update();
-
-                if (StateManager.State == 1)
-                {
-                    Level.CurrentLevel.Update();
-
-                    if (Projectile.ProjectileList != null)
-                        for (int i = 0; i < Projectile.ProjectileList.Count; i++)
-                        {
-                            if (Projectile.ProjectileList[i].Update()) //returns true if the projectile was destroyed
-                            {
-                                Projectile.ProjectileList.RemoveAt(i);
-                                i--;
-                            }
-                        }
-                    UI.Update();
-                }
+                StateManager.Update();
 
                 base.Update(gameTime);
             }
@@ -91,34 +75,13 @@ namespace TheOtherDarkWorld
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.Black);
-            //try
-            {
-                if (StateManager.State == 0)
-                {
-                    spriteBatch.Begin(SpriteSortMode.FrontToBack, BlendState.NonPremultiplied);
-                    string prompt = "Press Enter to Begin...\n\n    Double click items to activate them\n    Press n to send the next wave\n    Press enter to restart the game";
-                    spriteBatch.DrawString(Textures.Fonts[2], prompt, new Vector2(graphics.PreferredBackBufferWidth / 2, UI.ScreenY / 2) - (Textures.Fonts[2].MeasureString(prompt) / 2f), Color.White);
+            spriteBatch.Begin(SpriteSortMode.FrontToBack, BlendState.NonPremultiplied);
+            StateManager.Draw(GraphicsDevice, spriteBatch);
 
-                }
-                if (StateManager.State == 1)
-                {
-                    spriteBatch.Begin(SpriteSortMode.FrontToBack, BlendState.NonPremultiplied);
-                    if (Level.CurrentLevel.Players != null && Level.CurrentLevel.Players[Level.CurrentLevel.PlayerIndex].IsBlinded)
-                        GraphicsDevice.Clear(Color.White);
+            spriteBatch.End();
 
-                    string prompt = "Press Enter to Retry...\n\n    Double click items to activate them\n    Press n to send the next wave\n    Press enter to restart the game";
-                    if (!Level.CurrentLevel.Players[0].IsAlive)
-                        spriteBatch.DrawString(Textures.Fonts[2], prompt, new Vector2(UI.ScreenX / 2, UI.ScreenY / 2) - (Textures.Fonts[2].MeasureString(prompt) / 2f), Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
-
-                    Level.CurrentLevel.Draw(spriteBatch);
-                    Projectile.DrawAll(spriteBatch);
-                    UI.DrawHUD(spriteBatch, Level.CurrentLevel.Players[Level.CurrentLevel.PlayerIndex]);
-                }
-
-                spriteBatch.End();
-
-                base.Draw(gameTime);
-            }
+            base.Draw(gameTime);
+        
             try { }
             catch (Exception ex)
             {

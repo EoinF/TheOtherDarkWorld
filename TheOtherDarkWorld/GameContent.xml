@@ -1,5 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<main>
+
+<GameContent xmlns:xs="GameContent.xsd"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="/ GameContent.xsd">
   <Weapons>
     <Gun>
       <Type>0</Type>
@@ -9,6 +12,7 @@
       <IsConsumable>true</IsConsumable>
       <MaxAmount>30</MaxAmount>
       <Power>50</Power>
+      <DestroyedWhenEmpty>false</DestroyedWhenEmpty>
       <Penetration>35</Penetration>
       <BulletColour>
         <A>255</A>
@@ -21,7 +25,6 @@
       <ReloadTime>220</ReloadTime>
       <MuzzleFlashMagnitude>0.5</MuzzleFlashMagnitude>
       <Description>An old, yet reliable machine-gun</Description>
-      <DestroyedWhenEmpty>false</DestroyedWhenEmpty>
     </Gun>
     <Gun>
       <Type>1</Type>
@@ -29,8 +32,9 @@
       <BaseCooldown>10</BaseCooldown>
       <Consumes>100</Consumes>
       <IsConsumable>true</IsConsumable>
-      <MaxAmount>10</MaxAmount> <!-- Possible capacities for the glock are 10, 17, 19(optional floor plate) and 33 -->
+      <MaxAmount>10</MaxAmount> <!-- Note: Possible capacities for the glock are 10, 17, 19(optional floor plate) and 33 -->
       <Power>30</Power>
+      <DestroyedWhenEmpty>false</DestroyedWhenEmpty>
       <Penetration>50</Penetration>
       <BulletColour>
         <A>255</A>
@@ -40,9 +44,7 @@
       </BulletColour>
       <BulletSpeed>12</BulletSpeed>
       <ReloadTime>170</ReloadTime>
-      <MuzzleFlashMagnitude>0.3</MuzzleFlashMagnitude>
       <Description>An old handgun. Still works though.</Description>
-      <DestroyedWhenEmpty>false</DestroyedWhenEmpty>
     </Gun>
     <Gun>
       <Type>2</Type>
@@ -52,6 +54,7 @@
       <IsConsumable>true</IsConsumable>
       <MaxAmount>2</MaxAmount>
       <Power>20</Power>
+      <DestroyedWhenEmpty>false</DestroyedWhenEmpty>
       <Penetration>11</Penetration>
       <BulletColour>
         <A>255</A>
@@ -64,7 +67,6 @@
       <ReloadTime>100</ReloadTime>
       <MuzzleFlashMagnitude>0.75</MuzzleFlashMagnitude>
       <Description>A double barrel shotgun.</Description>
-      <DestroyedWhenEmpty>false</DestroyedWhenEmpty>
     </Gun>
     <Gun>
       <Type>3</Type>
@@ -74,6 +76,7 @@
       <IsConsumable>true</IsConsumable>
       <MaxAmount>30</MaxAmount>
       <Power>30</Power>
+      <DestroyedWhenEmpty>false</DestroyedWhenEmpty>
       <Penetration>10</Penetration>
       <BulletColour>
         <A>255</A>
@@ -86,7 +89,6 @@
       <ReloadTime>185</ReloadTime>
       <MuzzleFlashMagnitude>0.4</MuzzleFlashMagnitude>
       <Description>A sub-machine gun. Pray and spray!</Description>
-      <DestroyedWhenEmpty>false</DestroyedWhenEmpty>
     </Gun>
     <Gun>
       <Type>4</Type>
@@ -96,6 +98,7 @@
       <IsConsumable>true</IsConsumable>
       <MaxAmount>6</MaxAmount>
       <Power>30</Power>
+      <DestroyedWhenEmpty>false</DestroyedWhenEmpty>
       <Penetration>50</Penetration>
       <BulletColour>
         <A>255</A>
@@ -107,7 +110,6 @@
       <ReloadTime>300</ReloadTime>
       <MuzzleFlashMagnitude>0.7</MuzzleFlashMagnitude>
       <Description>A .44 caliber revolver</Description>
-      <DestroyedWhenEmpty>false</DestroyedWhenEmpty>
     </Gun>
     <Melee>
       <Type>10</Type>
@@ -193,7 +195,6 @@
       <BaseCooldown>10</BaseCooldown>
       <Consumes>50</Consumes>
       <ConsumeRate>1</ConsumeRate>
-      <MaxAmount>1</MaxAmount>
       <Range>500</Range>
       <Span>0.6</Span>
       <Color>
@@ -222,16 +223,14 @@
       <BaseCooldown>10</BaseCooldown>
       <Consumes>50</Consumes>
       <ConsumeRate>2</ConsumeRate>
-      <MaxAmount>1</MaxAmount>
       <IsTogglable>true</IsTogglable>
       <Description>Used to detect heat sources</Description>
     </Goggles>
     <Item>
-      <Name>SD Card (Flashlight App)</Name>
       <Type>120</Type>
+      <Name>SD Card (Flashlight App)</Name>
       <IsConsumable>false</IsConsumable>
       <ConsumeRate>50</ConsumeRate>
-      <MaxAmount>1</MaxAmount>
       <Description>A memory chip containing a flashlight app for a smartphone</Description>
     </Item>
     <Item>
@@ -243,30 +242,28 @@
       <Description>A memory chip containing a medic app for a smartphone</Description>
     </Item>
     <Item>
-      <Name>Apple</Name>
       <Type>130</Type>
+      <Name>Apple</Name>
       <IsConsumable>true</IsConsumable>
-      <MaxAmount>1</MaxAmount>
       <ActiveEffects>
         <ItemEffect>
-          <Type>Heal_Self</Type>
+          <Type>Heal</Type>
           <Potency>25</Potency>
         </ItemEffect>
       </ActiveEffects>
       <Description>A juicy apple!</Description>
     </Item>
     <Item>
-      <Name>Chocolate</Name>
       <Type>131</Type>
+      <Name>Chocolate</Name>
       <IsConsumable>true</IsConsumable>
-      <MaxAmount>1</MaxAmount>
       <ActiveEffects>
         <ItemEffect>
-          <Type>Heal_Self</Type>
+          <Type>Heal</Type>
           <Potency>5</Potency>
         </ItemEffect>
         <ItemEffect>
-          <Type>QuickFooted_Self</Type>
+          <Type>SpeedBoost</Type>
           <Potency>5</Potency>
           <Duration>300</Duration>
         </ItemEffect>
@@ -274,51 +271,62 @@
       <Description>A tasty chocolate bar! Contains lots of sugar!</Description>
     </Item>
     <Item>
-      <Name>Cupcake</Name>
       <Type>132</Type>
+      <Name>Cupcake</Name>
       <IsConsumable>true</IsConsumable>
       <ConsumeRate>150</ConsumeRate>
-      <MaxAmount>1</MaxAmount>
       <ActiveEffects>
         <ItemEffect>
-          <Type>Heal_Self</Type>
+          <Type>Heal</Type>
           <Potency>1</Potency>
         </ItemEffect>
       </ActiveEffects>
       <Description>A tasty cupcake!</Description>
     </Item>
     <Item>
-      <Name>Banana</Name>
       <Type>133</Type>
+      <Name>Banana</Name>
       <IsConsumable>true</IsConsumable>
-      <MaxAmount>1</MaxAmount>
       <ActiveEffects>
         <ItemEffect>
-          <Type>Heal_Self</Type>
+          <Type>Heal</Type>
           <Potency>20</Potency>
         </ItemEffect>
       </ActiveEffects>
       <Description>A healthy banana!</Description>
     </Item>
     <Item>
-      <Name>First Aid Kit</Name>
       <Type>134</Type>
+      <Name>First Aid Kit</Name>
       <IsConsumable>true</IsConsumable>
-      <MaxAmount>1</MaxAmount>
       <ActiveEffects>
         <ItemEffect>
-          <Type>Healing_Self</Type>
+          <Type>Healing</Type>
           <Potency>0.1</Potency>
           <Duration>600</Duration>
         </ItemEffect>
         <ItemEffect>
-          <Type>Cure_Injured_Self</Type>
+          <Type>Injure</Type>
+          <Negate>true</Negate>
         </ItemEffect>
         <ItemEffect>
-          <Type>Cure_Bleeding_Self</Type>
+          <Type>Bleed</Type>
+          <Negate>true</Negate>
         </ItemEffect>
       </ActiveEffects>
       <Description>A kit that can be used to heal injuries</Description>
+    </Item>
+    <Item>
+      <Type>135</Type>
+      <Name>Bread</Name>
+      <IsConsumable>true</IsConsumable>
+      <ActiveEffects>
+        <ItemEffect>
+          <Type>Heal</Type>
+          <Potency>20</Potency>
+        </ItemEffect>
+      </ActiveEffects>
+      <Description>Tasty homemade bread</Description>
     </Item>
   </Items>
   
@@ -373,4 +381,4 @@
     </Block>
   </Blocks>
   
-</main>
+</GameContent>

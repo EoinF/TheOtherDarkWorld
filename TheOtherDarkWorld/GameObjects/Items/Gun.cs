@@ -16,6 +16,12 @@ namespace TheOtherDarkWorld.GameObjects
         //
         private const float bright_begin = 0.2f;
         private const float bright_rate = 0.145f;
+        private const GunType DEFAULT_ATTACKTYPE = GunType.Single;
+        private const float DEFAULT_MUZZLE_FLASH = 0.3f;
+        private static Color DEFAULT_BULLET_COLOUR = Color.White;
+        private const int DEFAULT_PENETRATION = 10;
+        private const int DEFAULT_BULLET_SPEED = 10;
+        private const int DEFAULT_RELOAD_TIME = 200;
 
         #region Properties & Fields
 
@@ -47,8 +53,7 @@ namespace TheOtherDarkWorld.GameObjects
             this.AttackType = characteristics.AttackType;
             this.MuzzleFlashMagnitude = characteristics.MuzzleFlashMagnitude;
 
-            flash = new Light(bright_begin, 1000 * MuzzleFlashMagnitude, Owner.Position, Vector2.Zero, MathHelper.Pi, Color.Yellow, Level.CurrentLevel.Tiles, false);
-            Level.CurrentLevel.AddLight(flash);
+            flash = StateManager.CreateLight(bright_begin, 1000 * MuzzleFlashMagnitude, Owner.Position, Vector2.Zero, MathHelper.Pi, Color.Yellow, false);
         }
 
         /// <summary>
@@ -56,6 +61,12 @@ namespace TheOtherDarkWorld.GameObjects
         /// </summary>
         public Gun()
         {
+            this.AttackType = DEFAULT_ATTACKTYPE;
+            this.BulletColour = DEFAULT_BULLET_COLOUR;
+            this.MuzzleFlashMagnitude = DEFAULT_MUZZLE_FLASH;
+            this.Penetration = DEFAULT_PENETRATION;
+            this.BulletSpeed = DEFAULT_BULLET_SPEED;
+            this.ReloadTime = DEFAULT_RELOAD_TIME;
         }
 
         public override void Activate()
@@ -76,7 +87,7 @@ namespace TheOtherDarkWorld.GameObjects
             switch (AttackType)
             {
                 case GunType.Single:
-                    Projectile.ProjectileList.Add(new Projectile(Power, Penetration, BulletSpeed, BulletColour, Owner, direction, startPosition, Owner.Rotation));
+                    StateManager.CreateProjectile(Power, Penetration, BulletSpeed, BulletColour, Owner, direction, startPosition, Owner.Rotation);
                     break;
                 case GunType.Shotgun:
                     for (int numShots = 0; numShots < 20; numShots++)
@@ -85,7 +96,7 @@ namespace TheOtherDarkWorld.GameObjects
                         float newRotation = Owner.Rotation + (float)(rand.NextDouble() / 4) - 0.125f;
                         direction = new Vector2((float)Math.Cos(newRotation - MathHelper.PiOver2), (float)Math.Sin(newRotation - MathHelper.PiOver2));
                         direction.Normalize();
-                        Projectile.ProjectileList.Add(new Projectile(Power, Penetration, BulletSpeed, BulletColour, Owner, direction, startPosition, newRotation));
+                        StateManager.CreateProjectile(Power, Penetration, BulletSpeed, BulletColour, Owner, direction, startPosition, newRotation);
                     }
                     break;
             }
@@ -125,7 +136,7 @@ namespace TheOtherDarkWorld.GameObjects
             if (Amount == MaxAmount)
                 return;
 
-            Item ammo = Owner.GetItem(Consumes);
+            Item ammo = (Owner as IItemHolder).GetItem(Consumes);
             if (ammo != null)
             {
                 //If there's not enough ammo to fill it completely, then just add as much as possible
