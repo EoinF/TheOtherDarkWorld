@@ -143,7 +143,8 @@ namespace TheOtherDarkWorld.GameObjects
 
             if (characteristics == null)
             {
-                DebugManager.WriteError("Item type " + type + " not define in GameContent.xml");
+                DebugManager.WriteError("Item type " + type + " not defined in GameContent.xml");
+                SetDefaults();
             }
             else
             {
@@ -176,9 +177,15 @@ namespace TheOtherDarkWorld.GameObjects
             //
             //Apply the default values for an item while it's being deserialized from the xml(in case they aren't specified in the xml)
             //
+            SetDefaults();
+        }
+
+        private void SetDefaults()
+        {
             Consumes = CONSUMES_DEFAULT;
             ConsumeRate = CONSUMERATE_DEFAULT;
             UseCooldown = USECOOLDOWN_DEFAULT;
+            Name = "";
             Description = DESCRIPTION_DEFAULT;
             MaxAmount = MAXAMOUNT_DEFAULT;
             DestroyedWhenEmpty = DESTROYED_WHEN_EMPTY_DEFAULT;

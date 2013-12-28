@@ -145,8 +145,13 @@ namespace TheOtherDarkWorld
                     if (swing != null)
                     {
                         if (swing.Update(Entities[i].Position, Entities))
-                            swing = null;
+                            (Entities[i] as IMelee).Swing = null;
                     }
+                }
+
+                if (Entities[i] is IEnergyBased)
+                {
+                    (Entities[i] as IEnergyBased).UpdateEnergy();
                 }
 
                 for (int e = i + 1; e < Entities.Count; e++)
@@ -229,7 +234,7 @@ namespace TheOtherDarkWorld
 
                 if (wave != 1)
                 {
-                    StateManager.CurrentPlayer.PlusOneLife();
+                    StateManager.CurrentPlayer.MaxHealth += 100;
                 }
             }
         }

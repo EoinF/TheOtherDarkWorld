@@ -9,8 +9,8 @@ namespace TheOtherDarkWorld.GameObjects
 {
     public class GameObject
     {
-        private const bool FULL_BRIGHT = false;
-        private const bool FULL_VISION = false;
+        public static bool FULL_BRIGHT = false;
+        public static bool FULL_VISION = false;
         private const float MAX_BRIGHTNESS = 1;
         private const float MIN_BRIGHTNESS = 0.05f;
 

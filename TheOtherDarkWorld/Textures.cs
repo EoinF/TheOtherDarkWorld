@@ -27,6 +27,7 @@ namespace TheOtherDarkWorld
         public static Texture2D SidePanel { get; private set; }
         public static Texture2D ItemSlot { get; private set; }
         public static Texture2D HealthBar { get; private set; }
+        public static Texture2D TextInputBar { get; private set; }
         public static Texture2D Tooltip { get; private set; }
         public static Texture2D SmartPhoneExterior { get; private set; }
 
@@ -61,6 +62,7 @@ namespace TheOtherDarkWorld
 
             SidePanel = Content.Load<Texture2D>("SidePanel");
             HealthBar = Content.Load<Texture2D>("HealthBar");
+            TextInputBar = Content.Load<Texture2D>("TextInputBar");
             ItemSlot = Content.Load<Texture2D>("ItemSlot");
             Tooltip = Content.Load<Texture2D>("Tooltip");
             SmartPhoneExterior = Content.Load<Texture2D>("SmartPhoneExterior");

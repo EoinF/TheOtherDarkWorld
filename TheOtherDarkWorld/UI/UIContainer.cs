@@ -133,7 +133,7 @@ namespace TheOtherDarkWorld
             bool CentreHorizontal = false, bool CentreVertical = false,
             DragAndDropType DragAndDropType = DragAndDropType.None,
             object[] DataBinding = null)
-            : base(Texture, Position, Colour, HighlightColour, SrcRect, Width, Height, IsActive, IsDraggable, CursorType, MarginLeft, MarginRight, MarginTop, MarginBottom, opacity, layerDepth)
+            : base(Colour, HighlightColour, Texture, Position, SrcRect, Width, Height, IsActive, IsDraggable, CursorType, MarginLeft, MarginRight, MarginTop, MarginBottom, opacity, layerDepth)
         {
             Children = new List<UIElement>();
             this.CentreHorizontal = CentreHorizontal;
@@ -158,7 +158,7 @@ namespace TheOtherDarkWorld
             bool CentreHorizontal = false, bool CentreVertical = false,
             DragAndDropType DragAndDropType = DragAndDropType.None,
             object[] DataBinding = null)
-            : base(Texture, Position, Color.White, Color.White, SrcRect, Width, Height, IsActive, IsDraggable, CursorType, MarginLeft, MarginRight, MarginTop, MarginBottom, opacity, layerDepth)
+            : base(Color.White, Color.White, Texture, Position, SrcRect, Width, Height, IsActive, IsDraggable, CursorType, MarginLeft, MarginRight, MarginTop, MarginBottom, opacity, layerDepth)
         {
             Children = new List<UIElement>();
             this.CentreHorizontal = CentreHorizontal;
@@ -184,7 +184,7 @@ namespace TheOtherDarkWorld
             Children.Add(newElement);
             int p = this.Height;
 
-            newElement.Position = newElement.OriginalPosition += this.Position + new Vector2(CentreHorizontal ? (this.Width - newElement.Width) / 2 : 0, CentreVertical ? (this.Height - newElement.Height) / 2 : 0);
+            newElement.Position = newElement.OriginalPosition += this.Position + new Vector2(newElement.MarginLeft, newElement.MarginTop) + new Vector2(CentreHorizontal ? (this.Width - newElement.Width) / 2 : 0, CentreVertical ? (this.Height - newElement.Height) / 2 : 0);
 
             if (_dragAndDropType == DragAndDropType.DropElement)
             {

@@ -9,19 +9,94 @@ using TheOtherDarkWorld.GameObjects;
 
 namespace TheOtherDarkWorld
 {
-    public class Player : Entity, IMelee, IItemHolder
+    public class Player : Entity, IMelee, IItemHolder, IEnergyBased
     {
         public override Texture2D Texture { get { return Textures.Player; } }
         private bool ObserverMode { get; set; }
         public Swing Swing { get; set; }
         public Item[] Inventory { get; set; }
 
-        public Player(Vector2 startPosition, int MaxHealth, float walkSpeed, int inventorySize, Vector2 startVelocity, int ID, int Resistance)
+        public StatusEffect exhaustionExhaust { get; set; }
+        public StatusEffect exhaustionSlow { get; set; }
+
+        private bool _isExhaustedCompletely;
+        public bool IsExhaustedCompletely //This is set when the player completely runs out of energy and unset when energy is fully regained
+        {
+            get 
+            {
+                return _isExhaustedCompletely;
+            }
+            set
+            {
+                if (_isExhaustedCompletely)
+                {
+                    if (value == false) //The player has fully recovered from exhaustion
+                    {
+                        StatusEffects.Remove(exhaustionExhaust);
+                        StatusEffects.Remove(exhaustionSlow);
+                    }
+                }
+                else
+                {
+                    if (value == true) //The player is now exhausted
+                    {
+                        StatusEffects.Add(exhaustionExhaust);
+                        StatusEffects.Add(exhaustionSlow);
+                    }
+                }
+                _isExhaustedCompletely = value;
+            }
+        }
+        private float _energy;
+        public float Energy
+        {
+            get 
+            {
+                return _energy;
+            }
+            set
+            {
+                _energy = value;
+                if (_energy < 0)
+                {
+                    _energy = 0;
+                    IsExhaustedCompletely = true;
+                }
+                else if (_energy > MaxEnergy)
+                {
+                    _energy = MaxEnergy;
+                    IsExhaustedCompletely = false;
+                }
+            }
+        }
+        public float MaxEnergy { get; set; }
+        private float _exhaustPercent;
+        public float ExhaustPercent
+        {
+            get
+            {
+                return _exhaustPercent;
+            }
+            set
+            {
+                if (value > 1)
+                    _exhaustPercent = 1;
+                else if (value < 0)
+                    _exhaustPercent = 0;
+                else
+                    _exhaustPercent = value;
+            }
+        }
+
+        public Player(Vector2 startPosition, int MaxHealth, int MaxEnergy, float walkSpeed, int inventorySize, Vector2 startVelocity, int ID, int Resistance)
             : base(MaxHealth, startPosition, walkSpeed, Color.White, startVelocity, new Vector2(Textures.Player.Width / 2, Textures.Player.Height / 2), Resistance, (int)Textures.Player.Height, (int)Textures.Player.Width)
         {
+            this.Energy = MaxEnergy;
+            this.MaxEnergy = MaxEnergy;
             Inventory = new Item[inventorySize];
             Weight = 5;
-            //this.ID = ID;
+            exhaustionSlow = new StatusEffect(StatusType.Slowed, 0.5f, -1, "Out of energy!");
+            exhaustionExhaust = new StatusEffect(StatusType.Exhausted, 0.5f, -1, "Out of energy!");
         }
 
         public static Vector2 CrosshairOrigin
@@ -47,24 +122,38 @@ namespace TheOtherDarkWorld
             }
         }
 
-        private void StatusEffectDebugMethod()
+        protected override void UpdateStatusEffects()
         {
-            if (InputManager.JustPressed(Keys.D1))
-                StatusEffects.Add(new StatusEffect(StatusType.Blinded, 1, 180, "Blinded"));
-            if (InputManager.JustPressed(Keys.D2))
-                StatusEffects.Add(new StatusEffect(StatusType.Stunned, 1, 180, "Stunned"));
-            if (InputManager.JustPressed(Keys.D3))
-                StatusEffects.Add(new StatusEffect(StatusType.Confused, 30, 180, "Confused"));
-            if (InputManager.JustPressed(Keys.D4))
-                StatusEffects.Add(new StatusEffect(StatusType.Burning, 0.7f, 180, "Burning"));
-            if (InputManager.JustPressed(Keys.D5))
-                StatusEffects.Add(new StatusEffect(StatusType.Poison, 0.5f, 180, "Poison"));
+            base.UpdateStatusEffects();
+
+            ExhaustPercent = 0;
+
+            for (int i = 0; i < StatusEffects.Count; i++)
+            {
+                if (StatusEffects[i].Type == StatusType.Exhausted)
+                {
+                    ExhaustPercent += StatusEffects[i].Potency;
+                }
+            }
+        }
+
+        public void UpdateEnergy()
+        {
+            if (Swing != null)
+                Energy -= 2;
+
+            if (Velocity != Vector2.Zero)
+            {
+                Energy -= 0.5f;
+            }
+            else
+            {
+                Energy += (1 - ExhaustPercent);
+            }
         }
 
         protected override void Intelligence()
         {
-            StatusEffectDebugMethod();
-
             if (IsStunned || IsFrozen)
                 return;
 
@@ -99,33 +188,35 @@ namespace TheOtherDarkWorld
                 }
             }
 
-            ObserverMode = InputManager.keyboardState[0].IsKeyDown(Keys.Space);
-
-            if (InputManager.keyboardState[0].IsKeyDown(Keys.W))
-            {
-                Velocity -= Vector2.UnitY;
-            }
-            if (InputManager.keyboardState[0].IsKeyDown(Keys.S))
-            {
-                Velocity += Vector2.UnitY;
-            }
-            if (InputManager.keyboardState[0].IsKeyDown(Keys.A))
-            {
-                Velocity -= Vector2.UnitX;
-            }
-            if (InputManager.keyboardState[0].IsKeyDown(Keys.D))
-            {
-                Velocity += Vector2.UnitX;
-            }
+            CheckInput();
 
             if (Velocity != Vector2.Zero)
                 Velocity = Vector2.Normalize(Velocity);
         }
 
-        public void PlusOneLife()
+        private void CheckInput()
         {
-            MaxHealth += 100;
-            ApplyHealing(-1);
+            if (!CommandManager.IsActive) //Only accept player keyboard input when the command box isn't active
+            {
+                ObserverMode = InputManager.keyboardState[0].IsKeyDown(Keys.Space);
+
+                if (InputManager.keyboardState[0].IsKeyDown(Keys.W))
+                {
+                    Velocity -= Vector2.UnitY;
+                }
+                if (InputManager.keyboardState[0].IsKeyDown(Keys.S))
+                {
+                    Velocity += Vector2.UnitY;
+                }
+                if (InputManager.keyboardState[0].IsKeyDown(Keys.A))
+                {
+                    Velocity -= Vector2.UnitX;
+                }
+                if (InputManager.keyboardState[0].IsKeyDown(Keys.D))
+                {
+                    Velocity += Vector2.UnitX;
+                }
+            }
         }
 
         public bool PickUpItem(Item item)
@@ -142,6 +233,7 @@ namespace TheOtherDarkWorld
                     return true;
                 }
             }
+            UI.QueueMessage("Inventory is full!");
             return false;
         }
 
@@ -203,7 +295,6 @@ namespace TheOtherDarkWorld
 
         public void UpdateInventory()
         {
-
             //
             //Apply passive effects of items and restore cooldowns
             //

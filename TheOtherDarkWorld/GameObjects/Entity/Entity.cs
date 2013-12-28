@@ -25,7 +25,7 @@ namespace TheOtherDarkWorld.GameObjects
         }
         private float _health;
 
-        public int MaxHealth { get; protected set; }
+        public int MaxHealth { get; set; }
         public virtual bool IsAlive { get { return Health > 0; } }
         public int HitCooldown { get; set; }
         public int Weight { get; protected set; }
@@ -47,7 +47,7 @@ namespace TheOtherDarkWorld.GameObjects
         public float SpeedBonus { get; protected set; }
         public override float Speed 
         {
-            get { return base.Speed + SpeedBonus; } 
+            get { return base.Speed * (1 + SpeedBonus); } 
             set { base.Speed = value; } 
         }
 
@@ -190,7 +190,7 @@ namespace TheOtherDarkWorld.GameObjects
             }
         }
 
-        private void UpdateStatusEffects()
+        protected virtual void UpdateStatusEffects()
         {
             //
             //Reset all effects from the last frame to default
@@ -205,7 +205,7 @@ namespace TheOtherDarkWorld.GameObjects
 
             for (int i = 0; i < StatusEffects.Count; i++)
             {
-                if (StatusEffects[i].RemainingTicks < 0)
+                if (StatusEffects[i].RemainingTicks == 0)
                 {
                     StatusEffects.RemoveAt(i);
                     i--;
@@ -253,6 +253,9 @@ namespace TheOtherDarkWorld.GameObjects
                             break;
                         case StatusType.Bleeding:
                             IsBleeding = true;
+                            break;
+                        case StatusType.Slowed:
+                            SpeedBonus -= StatusEffects[i].Potency;
                             break;
                     }
                 }

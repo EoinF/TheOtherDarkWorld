@@ -47,26 +47,10 @@ namespace TheOtherDarkWorld
         /// </summary>
         public static bool RightClicking;
 
-        /// <summary>
-        /// A character value is passed in, to find out if a key was pressed
-        /// </summary>
-        public static bool[] keysPressed;
-
 
         public static void Update()
         {
             UpdateStates();
-
-            if (keyboardState[0].IsKeyDown(Keys.Enter))
-            {
-                StateManager.StartLevel();
-
-                if (UI.Kills > UI.HighScore)
-                    UI.HighScore = UI.Kills;
-                UI.Kills = 0;
-
-                StateManager.State = 1;
-            }
         }
 
         /// <summary>
@@ -111,26 +95,6 @@ namespace TheOtherDarkWorld
             LeftClicking = (mouseState[0].LeftButton == ButtonState.Pressed);
 
             RightClicking = (mouseState[0].RightButton == ButtonState.Pressed);
-                
-
-
-            //
-            //Next, perform actions based on what state the game is in
-            //
-
-            if (StateManager.State == 0) //Main Menu
-            {
-
-            }
-            else if (StateManager.State == 1) //In Game
-            {
-                //InventoryInput();
-            }
-            else if (StateManager.State == 2) //Pause Menu
-            {
-
-            }
-
         }
 
         /// <summary>

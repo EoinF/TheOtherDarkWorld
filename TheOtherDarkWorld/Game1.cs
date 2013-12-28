@@ -36,6 +36,7 @@ namespace TheOtherDarkWorld
             Window.Title = "The Other Dark World";
 
             GameData.LoadGameData("GameContent.xml");
+            UI.InitializeHUD();
 
             spriteBatch = new SpriteBatch(GraphicsDevice);
         }
@@ -62,6 +63,8 @@ namespace TheOtherDarkWorld
 
                 InputManager.Update();
                 StateManager.Update();
+                CommandManager.Update();
+                UI.Update();
 
                 base.Update(gameTime);
             }

@@ -8,12 +8,8 @@
         <xs:element ref="Blocks"/>
       </xs:sequence>
     </xs:complexType>
-    <xs:unique name="UniqueWeaponIDKey">
-      <xs:selector xpath="./Weapons/Gun|Melee" />
-      <xs:field xpath="Type"/>
-    </xs:unique>
-    <xs:unique name="UniqueItemIDKey">
-      <xs:selector xpath="./Item/Item|SmartPhone|Torch|Goggles" />
+    <xs:unique name="UniqueIDKey">
+      <xs:selector xpath="./Items/* | ./Weapons/*"/>
       <xs:field xpath="Type"/>
     </xs:unique>
   </xs:element>
@@ -155,6 +151,7 @@
               <xs:enumeration value="Harden"/>
               <xs:enumeration value="Protect"/>
               <xs:enumeration value="FastHands"/>
+              <xs:enumeration value="LifeUp"/>
             </xs:restriction>
           </xs:simpleType>
         </xs:element>

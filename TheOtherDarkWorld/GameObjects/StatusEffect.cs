@@ -56,6 +56,7 @@ namespace TheOtherDarkWorld.GameObjects
         Ghost, //Can walk through walls and enemies
         Hardened, //Reduces damage received
         Benediction, //Health cannot fall below 1 (Costs -1 potency each time the entity is prevented from falling below 1 health)
-        FastHands //Reduces item usage cooldowns
+        FastHands, //Reduces item usage cooldowns
+        Exhausted //Reduces energy recovery rate
     }
 }

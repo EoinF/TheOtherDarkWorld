@@ -16,13 +16,13 @@ namespace TheOtherDarkWorld
             Item Item = null,
             bool IsActive = true, CursorType CursorType = UI.CURSOR_DEFAULT,
             float opacity = UI_INHERIT)
-            : base(Texture, Position, Color.White, Color.Orange, null, UI_INHERIT, UI_INHERIT, IsActive, true, CursorType, opacity: opacity)
+            : base(Color.White, Color.Orange, Texture, Position, null, UI_INHERIT, UI_INHERIT, IsActive, true, CursorType, opacity: opacity)
         {
             this.Item = Item;
             this.Texture = Texture;
         }
 
-        protected override Rectangle? SrcRect
+        public override Rectangle? SrcRect
         {
             get { return Textures.GetItemRectangle(Item.Type); }
         }

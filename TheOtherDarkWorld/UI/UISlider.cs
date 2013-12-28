@@ -93,7 +93,7 @@ namespace TheOtherDarkWorld
             bool IsDraggable = true,
             float MarginLeft = UI_AUTO, float MarginRight = UI_AUTO, float MarginTop = UI_AUTO, float MarginBottom = UI_AUTO,
             float opacity = UI_INHERIT)
-                : base(Texture, Position, Colour, HighlightColour, SrcRect, Width, Height, IsActive, IsDraggable, CursorType, MarginLeft, MarginRight, MarginTop, MarginBottom, opacity)
+                : base(Colour, HighlightColour, Texture, Position, SrcRect, Width, Height, IsActive, IsDraggable, CursorType, MarginLeft, MarginRight, MarginTop, MarginBottom, opacity)
             {
             }
 

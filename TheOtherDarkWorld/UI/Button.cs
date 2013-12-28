@@ -13,19 +13,19 @@ namespace TheOtherDarkWorld
         private Color _clickColour;
         private Color _originalColour;
         public Action<object> OnPressed;
-        private bool _startedClickHere;
+        protected bool _startedClickHere;
 
         public Button(Texture2D Texture = null, Vector2 Position = new Vector2(), Rectangle? SrcRect = null,
             int Width = UI_AUTO, int Height = UI_AUTO,
             bool IsActive = true, bool IsDraggable = false, CursorType CursorType = UI.CURSOR_DEFAULT,
-            bool CentreHorizontal = false, bool CentreVertical = false,
             float MarginLeft = UI_AUTO, float MarginRight = UI_AUTO, float MarginTop = UI_AUTO, float MarginBottom = UI_AUTO,
             float opacity = UI_INHERIT, float layerDepth = UI_INHERIT,
+            bool CentreHorizontal = true, bool CentreVertical = true,
             DragAndDropType DragAndDropType = DragAndDropType.None,
-            string Text = "")
-            : base(Texture, Position, SrcRect, Width, Height, IsActive, IsDraggable, CursorType, MarginLeft, MarginRight, MarginTop, MarginBottom, opacity, layerDepth, true, true, DragAndDropType)
+            string Text = "", int FontSize = 2)
+            : base(Texture, Position, SrcRect, Width, Height, IsActive, IsDraggable, CursorType, MarginLeft, MarginRight, MarginTop, MarginBottom, opacity, layerDepth, CentreHorizontal, CentreVertical, DragAndDropType)
         {
-            AddElement(new TextSprite(Text, 2, Color.White, CursorType));
+            AddElement(new TextSprite(Text, FontSize, Color.White, CursorType));
 
             this.OnPressed = new Action<object>(x => { });
 
@@ -42,15 +42,15 @@ namespace TheOtherDarkWorld
             };
         }
 
-        public Button(Color Colour, Color HighlightColour, Color ClickColour, Texture2D Texture = null, Vector2 Position = new Vector2(), Rectangle? SrcRect = null,
+        public Button(Color Colour, Color TextColour, Color HighlightColour, Color ClickColour, Texture2D Texture = null, Vector2 Position = new Vector2(), Rectangle? SrcRect = null,
            int Width = UI_AUTO, int Height = UI_AUTO,
            bool IsActive = true, bool IsDraggable = false, CursorType CursorType = UI.CURSOR_DEFAULT,
            float MarginLeft = UI_AUTO, float MarginRight = UI_AUTO, float MarginTop = UI_AUTO, float MarginBottom = UI_AUTO,
            float opacity = UI_INHERIT, float layerDepth = UI_INHERIT,
-           bool CentreHorizontal = false, bool CentreVertical = false,
+           bool CentreHorizontal = true, bool CentreVertical = true,
            DragAndDropType DragAndDropType = DragAndDropType.None,
-           string Text = "")
-            : base(Colour, HighlightColour, Texture, Position, SrcRect, Width, Height, IsActive, IsDraggable, CursorType, MarginLeft, MarginRight, MarginTop, MarginBottom, opacity, layerDepth, true, true, DragAndDropType)
+           string Text = "", int FontSize = 2)
+            : base(Colour, HighlightColour, Texture, Position, SrcRect, Width, Height, IsActive, IsDraggable, CursorType, MarginLeft, MarginRight, MarginTop, MarginBottom, opacity, layerDepth, CentreHorizontal, CentreVertical, DragAndDropType)
         {
             _originalColour = HighlightColour;
             _clickColour = ClickColour;
@@ -73,7 +73,7 @@ namespace TheOtherDarkWorld
             if (Text == null)
                 System.Diagnostics.Debugger.Break();
             else
-                AddElement(new TextSprite(Text, 2, Colour, 0, CursorType: CursorType));
+                AddElement(new TextSprite(Text, FontSize, TextColour, 0, CursorType: CursorType));
         }
 
 

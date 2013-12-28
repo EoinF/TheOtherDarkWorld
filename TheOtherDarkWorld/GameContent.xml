@@ -149,7 +149,7 @@
       <Description>A curious looking crucifix made from pure diamond! It looks unbreakable...</Description>
     </Melee>
     <Melee>
-      <Type>12</Type>
+      <Type>13</Type>
       <Name>Crowbar</Name>
       <BaseCooldown>15</BaseCooldown>
       <SwingLength>15</SwingLength>
@@ -247,8 +247,9 @@
       <IsConsumable>true</IsConsumable>
       <ActiveEffects>
         <ItemEffect>
-          <Type>Heal</Type>
-          <Potency>25</Potency>
+          <Type>Healing</Type>
+          <Potency>0.25</Potency>
+          <Duration>200</Duration>
         </ItemEffect>
       </ActiveEffects>
       <Description>A juicy apple!</Description>
@@ -260,7 +261,7 @@
       <ActiveEffects>
         <ItemEffect>
           <Type>Heal</Type>
-          <Potency>5</Potency>
+          <Potency>1</Potency>
         </ItemEffect>
         <ItemEffect>
           <Type>SpeedBoost</Type>
@@ -274,11 +275,10 @@
       <Type>132</Type>
       <Name>Cupcake</Name>
       <IsConsumable>true</IsConsumable>
-      <ConsumeRate>150</ConsumeRate>
       <ActiveEffects>
         <ItemEffect>
           <Type>Heal</Type>
-          <Potency>1</Potency>
+          <Potency>3</Potency>
         </ItemEffect>
       </ActiveEffects>
       <Description>A tasty cupcake!</Description>
@@ -289,8 +289,9 @@
       <IsConsumable>true</IsConsumable>
       <ActiveEffects>
         <ItemEffect>
-          <Type>Heal</Type>
-          <Potency>20</Potency>
+          <Type>Healing</Type>
+          <Potency>0.2</Potency>
+          <Duration>200</Duration>
         </ItemEffect>
       </ActiveEffects>
       <Description>A healthy banana!</Description>
@@ -322,11 +323,159 @@
       <IsConsumable>true</IsConsumable>
       <ActiveEffects>
         <ItemEffect>
-          <Type>Heal</Type>
-          <Potency>20</Potency>
+          <Type>Healing</Type>
+          <Potency>0.5</Potency>
+          <Duration>40</Duration>
         </ItemEffect>
       </ActiveEffects>
       <Description>Tasty homemade bread</Description>
+    </Item>
+    <Item>
+      <Type>150</Type>
+      <Name>Bottle (Empty)</Name>
+      <Description>An empty bottle</Description>
+    </Item>
+    <Item>
+      <Type>151</Type>
+      <Name>Bottle (Water)</Name>
+      <IsConsumable>true</IsConsumable>
+      <ActiveEffects>
+        <ItemEffect>
+          <Type>Healing</Type>
+          <Potency>1</Potency>
+          <Duration>10</Duration>
+        </ItemEffect>
+      </ActiveEffects>
+      <Description>A bottle filled with water. Pretty damn refreshing!</Description>
+    </Item>
+    <Item>
+      <Type>152</Type>
+      <Name>Bottle (Vodka)</Name>
+      <IsConsumable>true</IsConsumable>
+      <ActiveEffects>
+        <ItemEffect>
+          <Type>Confuse</Type>
+          <Potency>1</Potency>
+          <Duration>1200</Duration>
+        </ItemEffect>
+        <ItemEffect>
+          <Type>Harden</Type>
+          <Potency>30</Potency>
+          <Duration>1200</Duration>
+        </ItemEffect>
+      </ActiveEffects>
+      <Description>A bottle filled with vodka. I probably shouldn't...</Description>
+    </Item>
+    <Item>
+      <Type>153</Type>
+      <Name>Bottle (Bleach)</Name>
+      <IsConsumable>true</IsConsumable>
+      <ActiveEffects>
+        <ItemEffect>
+          <Type>Blind</Type>
+          <Duration>240</Duration>
+        </ItemEffect>
+        <ItemEffect>
+          <Type>Poison</Type>
+          <Potency>0.3</Potency>
+          <Duration>240</Duration>
+        </ItemEffect>
+      </ActiveEffects>
+      <Description>A bottle filled with bleach. This might be dangerous to drink...</Description>
+    </Item>
+    <Item>
+      <Type>154</Type>
+      <Name>Bottle (Cola)</Name>
+      <IsConsumable>true</IsConsumable>
+      <ActiveEffects>
+        <ItemEffect>
+          <Type>Healing</Type>
+          <Potency>0.8</Potency>
+          <Duration>10</Duration>
+        </ItemEffect>
+        <ItemEffect>
+          <Type>SpeedBoost</Type>
+          <Potency>1</Potency>
+          <Duration>600</Duration>
+        </ItemEffect>
+      </ActiveEffects>
+      <Description>A bottle filled with cola. Pretty sugary!</Description>
+    </Item>
+    <Item>
+      <Type>155</Type>
+      <Name>Bottle (Coffee)</Name>
+      <IsConsumable>true</IsConsumable>
+      <ActiveEffects>
+        <ItemEffect>
+          <Type>Healing</Type>
+          <Potency>0.1</Potency>
+          <Duration>10</Duration>
+        </ItemEffect>
+        <ItemEffect>
+          <Type>SpeedBoost</Type>
+          <Potency>1</Potency>
+          <Duration>300</Duration>
+        </ItemEffect>
+      </ActiveEffects>
+      <Description>A bottle filled with coffee. Eugh...</Description>
+    </Item>
+    <Item>
+      <Type>156</Type>
+      <Name>Bottle (Juice)</Name>
+      <IsConsumable>true</IsConsumable>
+      <ActiveEffects>
+        <ItemEffect>
+          <Type>Healing</Type>
+          <Potency>1</Potency>
+          <Duration>50</Duration>
+        </ItemEffect>
+        <ItemEffect>
+          <Type>SpeedBoost</Type>
+          <Potency>1</Potency>
+          <Duration>300</Duration>
+        </ItemEffect>
+      </ActiveEffects>
+      <Description>A bottle filled with Fruit juice. Yum!</Description>
+    </Item>
+    <Item>
+      <Type>157</Type>
+      <Name>Bottle (Healing Potion)</Name>
+      <IsConsumable>true</IsConsumable>
+      <ActiveEffects>
+        <ItemEffect>
+          <Type>Heal</Type>
+          <Potency>50</Potency>
+        </ItemEffect>
+      </ActiveEffects>
+      <Description>A bottle filled with a healing tonic inside. Tastes bad but works fast!</Description>
+    </Item>
+    <Item>
+      <Type>158</Type>
+      <Name>Bottle (Healing Potion+)</Name>
+      <IsConsumable>true</IsConsumable>
+      <ActiveEffects>
+        <ItemEffect>
+          <Type>Heal</Type>
+          <Potency>100</Potency>
+        </ItemEffect>
+      </ActiveEffects>
+      <Description>A bottle filled with a healing tonic inside. Tastes bad but works fast!</Description>
+    </Item>
+    <Item>
+      <Type>159</Type>
+      <Name>Bottle (Vitality Potion)</Name>
+      <IsConsumable>true</IsConsumable>
+      <ActiveEffects>
+        <ItemEffect>
+          <Type>Heal</Type>
+          <Potency>100</Potency>
+        </ItemEffect>
+        <ItemEffect>
+          <Type>LifeUp</Type>
+          <Potency>10</Potency>
+        </ItemEffect>
+      </ActiveEffects>
+      <Description>A bottle filled with a mysterious tonic inside. A mysterious miasma emanates from the bottle</Description>
     </Item>
   </Items>
   

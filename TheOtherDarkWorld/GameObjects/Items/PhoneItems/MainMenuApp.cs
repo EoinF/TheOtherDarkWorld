@@ -112,7 +112,7 @@ namespace TheOtherDarkWorld.GameObjects
         {
             UIContainer btncontainer = new UIContainer(CursorType: CursorType.Cursor, Width: SmartPhone.SCREEN_RECT.Width, CentreHorizontal: true);
 
-            Button button = new Button(Color.LightBlue, Color.LightCyan, Color.Turquoise, Textures.SmartPhoneButton, CursorType: CursorType.Cursor, Text: "Install " + appname);
+            Button button = new Button(Color.LightBlue, Color.LightBlue, Color.LightCyan, Color.Turquoise, Textures.SmartPhoneButton, CursorType: CursorType.Cursor, Text: "Install " + appname);
 
             button.OnPressed += (obj) =>
             {

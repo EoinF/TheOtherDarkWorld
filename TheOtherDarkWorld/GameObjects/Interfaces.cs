@@ -17,6 +17,17 @@ namespace TheOtherDarkWorld.GameObjects
         int GetItemIndex(int type);
     }
 
+    public interface IEnergyBased
+    {
+        float Energy { get; set; }
+        float MaxEnergy { get; set; }
+        void UpdateEnergy();
+        StatusEffect exhaustionExhaust { get; set; }
+        StatusEffect exhaustionSlow { get; set; }
+        bool IsExhaustedCompletely { get; set; }
+        float ExhaustPercent { get; set; }
+    }
+
     public interface IMelee
     {
         Swing Swing { get; set; }

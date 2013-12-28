@@ -28,8 +28,13 @@ namespace TheOtherDarkWorld
             CursorType CursorType = UI.CURSOR_DEFAULT, bool IsActive = true,
             float MarginLeft = UI_AUTO, float MarginRight = UI_AUTO, float MarginTop = UI_AUTO, float MarginBottom = UI_AUTO,
             float opacity = UI_INHERIT, float layerDepth = UI_INHERIT)
-            :base(null, Position, Colour, Colour, null, LineWidth, UI_AUTO, IsActive, false, CursorType, MarginLeft, MarginRight, MarginTop, MarginBottom, opacity, layerDepth)
+            : base(Colour, Colour, null, Position, null, LineWidth, UI_AUTO, IsActive, false, CursorType, MarginLeft, MarginRight, MarginTop, MarginBottom, opacity, layerDepth)
         {
+            if (text == null) //null strings break this constructor
+            {
+                text = "";
+            }
+
             this._spritefont = FontSize;
             this.LineWidth = LineWidth;
             this.Lines = 0;
@@ -111,7 +116,7 @@ namespace TheOtherDarkWorld
             CursorType CursorType = UI.CURSOR_DEFAULT, bool IsActive = true,
             float MarginLeft = UI_AUTO, float MarginRight = UI_AUTO, float MarginTop = UI_AUTO, float MarginBottom = UI_AUTO,
             float opacity = UI_INHERIT, float layerDepth = UI_INHERIT)
-            :base(null, Vector2.Zero, Colour, Colour, null, UI_AUTO, UI_AUTO, IsActive, false, CursorType,MarginLeft, MarginRight, MarginTop, MarginBottom, opacity, layerDepth)
+            : base(Colour, Colour, null, Vector2.Zero, null, UI_AUTO, UI_AUTO, IsActive, false, CursorType, MarginLeft, MarginRight, MarginTop, MarginBottom, opacity, layerDepth)
         {
             this.Text = text;
             this._spritefont = FontSize;
@@ -122,7 +127,8 @@ namespace TheOtherDarkWorld
 
         public override void Draw(SpriteBatch spriteBatch, float extraLayerDepth = 0)
         {
-            spriteBatch.DrawString(Spritefont, Text, Position, Colour * Opacity, 0, Vector2.Zero, 1, 0, LayerDepth + extraLayerDepth);
+            if (IsActive)
+                spriteBatch.DrawString(Spritefont, Text, Position, Colour * Opacity, 0, Vector2.Zero, 1, 0, LayerDepth + extraLayerDepth);
         }
 
         public SpriteFont Spritefont

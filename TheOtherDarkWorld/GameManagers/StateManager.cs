@@ -10,7 +10,7 @@ namespace TheOtherDarkWorld
 {
     public static class StateManager
     {
-        public static int State { get; set; }
+        public static GameState State { get; set; }
         public static bool DebugMode { get; set; }
 
         private static Level CurrentLevel;
@@ -45,35 +45,34 @@ namespace TheOtherDarkWorld
 
         public static void Update()
         {
-            if (StateManager.State == 1)
+            if (StateManager.State == GameState.InGame)
             {
                 CurrentLevel.Update();
-                UI.Update();
                 Offset = CurrentPlayer.Position - new Vector2(UI.ScreenX / 2, UI.ScreenY / 2);
             }
         }
 
         public static void Draw(GraphicsDevice device, SpriteBatch spriteBatch)
         {
-            if (State == 0)
+            if (State == GameState.MainMenu)
             {
-                string prompt = "Press Enter to Begin...\n\n    Double click items to activate them\n    Press n to send the next wave\n    Press enter to restart the game";
+                string prompt = "Press Enter to bring up the command prompt...\nType \"help\" for help\nType \"start\" to begin\n    Double click items to activate them";
                 spriteBatch.DrawString(Textures.Fonts[2], prompt, new Vector2(UI.ScreenX / 2, UI.ScreenY / 2) - (Textures.Fonts[2].MeasureString(prompt) / 2f), Color.White);
 
+                UI.DrawHUD(spriteBatch);
             }
-            if (State == 1)
+            if (State == GameState.InGame)
             {
                 if (CurrentPlayer != null && CurrentPlayer.IsBlinded)
                     device.Clear(Color.White);
 
-                string prompt = "Press Enter to Retry...\n\n    Double click items to activate them\n    Press n to send the next wave\n    Press enter to restart the game";
+                string prompt = "Press Enter to bring up the command prompt...\n Type \"help\" for help\n    Double click items to activate them";
                 if (!CurrentPlayer.IsAlive)
                     spriteBatch.DrawString(Textures.Fonts[2], prompt, new Vector2(UI.ScreenX / 2, UI.ScreenY / 2) - (Textures.Fonts[2].MeasureString(prompt) / 2f), Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
 
                 CurrentLevel.Draw(spriteBatch);
-                UI.DrawHUD(spriteBatch, CurrentPlayer);
+                UI.DrawHUD(spriteBatch);
             }
-
         }
 
         public static void StartLevel()
@@ -85,11 +84,11 @@ namespace TheOtherDarkWorld
 
             int InventorySize = 14;
 
-            CurrentLevel.Players = new Player[1] { new Player(new Vector2(230, 200), 500, 3, 14, Vector2.Zero, 0, 5) };
+            CurrentLevel.Players = new Player[1] { new Player(new Vector2(230, 200), 100, 100, 3, 14, Vector2.Zero, 0, 5) };
             PlayerIndex = 0;
             CurrentLevel.Entities.Add(CurrentPlayer);
 
-            UI.InitializeHUD(InventorySize);
+            UI.InitializeInventory(InventorySize);
             CurrentPlayer.PickUpItem(new Gun(0, -1, CurrentPlayer));
             CurrentPlayer.PickUpItem(new Melee(11, -1, CurrentPlayer));
             CurrentPlayer.PickUpItem(new Melee(12, -1, CurrentPlayer));
@@ -99,12 +98,6 @@ namespace TheOtherDarkWorld
             CurrentPlayer.PickUpItem(new Item(50, -1, CurrentPlayer));
             CurrentPlayer.PickUpItem(new Torch(110, CurrentPlayer));
             CurrentPlayer.PickUpItem(new SmartPhone(112, CurrentPlayer));
-            CurrentPlayer.PickUpItem(new Gun(1, Owner: CurrentPlayer));
-            CurrentPlayer.PickUpItem(new Gun(4, Owner: CurrentPlayer));
-            CurrentPlayer.PickUpItem(new Item(130, -1, CurrentPlayer));
-            CurrentPlayer.PickUpItem(new Item(131, -1, CurrentPlayer));
-            CurrentPlayer.PickUpItem(new Item(132, -1, CurrentPlayer));
-            CurrentPlayer.PickUpItem(new Item(120, -1, CurrentPlayer));
 
             /*
              * An idea for later on:
@@ -114,6 +107,13 @@ namespace TheOtherDarkWorld
              *      Could also include classes. Like bonus health tank. Or ability to carry more items. Or being able
              *      to see a wider radius. Or being able to see in the dark better
              */
+
+
+            if (UI.Kills > UI.HighScore)
+                UI.HighScore = UI.Kills;
+            UI.Kills = 0;
+
+            State = GameState.InGame;
         }
 
         public static Projectile CreateProjectile(float damage, int penetration, float speed, Color colour, GameObject owner, Vector2 startVelocity, Vector2 startPosition, float rotation)
@@ -152,5 +152,11 @@ namespace TheOtherDarkWorld
         {
             CurrentLevel.FloorItems.Add(new FloorItem(item, Position));
         }
+    }
+
+    public enum GameState
+    {
+        MainMenu,
+        InGame
     }
 }

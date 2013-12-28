@@ -110,6 +110,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="GameManagers\CommandManager.cs" />
     <Compile Include="GameManagers\DebugManager.cs" />
     <Compile Include="GameObjects\Entity\Enemy.cs" />
     <Compile Include="GameObjects\Entity\Entity.cs" />
@@ -136,7 +137,6 @@
     <Compile Include="GameObjects\GameObject.cs" />
     <Compile Include="GameObjects\Items\FloorItem.cs" />
     <Compile Include="GameObjects\Items\Gun.cs" />
-    <Compile Include="GameManagers\InputManager%28Inventory%29.cs" />
     <Compile Include="GameManagers\InputManager.cs" />
     <Compile Include="GameObjects\Items\Item.cs" />
     <Compile Include="Level.cs" />
@@ -151,10 +151,12 @@
     <Compile Include="UI\DragAndDropType.cs" />
     <Compile Include="UI\InventoryContainer.cs" />
     <Compile Include="UI\InventoryElement.cs" />
+    <Compile Include="UI\MessageBox.cs" />
     <Compile Include="UI\TextSprite.cs" />
     <Compile Include="Textures.cs" />
     <Compile Include="UI\UIContainer.cs" />
     <Compile Include="UI\UIElement.cs" />
+    <Compile Include="UI\UIGauge.cs" />
     <Compile Include="UI\UIGrid.cs" />
     <Compile Include="UI\UISlider.cs" />
   </ItemGroup>

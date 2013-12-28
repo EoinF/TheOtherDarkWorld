@@ -16,7 +16,7 @@ namespace TheOtherDarkWorld
         public const float OPACITY_DEFAULT = 1;
 
         public UIElement Parent { get; set; }
-        private CursorType _cursorType { get; set; }
+        protected CursorType _cursorType { get; set; }
 
         protected Vector2 _originalPosition;
         public virtual Vector2 OriginalPosition
@@ -187,18 +187,23 @@ namespace TheOtherDarkWorld
                 _marginBottom = value;
             }
         }
-        public Color Colour
+        public virtual Color Colour
         {
             get
             {
                 return IsMouseOver? _highlightColour : _colour;
+            }
+            set
+            {
+                _colour = value;
+                _highlightColour = value;
             }
         }
         protected Color _colour;
         protected Color _highlightColour;
 
         public bool IsDraggable { get; set; }
-        protected virtual Rectangle? SrcRect { get; set; }
+        public virtual Rectangle? SrcRect { get; set; }
         protected Texture2D Texture;
 
 
@@ -291,8 +296,7 @@ namespace TheOtherDarkWorld
         public Action<object> OnMouseLeave;
         public Action<object> OnHover;
 
-        public UIElement(Texture2D Texture = null, Vector2 Position = new Vector2(),
-            Color Colour = new Color(), Color HighlightColour = new Color(), Rectangle? SrcRect = null,
+        public UIElement(Color Colour = new Color(), Color HighlightColour = new Color(), Texture2D Texture = null, Vector2 Position = new Vector2(), Rectangle? SrcRect = null,
             int Width = UI_AUTO, int Height = UI_AUTO,
             bool IsActive = true, bool IsDraggable = false, CursorType CursorType = UI.CURSOR_DEFAULT,
             float MarginLeft = UI_AUTO, float MarginRight = UI_AUTO, float MarginTop = UI_AUTO, float MarginBottom = UI_AUTO,

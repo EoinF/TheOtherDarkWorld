@@ -28,6 +28,19 @@ namespace TheOtherDarkWorld.GameObjects
         {
             switch (Type)
             {
+                //
+                //Special item effects
+                //
+                case EffectType.Heal:
+                    Owner.ApplyHealing(Potency);
+                    break;
+                case EffectType.LifeUp:
+                    Owner.MaxHealth += (int)Potency;
+                    break;
+
+                //
+                //Status effects
+                //
                 case EffectType.Bind:
                     Owner.StatusEffects.Add(new StatusEffect(StatusType.Binded, Potency, Duration, Description));
                     break;
@@ -85,9 +98,6 @@ namespace TheOtherDarkWorld.GameObjects
                 case EffectType.Stun:
                     Owner.StatusEffects.Add(new StatusEffect(StatusType.Stunned, Potency, Duration, Description));
                     break;
-                case EffectType.Heal:
-                    Owner.ApplyHealing(Potency);
-                    break;
                 case EffectType.Healing:
                     Owner.StatusEffects.Add(new StatusEffect(StatusType.Healing, Potency, Duration, Description));
                     break;
@@ -122,7 +132,15 @@ namespace TheOtherDarkWorld.GameObjects
     /// </summary>
     public enum EffectType
     {
+        //
+        //Special item effects
+        //
         Heal, //Instant heal
+        LifeUp, //Increase maximum health
+
+        //
+        //Status effects
+        //
         Healing, //Heal over time
         Blind,
         Stun,
