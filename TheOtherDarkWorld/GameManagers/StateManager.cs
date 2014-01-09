@@ -11,6 +11,9 @@ namespace TheOtherDarkWorld
     public static class StateManager
     {
         public static GameState State { get; set; }
+
+        public static bool FULL_BRIGHT = false;
+        public static bool FULL_VISION = false;
         public static bool DebugMode { get; set; }
 
         private static Level CurrentLevel;
@@ -70,7 +73,14 @@ namespace TheOtherDarkWorld
                 if (!CurrentPlayer.IsAlive)
                     spriteBatch.DrawString(Textures.Fonts[2], prompt, new Vector2(UI.ScreenX / 2, UI.ScreenY / 2) - (Textures.Fonts[2].MeasureString(prompt) / 2f), Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
 
+                spriteBatch.End(); //End drawing the rest because the lighting shader is now to be applied
+
+                spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.NonPremultiplied);
+
                 CurrentLevel.Draw(spriteBatch);
+                spriteBatch.End();
+
+                spriteBatch.Begin(SpriteSortMode.FrontToBack, BlendState.NonPremultiplied);
                 UI.DrawHUD(spriteBatch);
             }
         }
@@ -84,20 +94,21 @@ namespace TheOtherDarkWorld
 
             int InventorySize = 14;
 
-            CurrentLevel.Players = new Player[1] { new Player(new Vector2(230, 200), 100, 100, 3, 14, Vector2.Zero, 0, 5) };
+            CurrentLevel.Players = new Player[1] { new Player(Textures.Player, new Vector2(230, 200), 100, 100, 3, 14, Vector2.Zero, 0, 5) };
             PlayerIndex = 0;
             CurrentLevel.Entities.Add(CurrentPlayer);
 
             UI.InitializeInventory(InventorySize);
-            CurrentPlayer.PickUpItem(new Gun(0, -1, CurrentPlayer));
-            CurrentPlayer.PickUpItem(new Melee(11, -1, CurrentPlayer));
-            CurrentPlayer.PickUpItem(new Melee(12, -1, CurrentPlayer));
+            CurrentPlayer.PickUpItem(Item.Create(0, -1, CurrentPlayer));
+            CurrentPlayer.PickUpItem(Item.Create(11, -1, CurrentPlayer));
+            CurrentPlayer.PickUpItem(Item.Create(12, -1, CurrentPlayer));
 
-            CurrentPlayer.PickUpItem(new Item(101, 999, CurrentPlayer));
-            CurrentPlayer.PickUpItem(new Item(50, -1, CurrentPlayer));
-            CurrentPlayer.PickUpItem(new Item(50, -1, CurrentPlayer));
-            CurrentPlayer.PickUpItem(new Torch(110, CurrentPlayer));
-            CurrentPlayer.PickUpItem(new SmartPhone(112, CurrentPlayer));
+            CurrentPlayer.PickUpItem(Item.Create(101, 999, CurrentPlayer));
+            CurrentPlayer.PickUpItem(Item.Create(50, -1, CurrentPlayer));
+            CurrentPlayer.PickUpItem(Item.Create(50, -1, CurrentPlayer));
+            CurrentPlayer.PickUpItem(Item.Create(110, 1, CurrentPlayer));
+            CurrentPlayer.PickUpItem(Item.Create(112, 1, CurrentPlayer));
+            CurrentPlayer.PickUpItem(Item.Create(120, 1, CurrentPlayer));
 
             /*
              * An idea for later on:
@@ -118,7 +129,7 @@ namespace TheOtherDarkWorld
 
         public static Projectile CreateProjectile(float damage, int penetration, float speed, Color colour, GameObject owner, Vector2 startVelocity, Vector2 startPosition, float rotation)
         {
-            Projectile newP = new Projectile(damage, penetration, speed, colour, owner, startVelocity, startPosition, rotation,
+            Projectile newP = new Projectile(Textures.Bullet, damage, penetration, speed, colour, owner, startVelocity, startPosition, rotation,
                 (p, col) //Collision
                 =>
                 {
@@ -151,6 +162,12 @@ namespace TheOtherDarkWorld
         public static void DropItem(Item item, Vector2 Position)
         {
             CurrentLevel.FloorItems.Add(new FloorItem(item, Position));
+        }
+
+        public static void NextWave()
+        {
+            CurrentLevel.wave++;
+            CurrentLevel.SpawnEnemies();
         }
     }
 

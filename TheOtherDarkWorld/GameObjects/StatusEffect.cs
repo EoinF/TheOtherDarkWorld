@@ -8,7 +8,7 @@ namespace TheOtherDarkWorld.GameObjects
     public class StatusEffect
     {
         public StatusType Type { get; set; }
-
+        public int ID { get; set; }
         public float Potency { get; set; }
 
         /// <summary>
@@ -21,8 +21,9 @@ namespace TheOtherDarkWorld.GameObjects
         public int RemainingTicks;
         public string Description { get; private set; }
 
-        public StatusEffect(StatusType Type, float Potency, int Duration_Ticks, string Description )
+        public StatusEffect(StatusType Type, float Potency, int Duration_Ticks, string Description, int ID = ItemEffect.DEFAULT_EFFECT_ID)
         {
+            this.ID = ID;
             this.Type = Type;
             this.Potency = Potency;
             RemainingTicks = Duration_Ticks;
@@ -38,10 +39,10 @@ namespace TheOtherDarkWorld.GameObjects
     public enum StatusType
     {
         Blinded, //Screen goes white and can't see any in game objects
-        Stunned, //Intelligence method isn't called. Therefore movement is disabled
+        Stunned, //Intelligence method isn't called. Therefore movement and vision is disabled as well
         Confused, //The character's direction is altered
-        Burning, //Health quickly degenerates. Flammable objects have a chance to burst into flames
-        Poison, //Health slowly degenerates
+        Burning, //Health degenerates. Flammable objects have a chance to burst into flames
+        Poison, //Health degenerates. (TODO: Reduces healing effects)
         Frozen, //Can't move or activate items
         Invisible, //Can't be seen by other entities
         Binded, //Can't move

@@ -17,6 +17,7 @@ namespace TheOtherDarkWorld.GameObjects
         protected Tile[,] _tiles; //A reference to the tiles in the current level
 
         protected int startX, startY, centreX, centreY, endX, endY;
+        protected Vector2 currentRayDirection;
 
         /// <summary>
         /// 
@@ -143,6 +144,7 @@ namespace TheOtherDarkWorld.GameObjects
         /// <returns>False if the raycast terminated before reaching the destination</returns>
         protected bool rayCast(int srcX, int srcY, int destX, int destY)
         {
+            currentRayDirection = new Vector2(destX - srcX, destY - srcY);
             //
             //Check each square from the source tile to the destination tile until a blocking square is found; using the Bresenham line algorithm
             //

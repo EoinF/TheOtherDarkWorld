@@ -5,6 +5,7 @@ using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using TheOtherDarkWorld.GameObjects;
 
 namespace TheOtherDarkWorld
 {
@@ -36,6 +37,12 @@ namespace TheOtherDarkWorld
                 case "give":
                     give(NextToken(ref currentPos, command), NextToken(ref currentPos, command));
                     break;
+                case "status":
+                    status(NextToken(ref currentPos, command), NextToken(ref currentPos, command), NextToken(ref currentPos, command));
+                    break;
+                case "nextwave":
+                    nextwave(NextToken(ref currentPos, command));
+                    break;
                 case "set":
                     set(NextToken(ref currentPos, command));
                     break;
@@ -50,7 +57,42 @@ namespace TheOtherDarkWorld
             StateManager.StartLevel();
         }
 
-        private const string STR_AMOUNT_DEFAULT = "1";
+
+        private const string STR_POTENCY_DEFAULT = "0.1";
+        private const string STR_DURATION_DEFAULT = "60";
+        private static void status(string str_status_type, string str_potency, string str_duration)
+        {
+            if (str_potency == "") //2nd parameter is optional
+                str_potency = STR_POTENCY_DEFAULT;
+            if (str_duration == "") //3rd parameter is optional
+                str_duration = STR_DURATION_DEFAULT;
+
+
+            StatusType status_type;
+            float potency;
+            int duration;
+
+            if (Enum.TryParse(str_status_type, true, out status_type))
+            {
+                if (float.TryParse(str_potency, out potency)
+                && int.TryParse(str_duration, out duration))
+                {
+                    if (StateManager.State == GameState.InGame)
+                    {
+                        StateManager.CurrentPlayer.AddStatusEffect(new StatusEffect(status_type, potency, duration, "Given via the command line"));
+                    }
+                    else
+                    {
+                        UI.QueueMessage("There is no player to give the status to!");
+                    }
+                }
+            }
+            else
+                UI.QueueMessage("There is no status effect called \"" + str_status_type + "\"!");
+
+        }
+
+        private const string STR_AMOUNT_DEFAULT = "-1";
         private static void give(string str_type, string str_amount)
         {
             if (str_amount == "") //2nd parameter is optional
@@ -64,9 +106,12 @@ namespace TheOtherDarkWorld
                 {
                     if (GameData.GameItems[type] != null)
                     {
-                        if (StateManager.CurrentPlayer.PickUpItem(new GameObjects.Item(type, amount)))
+                        if (StateManager.CurrentPlayer.PickUpItem(Item.Create(type, amount, StateManager.CurrentPlayer)))
                         {
-                            UI.QueueMessage("Player got " + amount + " of " + GameData.GameItems[type].Name);
+                            if (amount != -1)
+                                UI.QueueMessage("Player got " + amount + " " + GameData.GameItems[type].Name);
+                            else
+                                UI.QueueMessage("Player got a " + GameData.GameItems[type].Name);
                         }
                     }
                     else
@@ -87,18 +132,25 @@ namespace TheOtherDarkWorld
             }
         }
 
+        private static void nextwave(string str_wave)
+        {
+            //TODO: Setting specific wave number
+
+            StateManager.NextWave();
+        }
+
         private static void set(string setting)
         {
             switch (setting)
             {
                 case "fullbright":
-                    GameObjects.GameObject.FULL_BRIGHT = !GameObjects.GameObject.FULL_BRIGHT;
+                    StateManager.FULL_BRIGHT = !StateManager.FULL_BRIGHT;
                     break;
                 case "fullvision":
-                    GameObjects.GameObject.FULL_VISION = !GameObjects.GameObject.FULL_VISION;
+                    StateManager.FULL_VISION = !StateManager.FULL_VISION;
                     break;
                 default:
-                    UI.QueueMessage("There is no setting: " + setting);
+                    UI.QueueMessage("There is no setting: \"" + setting + "\"");
                     UI.QueueMessage("Type \"help set\" for info");
                     break;
             }
@@ -114,11 +166,18 @@ namespace TheOtherDarkWorld
                 case "give":
                     UI.QueueMessage("usage: give <type> [amount]");
                     break;
+                case "status":
+                    UI.QueueMessage("usage: status <status_name> [potency] [duration]");
+                    break;
+                case "nextwave":
+                    UI.QueueMessage("usage: nextwave [wave_number]");
+                    break;
                 case "set":
                     UI.QueueMessage("usage: set <parameter>");
+                    UI.QueueMessage("fullbright, fullvision");
                     break;
                 default:
-                    UI.QueueMessage("Commands: start, give, set, help");
+                    UI.QueueMessage("Commands: start, give, status, nextwave, set, help");
                     break;
             }
         }
@@ -190,6 +249,10 @@ namespace TheOtherDarkWorld
                             if (keys[i] == Keys.Space)
                             {
                                 CommandInput.Text += ' ';
+                            }
+                            else if (keys[i] == Keys.OemPeriod)
+                            {
+                                CommandInput.Text += '.';
                             }
                         }
                         if (keys[i] == Keys.Back)

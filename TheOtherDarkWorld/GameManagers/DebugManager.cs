@@ -14,7 +14,7 @@ namespace TheOtherDarkWorld
 
         public static void E_NoUIParent()
         {
-            WriteError("Error 1: Trying to swap elements that have on parent UI");
+            WriteError("Error [1]: Trying to swap elements that have no parent UI");
         }
 
         static DebugManager()

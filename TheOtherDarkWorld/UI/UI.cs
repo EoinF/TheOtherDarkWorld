@@ -55,6 +55,8 @@ namespace TheOtherDarkWorld
 
         public static void InitializeInventory(int InventorySize)
         {
+            HUDElements.RemoveElement(SidePanel); //Remove the side panel if it already exists so that it isn't added multiple times
+
             TextSprite ts = new TextSprite("Items", 1, Color.Violet, PANEL_WIDTH, INVENTORY_POSITION, CursorType.Cursor);
             SidePanel = new UIContainer(Textures.SidePanel, PANEL_POSITION, null, PANEL_WIDTH, PANEL_HEIGHT, CursorType: CursorType.Cursor, CentreHorizontal: true);
             SidePanel.AddElement(ts);
@@ -69,7 +71,7 @@ namespace TheOtherDarkWorld
 
             Func<int> GetCurrentEnergy = () => { return (int)StateManager.CurrentPlayer.Energy; };
             Func<int> GetMaxEnergy = () => { return (int)StateManager.CurrentPlayer.MaxEnergy; };
-            SidePanel.AddElement(new UIGauge(Color.White, Color.White, Color.White, Color.Yellow, GetCurrentEnergy, GetMaxEnergy, Textures.HealthBar, Textures.HealthBarPiece, ENERGY_BAR_POSITION, CursorType: CursorType.Cursor));
+            SidePanel.AddElement(new UIGauge(Color.White, Color.White, Color.Black, Color.MediumAquamarine, GetCurrentEnergy, GetMaxEnergy, Textures.HealthBar, Textures.HealthBarPiece, ENERGY_BAR_POSITION, CursorType: CursorType.Cursor));
 
             //The two equipped items
             UIContainer con = new UIContainer(Textures.ItemSlot, CursorType: CursorType.Cursor);

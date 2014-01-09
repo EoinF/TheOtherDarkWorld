@@ -31,7 +31,7 @@
         <xs:element ref="IsConsumable" minOccurs="0" maxOccurs="1"/>
         <xs:element ref="MaxAmount" minOccurs="0" maxOccurs="1"/>
         <xs:element ref="Power" minOccurs="0" maxOccurs="1"/>
-        <xs:element ref="DestroyedWhenEmpty" minOccurs="0" maxOccurs="1"/>
+        <xs:element ref="TypeWhenEmpty" minOccurs="0" maxOccurs="1"/>
         <xs:element ref="Penetration" minOccurs="0" maxOccurs="1"/>
         <xs:element ref="BulletColour" minOccurs="0" maxOccurs="1"/>
         <xs:element ref="BulletSpeed" minOccurs="0" maxOccurs="1"/>
@@ -39,6 +39,7 @@
         <xs:element ref="AttackType" minOccurs="0" maxOccurs="1"/>
         <xs:element ref="ReloadTime" minOccurs="0" maxOccurs="1"/>
         <xs:element ref="MuzzleFlashMagnitude" minOccurs="0" maxOccurs="1"/>
+        <xs:element ref="ActiveEffects" minOccurs="0" maxOccurs="1"/>
         <xs:element ref="Description" minOccurs="0" maxOccurs="1"/>
       </xs:sequence>
     </xs:complexType>
@@ -63,13 +64,15 @@
       <xs:sequence>
         <xs:element ref="Type"/>
         <xs:element ref="Name"/>
-        <xs:element ref="BaseCooldown"/>
-        <xs:element ref="SwingLength"/>
-        <xs:element ref="IsConsumable"/>
-        <xs:element ref="MaxAmount"/>
-        <xs:element ref="Power"/>
-        <xs:element ref="Knockback"/>
-        <xs:element ref="Reach"/>
+        <xs:element ref="BaseCooldown" minOccurs="0" maxOccurs="1"/>
+        <xs:element ref="ConsumeRate" minOccurs="0" maxOccurs="1"/>
+        <xs:element ref="SwingLength" minOccurs="0" maxOccurs="1"/>
+        <xs:element ref="IsConsumable" minOccurs="0" maxOccurs="1"/>
+        <xs:element ref="MaxAmount" minOccurs="0" maxOccurs="1"/>
+        <xs:element ref="Power" minOccurs="0" maxOccurs="1"/>
+        <xs:element ref="Knockback" minOccurs="0" maxOccurs="1"/>
+        <xs:element ref="Reach" minOccurs="0" maxOccurs="1"/>
+        <xs:element ref="ActiveEffects" minOccurs="0" maxOccurs="1"/>
         <xs:element minOccurs="0" ref="IsAutomatic"/>
         <xs:element ref="Description"/>
       </xs:sequence>
@@ -107,7 +110,8 @@
       <xs:sequence>
         <xs:element ref="Type"/>
         <xs:element ref="Name"/>
-        <xs:element ref="DestroyedWhenEmpty" minOccurs="0" maxOccurs="1"/>
+        <xs:element ref="BaseCooldown" minOccurs="0" maxOccurs="1"/>
+        <xs:element ref="TypeWhenEmpty" minOccurs="0" maxOccurs="1"/>
         <xs:element ref="IsConsumable" minOccurs="0" maxOccurs="1"/>
         <xs:element ref="ConsumeRate" minOccurs="0" maxOccurs="1"/>
         <xs:element ref="Consumes" minOccurs="0" maxOccurs="1"/>
@@ -152,6 +156,7 @@
               <xs:enumeration value="Protect"/>
               <xs:enumeration value="FastHands"/>
               <xs:enumeration value="LifeUp"/>
+              <xs:enumeration value="Exhaust"/>
             </xs:restriction>
           </xs:simpleType>
         </xs:element>
@@ -252,7 +257,7 @@
   <xs:element name="B" type="xs:integer"/>
   <xs:element name="IsAutomatic" type="xs:boolean"/>
   <xs:element name="Description" type="xs:string"/>
-  <xs:element name="DestroyedWhenEmpty" type="xs:boolean"/>
+  <xs:element name="TypeWhenEmpty" type="xs:integer"/>
   <xs:element name="ConsumeRate" type="xs:integer"/>
   <xs:element name="IsTogglable" type="xs:boolean"/>
 </xs:schema>

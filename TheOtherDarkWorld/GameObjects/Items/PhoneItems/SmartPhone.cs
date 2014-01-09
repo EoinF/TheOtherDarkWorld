@@ -63,7 +63,7 @@ namespace TheOtherDarkWorld.GameObjects
             Exterior.OnMouseEnter += (x) => { Phone.Opacity = 1; };
             Exterior.OnMouseLeave += (x) => { Phone.Opacity = 0.5f; };
 
-            HUD = new UIContainer(null, new Vector2(SCREEN_RECT.Left, SCREEN_RECT.Top), null, SCREEN_RECT.Width, SCREEN_RECT.Height, CursorType: CursorType.Cursor, MarginLeft: SMARTPHONE_EDGE_WIDTH);
+            HUD = new UIContainer(null, new Vector2(SCREEN_RECT.Left, SCREEN_RECT.Top), null, SCREEN_RECT.Width, SCREEN_RECT.Height, CursorType: CursorType.Cursor);
 
             Phone.AddElement(Exterior);
             Phone.AddElement(HUD);

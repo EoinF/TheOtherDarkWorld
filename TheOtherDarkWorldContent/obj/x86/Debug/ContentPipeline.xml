@@ -71,7 +71,7 @@
       <Processor>TextureProcessor</Processor>
       <Options>None</Options>
       <Output>C:\Users\Eoin\Dropbox\Backup\Visual Studio 2010\Projects\TheOtherDarkWorld\TheOtherDarkWorld\bin\x86\Debug\Content\ItemSheet.xnb</Output>
-      <Time>2013-12-16T01:00:53.4962478+00:00</Time>
+      <Time>2014-01-02T03:24:53.3093197+00:00</Time>
     </Item>
     <Item>
       <Source>Cursor.png</Source>
@@ -198,6 +198,15 @@
       <Options>None</Options>
       <Output>C:\Users\Eoin\Dropbox\Backup\Visual Studio 2010\Projects\TheOtherDarkWorld\TheOtherDarkWorld\bin\x86\Debug\Content\TextInputBar.xnb</Output>
       <Time>2013-12-27T19:01:12.5670264+00:00</Time>
+    </Item>
+    <Item>
+      <Source>LightingShader.fx</Source>
+      <Name>LightingShader</Name>
+      <Importer>EffectImporter</Importer>
+      <Processor>EffectProcessor</Processor>
+      <Options>None</Options>
+      <Output>C:\Users\Eoin\Dropbox\Backup\Visual Studio 2010\Projects\TheOtherDarkWorld\TheOtherDarkWorld\bin\x86\Debug\Content\LightingShader.xnb</Output>
+      <Time>2014-01-09T14:25:03.6408899+00:00</Time>
     </Item>
     <BuildSuccessful>true</BuildSuccessful>
     <Settings>

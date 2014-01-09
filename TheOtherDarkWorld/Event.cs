@@ -6,10 +6,10 @@ using TheOtherDarkWorld.GameObjects;
 
 namespace TheOtherDarkWorld
 {
-    public class Event
+    public class PEvent
     {
         public Block TargetBlock { get; private set; }
         public String TargetAction { get; private set; }
-        public Effect Effect { get; private set; }
+        public PEffect Effect { get; private set; }
     }
 }

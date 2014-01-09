@@ -20,7 +20,6 @@ namespace TheOtherDarkWorld.GameObjects
             get { return _rotation; }
             protected set { _rotation = value; }
         }
-        public override Texture2D Texture { get { return Textures.Bullet; } }
         private bool Collided;
 
         public override bool IsAlive
@@ -49,8 +48,8 @@ namespace TheOtherDarkWorld.GameObjects
         }
         
 
-        public Projectile(float damage, int penetration, float speed, Color colour, GameObject owner, Vector2 startVelocity, Vector2 startPosition, float rotation, Action<Projectile, Collision> OnBlockHit)
-            : base(penetration, startPosition, speed, colour, startVelocity * speed, new Vector2(Textures.Bullet.Width / 2, Textures.Bullet.Height / 2), 0, (int)Textures.Bullet.Width, (int)Textures.Bullet.Height)
+        public Projectile(Texture2D Texture, float damage, int penetration, float speed, Color colour, GameObject owner, Vector2 startVelocity, Vector2 startPosition, float rotation, Action<Projectile, Collision> OnBlockHit)
+            : base(Texture, penetration, startPosition, speed, colour, startVelocity * speed, new Vector2(Textures.Bullet.Width / 2, Textures.Bullet.Height / 2), 0, (int)Textures.Bullet.Width, (int)Textures.Bullet.Height)
         {
             Damage = damage;
             Owner = owner;
@@ -87,7 +86,8 @@ namespace TheOtherDarkWorld.GameObjects
 
         public override void Draw(SpriteBatch spriteBatch)
         {
-            spriteBatch.Draw(Textures.Bullet, Position - StateManager.Offset, null, getLightColour(), Rotation, Origin * Vector2.UnitX, 1, SpriteEffects.None, UI.PROJECTILE_DEPTH_DEFAULT);
+            ApplyLighting();
+            spriteBatch.Draw(Textures.Bullet, Position - StateManager.Offset, null, Colour, Rotation, Origin * Vector2.UnitX, 1, SpriteEffects.None, UI.PROJECTILE_DEPTH_DEFAULT);
         }
 
         public override void CollideHorizontal(Collision col)

@@ -24,8 +24,8 @@ namespace TheOtherDarkWorld.GameObjects
         }
 
 
-        public Enemy(Vector2 startPosition, float speed, Vector2 startVelocity, int Type, int InventorySize, int MaxHealth, int Resistance, int Weight, int MeleeDamage)
-            : base(MaxHealth, startPosition, speed, Color.White, Vector2.Zero, new Vector2(Textures.Enemies[Type].Width / 2, Textures.Enemies[Type].Height / 2), Resistance, (int)Textures.Enemies[Type].Width, (int)Textures.Enemies[Type].Height)
+        public Enemy(Texture2D Texture, Vector2 startPosition, float speed, Vector2 startVelocity, int Type, int InventorySize, int MaxHealth, int Resistance, int Weight, int MeleeDamage)
+            : base(Texture, MaxHealth, startPosition, speed, Color.White, Vector2.Zero, new Vector2(Textures.Enemies[Type].Width / 2, Textures.Enemies[Type].Height / 2), Resistance, Texture.Width, Texture.Height)
         {
             Inventory = new Item[InventorySize];
             this.Type = Type;
@@ -33,6 +33,7 @@ namespace TheOtherDarkWorld.GameObjects
             this.Weight = Weight;
             HitVelocity = Vector2.Zero;
             this.MeleeDamage = MeleeDamage;
+            this.LightColour = Color.White;
         }
 
         public void UpdateInventory()
@@ -47,8 +48,13 @@ namespace TheOtherDarkWorld.GameObjects
                     Inventory[i].Update();
                     if (Inventory[i].Amount == 0)
                     {
-                        if (Inventory[i].DestroyedWhenEmpty)
+                        if (Inventory[i].TypeWhenEmpty == -1)
                             TrashItem(i);
+                        else if (Inventory[i].TypeWhenEmpty == Inventory[i].Type)
+                            ; //Leave it as it is
+                        else
+                            Inventory[i] = Item.Create(Inventory[i].TypeWhenEmpty, owner: this);
+
                     }
                 }
             }
@@ -174,15 +180,11 @@ namespace TheOtherDarkWorld.GameObjects
             return -1;
         }
 
-        public override Texture2D Texture
-        {
-            get { return Textures.Enemies[Type]; }
-        }
-
         public override void Draw(SpriteBatch spriteBatch)
         {
+            ApplyLighting();
             if (IsVisible)
-                spriteBatch.Draw(Textures.Enemies[Type], Position + Origin - StateManager.Offset, null, getLightColour(), Rotation, Origin, 1, SpriteEffects.None, UI.ENEMY_DEPTH_DEFAULT);
+                spriteBatch.Draw(Textures.Enemies[Type], Position + Origin - StateManager.Offset, null, Colour, Rotation, Origin, 1, SpriteEffects.None, UI.ENEMY_DEPTH_DEFAULT);
             if (Swing != null)
             {
                 Swing.Draw(spriteBatch, StateManager.Offset);

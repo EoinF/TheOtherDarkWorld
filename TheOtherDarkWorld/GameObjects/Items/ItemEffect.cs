@@ -8,7 +8,9 @@ namespace TheOtherDarkWorld.GameObjects
     public class ItemEffect
     {
         public const EffectType DEFAULT_EFFECT_TYPE = EffectType.Heal;
+        public const int DEFAULT_EFFECT_ID = -1;
 
+        public int ID;
         public EffectType Type;
         public float Potency;
         public int Duration;
@@ -20,6 +22,7 @@ namespace TheOtherDarkWorld.GameObjects
         /// </summary>
         public ItemEffect()
         {
+            ID = DEFAULT_EFFECT_ID;
             Type = DEFAULT_EFFECT_TYPE;
             Potency = 0;
         }
@@ -42,67 +45,70 @@ namespace TheOtherDarkWorld.GameObjects
                 //Status effects
                 //
                 case EffectType.Bind:
-                    Owner.StatusEffects.Add(new StatusEffect(StatusType.Binded, Potency, Duration, Description));
+                    Owner.AddStatusEffect(new StatusEffect(StatusType.Binded, Potency, Duration, Description, ID));
                     break;
                 case EffectType.Bleed:
-                    Owner.StatusEffects.Add(new StatusEffect(StatusType.Bleeding, Potency, Duration, Description));
+                    Owner.AddStatusEffect(new StatusEffect(StatusType.Bleeding, Potency, Duration, Description, ID));
                     break;
                 case EffectType.Blind:
-                    Owner.StatusEffects.Add(new StatusEffect(StatusType.Blinded, Potency, Duration, Description));
+                    Owner.AddStatusEffect(new StatusEffect(StatusType.Blinded, Potency, Duration, Description, ID));
                     break;
                 case EffectType.Burn:
-                    Owner.StatusEffects.Add(new StatusEffect(StatusType.Burning, Potency, Duration, Description));
+                    Owner.AddStatusEffect(new StatusEffect(StatusType.Burning, Potency, Duration, Description, ID));
                     break;
                 case EffectType.Confuse:
-                    Owner.StatusEffects.Add(new StatusEffect(StatusType.Confused, Potency, Duration, Description));
+                    Owner.AddStatusEffect(new StatusEffect(StatusType.Confused, Potency, Duration, Description, ID));
                     break;
                 case EffectType.Curse:
-                    Owner.StatusEffects.Add(new StatusEffect(StatusType.Cursed, Potency, Duration, Description));
+                    Owner.AddStatusEffect(new StatusEffect(StatusType.Cursed, Potency, Duration, Description, ID));
                     break;
                 case EffectType.FastHands:
-                    Owner.StatusEffects.Add(new StatusEffect(StatusType.FastHands, Potency, Duration, Description));
+                    Owner.AddStatusEffect(new StatusEffect(StatusType.FastHands, Potency, Duration, Description, ID));
                     break;
                 case EffectType.Freeze:
-                    Owner.StatusEffects.Add(new StatusEffect(StatusType.Frozen, Potency, Duration, Description));
+                    Owner.AddStatusEffect(new StatusEffect(StatusType.Frozen, Potency, Duration, Description, ID));
                     break;
                 case EffectType.Ghost:
-                    Owner.StatusEffects.Add(new StatusEffect(StatusType.Ghost, Potency, Duration, Description));
+                    Owner.AddStatusEffect(new StatusEffect(StatusType.Ghost, Potency, Duration, Description, ID));
                     break;
                 case EffectType.Harden:
-                    Owner.StatusEffects.Add(new StatusEffect(StatusType.Hardened, Potency, Duration, Description));
+                    Owner.AddStatusEffect(new StatusEffect(StatusType.Hardened, Potency, Duration, Description, ID));
                     break;
                 case EffectType.Injure:
-                    Owner.StatusEffects.Add(new StatusEffect(StatusType.Injured, Potency, Duration, Description));
+                    Owner.AddStatusEffect(new StatusEffect(StatusType.Injured, Potency, Duration, Description, ID));
                     break;
                 case EffectType.Invincible:
-                    Owner.StatusEffects.Add(new StatusEffect(StatusType.Invincible, Potency, Duration, Description));
+                    Owner.AddStatusEffect(new StatusEffect(StatusType.Invincible, Potency, Duration, Description, ID));
                     break;
                 case EffectType.Invisbile:
-                    Owner.StatusEffects.Add(new StatusEffect(StatusType.Invisible, Potency, Duration, Description));
+                    Owner.AddStatusEffect(new StatusEffect(StatusType.Invisible, Potency, Duration, Description, ID));
                     break;
                 case EffectType.Perceptive:
-                    Owner.StatusEffects.Add(new StatusEffect(StatusType.Perceptive, Potency, Duration, Description));
+                    Owner.AddStatusEffect(new StatusEffect(StatusType.Perceptive, Potency, Duration, Description, ID));
                     break;
                 case EffectType.Poison:
-                    Owner.StatusEffects.Add(new StatusEffect(StatusType.Poison, Potency, Duration, Description));
+                    Owner.AddStatusEffect(new StatusEffect(StatusType.Poison, Potency, Duration, Description, ID));
                     break;
                 case EffectType.Protect:
-                    Owner.StatusEffects.Add(new StatusEffect(StatusType.Benediction, Potency, Duration, Description));
+                    Owner.AddStatusEffect(new StatusEffect(StatusType.Benediction, Potency, Duration, Description, ID));
                     break;
                 case EffectType.Slow:
-                    Owner.StatusEffects.Add(new StatusEffect(StatusType.Slowed, Potency, Duration, Description));
+                    Owner.AddStatusEffect(new StatusEffect(StatusType.Slowed, Potency, Duration, Description, ID));
                     break;
                 case EffectType.SpeedBoost:
-                    Owner.StatusEffects.Add(new StatusEffect(StatusType.QuickFooted, Potency, Duration, Description));
+                    Owner.AddStatusEffect(new StatusEffect(StatusType.QuickFooted, Potency, Duration, Description, ID));
                     break;
                 case EffectType.Stun:
-                    Owner.StatusEffects.Add(new StatusEffect(StatusType.Stunned, Potency, Duration, Description));
+                    Owner.AddStatusEffect(new StatusEffect(StatusType.Stunned, Potency, Duration, Description, ID));
                     break;
                 case EffectType.Healing:
-                    Owner.StatusEffects.Add(new StatusEffect(StatusType.Healing, Potency, Duration, Description));
+                    Owner.AddStatusEffect(new StatusEffect(StatusType.Healing, Potency, Duration, Description, ID));
+                    break;
+                case EffectType.Exhaust:
+                    Owner.AddStatusEffect(new StatusEffect(StatusType.Exhausted, Potency, Duration, Description, ID));
                     break;
                 default:
-                    Owner.StatusEffects.Add(new StatusEffect(StatusType.Healing, Potency, Duration, Description));
+                    Owner.AddStatusEffect(new StatusEffect(StatusType.Healing, Potency, Duration, Description, ID));
                     break;
             }
         }
@@ -161,5 +167,6 @@ namespace TheOtherDarkWorld.GameObjects
         Harden,
         Protect,
         FastHands,
+        Exhaust,
     }
 }

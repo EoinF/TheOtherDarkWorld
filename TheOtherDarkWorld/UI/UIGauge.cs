@@ -35,7 +35,7 @@ namespace TheOtherDarkWorld
         {
             this.GetValueFunction = GetValueFunction;
             this.GetLimitFunction = GetLimitFunction;
-            GaugeSegment = new UIGaugeSegment(SegmentTexture, MarginLeft: 1, MarginTop: 1);
+            GaugeSegment = new UIGaugeSegment(ColourMin, ColourMax, SegmentTexture, MarginLeft: 1, MarginTop: 1);
             AddElement(GaugeSegment);
         }
 
@@ -51,7 +51,7 @@ namespace TheOtherDarkWorld
         {
             this.GetValueFunction = GetValueFunction;
             this.GetLimitFunction = GetLimitFunction;
-            GaugeSegment = new UIGaugeSegment(SegmentTexture, MarginLeft: 1, MarginTop: 1);
+            GaugeSegment = new UIGaugeSegment(Color.Black, Color.White, SegmentTexture, MarginLeft: 1, MarginTop: 1);
             AddElement(GaugeSegment);
         }
 
@@ -75,9 +75,21 @@ namespace TheOtherDarkWorld
             {
             }
 
+            public UIGaugeSegment(Color ColourMin, Color ColourMax, Texture2D Texture = null, Vector2 Position = new Vector2(), Rectangle? SrcRect = null,
+            int Width = UI_AUTO, int Height = UI_AUTO,
+            bool IsActive = true, bool IsDraggable = false, CursorType CursorType = UI.CURSOR_DEFAULT,
+            float MarginLeft = UI_AUTO, float MarginRight = UI_AUTO, float MarginTop = UI_AUTO, float MarginBottom = UI_AUTO,
+            float opacity = UI_INHERIT, float layerDepth = UI_INHERIT,
+            bool CentreHorizontal = false, bool CentreVertical = false,
+            DragAndDropType DragAndDropType = DragAndDropType.None,
+            object[] DataBinding = null)
+                : base(ColourMin, ColourMax, Texture, Position, SrcRect, Width, Height, IsActive, IsDraggable, CursorType, MarginLeft, MarginRight, MarginTop, MarginBottom, opacity, layerDepth)
+            {
+            }
+
             public override Color Colour
             {
-                get { return Color.Lerp(Color.Red, Color.Green, (Parent as UIGauge).Current / (Parent as UIGauge).Limit); }
+                get { return Color.Lerp(_colour, _highlightColour, (Parent as UIGauge).Current / (Parent as UIGauge).Limit); }
             }
         }
     }

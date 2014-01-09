@@ -11,8 +11,9 @@ namespace TheOtherDarkWorld.GameObjects
         public const int APP_MAINMENU = 119; //No item contains the main menu app. This exists on the phone by default
         public const int APP_TYPE_START = 120; //The lowest item type that contains an app
         public const int APP_FLASHLIGHT = 120;
+        public const int APP_MEDIC = 121;
 
-        public const int APP_TYPE_END = 120; //The highest item type that contains an app
+        public const int APP_TYPE_END = 121; //The highest item type that contains an app
 
         public UIContainer HUD;
         protected UIContainer PageContent;
@@ -26,7 +27,6 @@ namespace TheOtherDarkWorld.GameObjects
             this.phone = phone;
             this.ActiveEffects = new ItemEffect[0];
             this.PassiveEffects = new ItemEffect[0];
-
 
             //This container allows the TextSprite to be centred
             UIContainer PageTitleContainer = new UIContainer(Color.White, Color.White, Width: SmartPhone.SCREEN_RECT.Width, CursorType: CursorType.Cursor, MarginTop: 10, MarginBottom: 10, CentreHorizontal: true);

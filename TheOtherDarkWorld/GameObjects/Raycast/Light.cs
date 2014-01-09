@@ -12,10 +12,21 @@ namespace TheOtherDarkWorld.GameObjects
         public float Brightness { get; set; }
         public Color Colour { get; set; }
 
-        private bool[,] _lightmap;
+        private Corners[,] _lightmap; //The lightmap is a list of the corners of each tile hit by the light
+
+        [Flags()]
+        public enum Corners : byte
+        {
+            Unlit = 0,
+            TopLeft = 1,
+            BottomLeft = 2,
+            TopRight = 4,
+            BottomRight = 8,
+            FullyLit = (TopLeft | TopRight | BottomLeft | BottomRight)
+        }
 
         private const float LIGHT_SCALE_DOWN = 250;
-        private static Color DEFAULT_LIGHT = Color.Transparent;
+        public static Color DEFAULT_LIGHT = Color.Transparent;
 
         #region Internal Reset Logic
 
@@ -32,8 +43,7 @@ namespace TheOtherDarkWorld.GameObjects
             while (blocksLit.Count > 0)
             {
                 Tile tile = blocksLit.Pop();
-                tile.Brightness = 0;
-                tile.LightColour = DEFAULT_LIGHT;
+                tile.ResetLighting();
             }
         }
         #endregion
@@ -52,7 +62,7 @@ namespace TheOtherDarkWorld.GameObjects
             this.Brightness = Brightness;
             this.Colour = Colour;
 
-            _lightmap = new bool[(int)Math.Ceiling((Radius * 2) / Tile.WIDTH) + 1, (int)Math.Ceiling((Radius * 2) / Tile.HEIGHT) + 1];
+            _lightmap = new Corners[(int)Math.Ceiling((Radius * 2) / Tile.WIDTH) + 1, (int)Math.Ceiling((Radius * 2) / Tile.HEIGHT) + 1];
         }
 
         protected override void OnCasted()
@@ -64,40 +74,77 @@ namespace TheOtherDarkWorld.GameObjects
             {
                 for (int y = startY < 0 ? -startY : 0; y < _lightmap.GetLength(1) && startY + y < _tiles.GetLength(1); y++)
                 {
-                    if (_lightmap[x, y])
+                    if (_lightmap[x, y] != Corners.Unlit)
                     {
                         int combX = x + startX;
                         int combY = y + startY;
 
-                        float tileBrightness = getLightOnTile(combX, combY);
-                        if (tileBrightness > 0)
-                        {
-                            _tiles[combX, combY].LightColour = Color.Lerp(_tiles[combX, combY].LightColour, Colour, 0.5f);
-                            //Lerp is used to limit the amount of colour that this light introduces based on the brightness of this light
 
-                            if (_tiles[combX, combY].Brightness > 0)
+                        float blockBrightness = getLightOnTile(combX, combY);
+
+                        if (blockBrightness > 0)
+                        {
+                            blocksLit.Push(_tiles[combX, combY]);
+
+                            if (_tiles[combX, combY].Block != null)
                             {
-                                _tiles[combX, combY].Brightness =
-                                    Math.Max(tileBrightness, _tiles[combX, combY].Brightness) +
-                                    Math.Min(tileBrightness, _tiles[combX, combY].Brightness) / 3;
+                                //Setup a 2x2 array to store which parts of the block are lit up
+                                float[,] brightnessmap = new float[2, 2];
+                                if ((_lightmap[x, y] & Corners.TopLeft) > 0)
+                                {
+                                    brightnessmap[0, 0] = blockBrightness;
+                                }
+                                if ((_lightmap[x, y] & Corners.BottomLeft) > 0)
+                                {
+                                    brightnessmap[0, 1] = blockBrightness;
+                                }
+                                if ((_lightmap[x, y] & Corners.TopRight) > 0)
+                                {
+                                    brightnessmap[1, 0] = blockBrightness;
+                                }
+                                if ((_lightmap[x, y] & Corners.BottomRight) > 0)
+                                {
+                                    brightnessmap[1, 1] = blockBrightness;
+                                }
+
+                                //
+                                //Next, superimpose this 2x2 array onto the blocks 2x2 brightness array
+                                //
+                                for (int i = 0; i < 2; i++)
+                                    for (int j = 0; j < 2; j++)
+                                    {
+                                        ApplyLightToSegment(_tiles[combX, combY].Block, i, j, brightnessmap[i, j], Colour);
+                                    }
                             }
                             else
-                                _tiles[combX, combY].Brightness = tileBrightness;
-
-                            blocksLit.Push(_tiles[combX, combY]);
+                            {
+                                _tiles[combX, combY].LightColour = Color.Lerp(_tiles[combX, combY].LightColour, Colour, Brightness);
+                                _tiles[combX, combY].Brightness = blockBrightness;
+                            }
                         }
                     }
                 }
             }
 
-
-
             //
             //Reset the lightmap back to it's original state
             //
-            _lightmap = new bool[_lightmap.GetLength(0), _lightmap.GetLength(1)];
+            _lightmap = new Corners[_lightmap.GetLength(0), _lightmap.GetLength(1)];
         }
 
+        private void ApplyLightToSegment(Block block, int i, int j, float blockBrightness, Color lightColour)
+        {
+            //Lerp is used to limit the amount of colour that this light introduces based on the brightness of this light
+            block.SetLightColour(i, j , Color.Lerp(lightColour, Colour, blockBrightness));
+            if (block.GetBrightness(i, j) > 0)
+            {
+                block.SetBrightness(i, j,
+                    Math.Max(blockBrightness, block.GetBrightness(i, j)) +
+                    Math.Min(blockBrightness, block.GetBrightness(i, j)) / 3);
+            }
+            else
+                block.SetBrightness(i, j, blockBrightness);
+        }
 
         /// <summary>
         ///  Action to be performed upon each tile while the light is raycasted
@@ -110,7 +157,33 @@ namespace TheOtherDarkWorld.GameObjects
             if (tileX - startX >= 0 && tileX - startX < _lightmap.GetLength(0)
                         && tileY - startY >= 0 && tileY - startY < _lightmap.GetLength(1))
             {
-                _lightmap[tileX - startX, tileY - startY] = true;
+                if (_tiles[tileX, tileY].Block != null) // We hit a wall
+                {
+                    bool HitsTop, HitsBottom, HitsLeft, HitsRight;
+                    HitsTop = !(HitsBottom = currentRayDirection.Y < 0);
+                    HitsLeft = !(HitsRight = currentRayDirection.X < 0);
+
+                    HitsLeft &= (tileX <= 0) || _tiles[tileX - 1, tileY].Block == null; //Make sure there is no block to the left blocking the light
+                    HitsRight &= (tileX + 1 >= _tiles.GetLength(0)) || _tiles[tileX + 1, tileY].Block == null; //''
+                    HitsTop &= (tileY <= 0) || _tiles[tileX, tileY - 1].Block == null; //''
+                    HitsBottom &= (tileY + 1 >= _tiles.GetLength(1)) || _tiles[tileX, tileY + 1].Block == null; //''
+
+                    //
+                    //Check if any of the sides are being blocked by neighbouring tiles
+                    //
+                    if (HitsLeft || HitsTop)
+                        _lightmap[tileX - startX, tileY - startY] |= Corners.TopLeft;
+                    if (HitsLeft || HitsBottom)
+                        _lightmap[tileX - startX, tileY - startY] |= Corners.BottomLeft;
+                    if (HitsRight || HitsTop)
+                        _lightmap[tileX - startX, tileY - startY] |= Corners.TopRight;
+                    if (HitsRight || HitsBottom)
+                        _lightmap[tileX - startX, tileY - startY] |= Corners.BottomRight;
+                }
+                else
+                {
+                    _lightmap[tileX - startX, tileY - startY] = Corners.FullyLit; //Every bit of the tile is hit with light
+                }
             }
 
             //If we hit a wall, stop casting the light
@@ -122,12 +195,10 @@ namespace TheOtherDarkWorld.GameObjects
             //Get the offset from the tile to the centre of the light
             Vector2 voffset = new Vector2((x * Tile.WIDTH) - Position.X, Position.Y - (y * Tile.HEIGHT));
 
-            if (voffset.Length() > Radius)
-                return 0;//The tile is outside the radius of the light so it has 0 brightness
-            else
+            if (voffset.Length() <= Radius)
             {
-                if (Radius > LIGHT_SCALE_DOWN) 
-                //If the radius is larger, and we scale down by only LIGHT_SCALE_DOWN then the function 
+                if (Radius > LIGHT_SCALE_DOWN)
+                //If the radius is larger, and we scale down by only LIGHT_SCALE_DOWN then the function
                 //will start increasing when we get past the value of LIGHT_SCALE_DOWN
                 {
                     return Math.Abs(Brightness * (1 - voffset.Length() / Radius));
@@ -137,6 +208,7 @@ namespace TheOtherDarkWorld.GameObjects
                     return Math.Abs(Brightness * (1 - voffset.Length() / LIGHT_SCALE_DOWN));
                 }
             }
+            else return 0;
         }
 
     }

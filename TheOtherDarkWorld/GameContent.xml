@@ -12,7 +12,7 @@
       <IsConsumable>true</IsConsumable>
       <MaxAmount>30</MaxAmount>
       <Power>50</Power>
-      <DestroyedWhenEmpty>false</DestroyedWhenEmpty>
+      <TypeWhenEmpty>0</TypeWhenEmpty>
       <Penetration>35</Penetration>
       <BulletColour>
         <A>255</A>
@@ -24,7 +24,7 @@
       <IsAutomatic>true</IsAutomatic>
       <ReloadTime>220</ReloadTime>
       <MuzzleFlashMagnitude>0.5</MuzzleFlashMagnitude>
-      <Description>An old, yet reliable machine-gun</Description>
+      <Description>An old, yet reliable assault rifle</Description>
     </Gun>
     <Gun>
       <Type>1</Type>
@@ -34,8 +34,8 @@
       <IsConsumable>true</IsConsumable>
       <MaxAmount>10</MaxAmount> <!-- Note: Possible capacities for the glock are 10, 17, 19(optional floor plate) and 33 -->
       <Power>30</Power>
-      <DestroyedWhenEmpty>false</DestroyedWhenEmpty>
-      <Penetration>50</Penetration>
+      <TypeWhenEmpty>0</TypeWhenEmpty>
+      <Penetration>40</Penetration>
       <BulletColour>
         <A>255</A>
         <R>180</R>
@@ -54,7 +54,7 @@
       <IsConsumable>true</IsConsumable>
       <MaxAmount>2</MaxAmount>
       <Power>20</Power>
-      <DestroyedWhenEmpty>false</DestroyedWhenEmpty>
+      <TypeWhenEmpty>0</TypeWhenEmpty>
       <Penetration>11</Penetration>
       <BulletColour>
         <A>255</A>
@@ -76,8 +76,8 @@
       <IsConsumable>true</IsConsumable>
       <MaxAmount>30</MaxAmount>
       <Power>30</Power>
-      <DestroyedWhenEmpty>false</DestroyedWhenEmpty>
-      <Penetration>10</Penetration>
+      <TypeWhenEmpty>0</TypeWhenEmpty>
+      <Penetration>15</Penetration>
       <BulletColour>
         <A>255</A>
         <R>0</R>
@@ -98,8 +98,8 @@
       <IsConsumable>true</IsConsumable>
       <MaxAmount>6</MaxAmount>
       <Power>30</Power>
-      <DestroyedWhenEmpty>false</DestroyedWhenEmpty>
-      <Penetration>50</Penetration>
+      <TypeWhenEmpty>0</TypeWhenEmpty>
+      <Penetration>80</Penetration>
       <BulletColour>
         <A>255</A>
         <R>180</R>
@@ -109,25 +109,34 @@
       <BulletSpeed>14</BulletSpeed>
       <ReloadTime>300</ReloadTime>
       <MuzzleFlashMagnitude>0.7</MuzzleFlashMagnitude>
-      <Description>A .44 caliber revolver</Description>
+      <Description>A .44 caliber revolver. Should tear through just about anything</Description>
     </Gun>
     <Melee>
       <Type>10</Type>
       <Name>Knife"</Name>
       <BaseCooldown>5</BaseCooldown>
-      <SwingLength>5</SwingLength>
+      <ConsumeRate>15</ConsumeRate>
+      <SwingLength>7</SwingLength>
       <IsConsumable>true</IsConsumable>
       <MaxAmount>50</MaxAmount>
       <Power>50</Power>
       <Knockback>10</Knockback>
       <Reach>7</Reach>
+      <ActiveEffects>
+        <ItemEffect>
+          <Type>Bleed</Type>
+          <Potency>0.2</Potency>
+          <Duration>300</Duration>
+        </ItemEffect>
+      </ActiveEffects>
       <Description>A sharp blade. This could save me in close combat situations.</Description>
     </Melee>
     <Melee>
       <Type>11</Type>
       <Name>Steel-Pipe</Name>
-      <BaseCooldown>20</BaseCooldown>
-      <SwingLength>20</SwingLength>
+      <BaseCooldown>25</BaseCooldown>
+      <ConsumeRate>40</ConsumeRate>
+      <SwingLength>30</SwingLength>
       <IsConsumable>true</IsConsumable>
       <MaxAmount>50</MaxAmount>
       <Power>20</Power>
@@ -137,21 +146,28 @@
       </Melee>
     <Melee>
       <Type>12</Type>
-      <Name>Diamond Crucifix</Name>
-      <BaseCooldown>3</BaseCooldown>
-      <SwingLength>30</SwingLength>
+      <Name>Crucifix</Name>
+      <BaseCooldown>10</BaseCooldown>
+      <ConsumeRate>10</ConsumeRate>
+      <SwingLength>10</SwingLength>
       <IsConsumable>true</IsConsumable>
-      <MaxAmount>999</MaxAmount>
-      <Power>20</Power>
-      <Knockback>75</Knockback>
-      <Reach>50</Reach>
-      <IsAutomatic>true</IsAutomatic>
-      <Description>A curious looking crucifix made from pure diamond! It looks unbreakable...</Description>
+      <MaxAmount>10</MaxAmount>
+      <Power>3</Power>
+      <Knockback>10</Knockback>
+      <Reach>7</Reach>
+      <ActiveEffects>
+        <ItemEffect>
+          <Type>Curse</Type>
+          <Negate>true</Negate>
+        </ItemEffect>
+      </ActiveEffects>
+      <Description>A cross made of wood. Not much of a weapon...</Description>
     </Melee>
     <Melee>
       <Type>13</Type>
       <Name>Crowbar</Name>
       <BaseCooldown>15</BaseCooldown>
+      <ConsumeRate>35</ConsumeRate>
       <SwingLength>15</SwingLength>
       <IsConsumable>true</IsConsumable>
       <MaxAmount>100</MaxAmount>
@@ -160,12 +176,32 @@
       <Reach>14</Reach>
       <Description>A crowbar. This could be handy</Description>
     </Melee>
+    <Melee>
+      <Type>14</Type>
+      <Name>Katana</Name>
+      <BaseCooldown>10</BaseCooldown>
+      <ConsumeRate>40</ConsumeRate>
+      <SwingLength>12</SwingLength>
+      <IsConsumable>true</IsConsumable>
+      <MaxAmount>100</MaxAmount>
+      <Power>50</Power>
+      <Knockback>40</Knockback>
+      <Reach>23</Reach>
+      <ActiveEffects>
+        <ItemEffect>
+          <Type>Bleed</Type>
+          <Potency>0.3</Potency>
+          <Duration>1200</Duration>
+        </ItemEffect>
+      </ActiveEffects>
+      <Description>A japanese sword. This can probably cut through steel!</Description>
+    </Melee>
   </Weapons>
   <Items>
     <Item>
       <Type>50</Type>
       <Name>Battery</Name>
-      <DestroyedWhenEmpty>false</DestroyedWhenEmpty>
+      <TypeWhenEmpty>50</TypeWhenEmpty>
       <IsConsumable>false</IsConsumable>
       <MaxAmount>999</MaxAmount>
     </Item>
@@ -338,11 +374,14 @@
     <Item>
       <Type>151</Type>
       <Name>Bottle (Water)</Name>
+      <BaseCooldown>60</BaseCooldown>
+      <TypeWhenEmpty>150</TypeWhenEmpty>
       <IsConsumable>true</IsConsumable>
+      <MaxAmount>3</MaxAmount>
       <ActiveEffects>
         <ItemEffect>
           <Type>Healing</Type>
-          <Potency>1</Potency>
+          <Potency>0.5</Potency>
           <Duration>10</Duration>
         </ItemEffect>
       </ActiveEffects>
@@ -351,7 +390,10 @@
     <Item>
       <Type>152</Type>
       <Name>Bottle (Vodka)</Name>
+      <BaseCooldown>60</BaseCooldown>
+      <TypeWhenEmpty>150</TypeWhenEmpty>
       <IsConsumable>true</IsConsumable>
+      <MaxAmount>3</MaxAmount>
       <ActiveEffects>
         <ItemEffect>
           <Type>Confuse</Type>
@@ -369,16 +411,19 @@
     <Item>
       <Type>153</Type>
       <Name>Bottle (Bleach)</Name>
+      <BaseCooldown>60</BaseCooldown>
+      <TypeWhenEmpty>150</TypeWhenEmpty>
       <IsConsumable>true</IsConsumable>
+      <MaxAmount>3</MaxAmount>
       <ActiveEffects>
         <ItemEffect>
           <Type>Blind</Type>
-          <Duration>240</Duration>
+          <Duration>500</Duration>
         </ItemEffect>
         <ItemEffect>
           <Type>Poison</Type>
-          <Potency>0.3</Potency>
-          <Duration>240</Duration>
+          <Potency>0.05</Potency>
+          <Duration>500</Duration>
         </ItemEffect>
       </ActiveEffects>
       <Description>A bottle filled with bleach. This might be dangerous to drink...</Description>
@@ -386,7 +431,10 @@
     <Item>
       <Type>154</Type>
       <Name>Bottle (Cola)</Name>
+      <BaseCooldown>60</BaseCooldown>
+      <TypeWhenEmpty>150</TypeWhenEmpty>
       <IsConsumable>true</IsConsumable>
+      <MaxAmount>3</MaxAmount>
       <ActiveEffects>
         <ItemEffect>
           <Type>Healing</Type>
@@ -396,7 +444,12 @@
         <ItemEffect>
           <Type>SpeedBoost</Type>
           <Potency>1</Potency>
-          <Duration>600</Duration>
+          <Duration>500</Duration>
+        </ItemEffect>
+        <ItemEffect>
+          <Type>Exhaust</Type>
+          <Potency>1</Potency>
+          <Duration>500</Duration>
         </ItemEffect>
       </ActiveEffects>
       <Description>A bottle filled with cola. Pretty sugary!</Description>
@@ -404,6 +457,8 @@
     <Item>
       <Type>155</Type>
       <Name>Bottle (Coffee)</Name>
+      <BaseCooldown>60</BaseCooldown>
+      <TypeWhenEmpty>150</TypeWhenEmpty>
       <IsConsumable>true</IsConsumable>
       <ActiveEffects>
         <ItemEffect>
@@ -414,14 +469,21 @@
         <ItemEffect>
           <Type>SpeedBoost</Type>
           <Potency>1</Potency>
-          <Duration>300</Duration>
+          <Duration>1000</Duration>
+        </ItemEffect>
+        <ItemEffect>
+          <Type>Exhaust</Type>
+          <Potency>0.5</Potency>
+          <Duration>1000</Duration>
         </ItemEffect>
       </ActiveEffects>
-      <Description>A bottle filled with coffee. Eugh...</Description>
+      <Description>A bottle filled with coffee. Eugh... it's cold.</Description>
     </Item>
     <Item>
       <Type>156</Type>
       <Name>Bottle (Juice)</Name>
+      <BaseCooldown>60</BaseCooldown>
+      <TypeWhenEmpty>150</TypeWhenEmpty>
       <IsConsumable>true</IsConsumable>
       <ActiveEffects>
         <ItemEffect>
@@ -440,6 +502,8 @@
     <Item>
       <Type>157</Type>
       <Name>Bottle (Healing Potion)</Name>
+      <BaseCooldown>60</BaseCooldown>
+      <TypeWhenEmpty>150</TypeWhenEmpty>
       <IsConsumable>true</IsConsumable>
       <ActiveEffects>
         <ItemEffect>
@@ -452,6 +516,8 @@
     <Item>
       <Type>158</Type>
       <Name>Bottle (Healing Potion+)</Name>
+      <BaseCooldown>60</BaseCooldown>
+      <TypeWhenEmpty>150</TypeWhenEmpty>
       <IsConsumable>true</IsConsumable>
       <ActiveEffects>
         <ItemEffect>
@@ -464,6 +530,8 @@
     <Item>
       <Type>159</Type>
       <Name>Bottle (Vitality Potion)</Name>
+      <BaseCooldown>60</BaseCooldown>
+      <TypeWhenEmpty>150</TypeWhenEmpty>
       <IsConsumable>true</IsConsumable>
       <ActiveEffects>
         <ItemEffect>
@@ -475,7 +543,37 @@
           <Potency>10</Potency>
         </ItemEffect>
       </ActiveEffects>
-      <Description>A bottle filled with a mysterious tonic inside. A mysterious miasma emanates from the bottle</Description>
+      <Description>A bottle filled with a mysterious tonic. A revitalising miasma emanates from the bottle!</Description>
+    </Item>
+    <Item>
+      <Type>160</Type>
+      <Name>Bottle (Antidote)</Name>
+      <BaseCooldown>60</BaseCooldown>
+      <TypeWhenEmpty>150</TypeWhenEmpty>
+      <IsConsumable>true</IsConsumable>
+      <MaxAmount>3</MaxAmount>
+      <ActiveEffects>
+        <ItemEffect>
+          <Type>Poison</Type>
+          <Negate>true</Negate>
+        </ItemEffect>
+      </ActiveEffects>
+      <Description>A bottle with an antidote inside. It tastes terrible!</Description>
+    </Item>
+    <Item>
+      <Type>161</Type>
+      <Name>Bottle (Holy water)</Name>
+      <BaseCooldown>60</BaseCooldown>
+      <TypeWhenEmpty>150</TypeWhenEmpty>
+      <IsConsumable>true</IsConsumable>
+      <MaxAmount>3</MaxAmount>
+      <ActiveEffects>
+        <ItemEffect>
+          <Type>Curse</Type>
+          <Negate>true</Negate>
+        </ItemEffect>
+      </ActiveEffects>
+      <Description>A bottle filled with holy water. I can bless myself with this</Description>
     </Item>
   </Items>
   

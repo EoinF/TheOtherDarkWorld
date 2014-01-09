@@ -26,6 +26,9 @@ namespace TheOtherDarkWorld.GameObjects
             {
                 Tile tile = blocksVisible.Pop();
                 tile.IsVisible = false;
+
+                if (tile.Block != null)
+                    tile.Block.IsVisible = false;
             }
         }
         #endregion
@@ -52,7 +55,32 @@ namespace TheOtherDarkWorld.GameObjects
 
                 if (voffset.Length() <= Radius) //Check if this tile is within the range of vision
                 {
+                    if (_tiles[tileX, tileY].Block != null) // We hit a wall
+                    {
+                        bool HitsTop, HitsBottom, HitsLeft, HitsRight;
+                        HitsTop = !(HitsBottom = currentRayDirection.Y < 0);
+                        HitsLeft = !(HitsRight = currentRayDirection.X < 0);
+
+                        HitsLeft &= (tileX <= 0) || _tiles[tileX - 1, tileY].Block == null; //Make sure there is no block to the left blocking the light
+                        HitsRight &= (tileX + 1 >= _tiles.GetLength(0)) || _tiles[tileX + 1, tileY].Block == null; //''
+                        HitsTop &= (tileY <= 0) || _tiles[tileX, tileY - 1].Block == null; //''
+                        HitsBottom &= (tileY + 1 >= _tiles.GetLength(1)) || _tiles[tileX, tileY + 1].Block == null; //''
+
+                        //
+                        //Check if any of the sides are being blocked by neighbouring tiles
+                        //
+                        if (HitsLeft || HitsTop)
+                            _tiles[tileX, tileY].Block.SetVisible(0, 0, true);
+                        if (HitsLeft || HitsBottom)
+                            _tiles[tileX, tileY].Block.SetVisible(0, 1, true);
+                        if (HitsRight || HitsTop)
+                            _tiles[tileX, tileY].Block.SetVisible(1, 0, true);
+                        if (HitsRight || HitsBottom)
+                            _tiles[tileX, tileY].Block.SetVisible(1, 1, true);
+                    }
+
                     _tiles[tileX, tileY].IsVisible = true;
+
                     blocksVisible.Push(_tiles[tileX, tileY]);
                 }
             }

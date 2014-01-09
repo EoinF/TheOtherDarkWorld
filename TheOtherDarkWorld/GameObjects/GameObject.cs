@@ -9,8 +9,6 @@ namespace TheOtherDarkWorld.GameObjects
 {
     public class GameObject
     {
-        public static bool FULL_BRIGHT = false;
-        public static bool FULL_VISION = false;
         private const float MAX_BRIGHTNESS = 1;
         private const float MIN_BRIGHTNESS = 0.05f;
 
@@ -21,64 +19,75 @@ namespace TheOtherDarkWorld.GameObjects
         public Vector2 Origin { get; private set; }
         public int Resistance { get; set; }
         public virtual Rectanglef Rect { get; private set; }
+        public Texture2D Texture { get; set; }
 
         /// <summary>
         /// This object is visible to the player
         /// </summary>
         public bool IsVisible 
         {
-            get { return FULL_VISION || _isVisible; }
+            get { return StateManager.FULL_VISION || _isVisible; }
             set { _isVisible = value; } 
         }
         private bool _isVisible;
-
         private float _brightness;
         public float Brightness
         {
             get
             {
-                if (_brightness > MAX_BRIGHTNESS || FULL_BRIGHT) //Brightness is capped
+                if (StateManager.FULL_BRIGHT)
                     return MAX_BRIGHTNESS;
-                else if (_brightness < MIN_BRIGHTNESS)
-                    return MIN_BRIGHTNESS;
                 else
                     return _brightness;
             }
             set
             {
-                _brightness = value;
+                if (value > MAX_BRIGHTNESS)
+                    _brightness = MAX_BRIGHTNESS;
+                else if (value < MIN_BRIGHTNESS)
+                    _brightness = MIN_BRIGHTNESS;
+                else
+                    _brightness = value;
             }
         }
 
-        public Color LightColour { get; set; }
-
-        protected Color getLightColour()
+        private Vector4 _lightColourVector;
+        protected Vector4 LightColour_Vector
         {
-            if (FULL_BRIGHT)
-            {
-                return Colour;
-            }
-            else
-            {
-                //Preserve the alpha component so that the object will actually be drawn
-                byte alpha = Colour.A;
-                Color c = Color.Lerp(Colour, LightColour, 0.5f) * Brightness;
-                c.A = alpha;
-                return c;
-            }
+            get { return StateManager.FULL_BRIGHT ? new Vector4(1,1,1,1) : _lightColourVector; }
+            set { _lightColourVector = value; }
+        }
+        private Color _lightColour;
+        public Color LightColour
+        { 
+            get { return StateManager.FULL_BRIGHT ? Color.White : _lightColour; }
+            set 
+            { 
+                _lightColour = value;
+                LightColour_Vector = value.ToVector4();
+            } 
+        }
 
+        public virtual void ResetLighting()
+        {
+            this.Brightness = 0;
+            this.LightColour = Light.DEFAULT_LIGHT;
         }
         
-        public GameObject(Vector2 startPosition, float speed, Color colour, Vector2 startVelocity, Vector2 Origin, int Resistance, int width, int height)
+        public GameObject(Texture2D Texture, Vector2 startPosition, float speed, Color colour, Vector2 startVelocity, Vector2 Origin, int Resistance, int width, int height)
         {
-            Position = startPosition - Origin;
+            this.Texture = Texture;
+            if (this.Texture == null) //Make sure the texture is never null
+                this.Texture = Textures.Block;
+            this.Brightness = 0;
+            this.Position = startPosition - Origin;
             this.Origin = Origin;
-            Speed = speed;
-            Colour = colour;
-            LightColour = Color.Transparent;
-            Velocity = startVelocity;
+            this.Speed = speed;
+            this.Colour = colour;
+            this.Velocity = startVelocity;
             this.Resistance = Resistance;
             this.Rect = new Rectanglef(Position.X, Position.Y, width, height);
+            this.LightColour = Colour; //The lightcolour is it's own colour by default
         }
 
 
@@ -199,8 +208,16 @@ namespace TheOtherDarkWorld.GameObjects
 
         public virtual void Draw(SpriteBatch spriteBatch)
         {
+            ApplyLighting();
             if (IsVisible)
-                spriteBatch.Draw(Textures.Block, Position + Origin - StateManager.Offset, null, getLightColour(), 0, Vector2.Zero, 1, SpriteEffects.None, UI.GAMEOBJECT_DEPTH_DEFAULT);
+                spriteBatch.Draw(Texture, Position + Origin - StateManager.Offset, null, Colour, 0, Vector2.Zero, 1, SpriteEffects.None, UI.GAMEOBJECT_DEPTH_DEFAULT);
+        }
+
+        protected void ApplyLighting()
+        {
+            Textures.LightingShader.Parameters["lightcolor00"].SetValue(LightColour.ToVector4());
+            Textures.LightingShader.Parameters["br00"].SetValue(Brightness);
+            Textures.LightingShader.CurrentTechnique.Passes[1].Apply();
         }
     }
 }

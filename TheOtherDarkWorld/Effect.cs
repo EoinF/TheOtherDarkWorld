@@ -5,7 +5,7 @@ using System.Text;
 
 namespace TheOtherDarkWorld
 {
-    public enum Effect
+    public enum PEffect
     {
         Destroy_Block,
         Destroy_Item,

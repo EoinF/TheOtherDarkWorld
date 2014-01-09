@@ -190,53 +190,48 @@ namespace TheOtherDarkWorld
             {
                 FloorItems[i].Update(Tiles);
             }
+        }
 
-            if ((InputManager.keyboardState[0].IsKeyDown(Microsoft.Xna.Framework.Input.Keys.N) && InputManager.keyboardState[1].IsKeyUp(Microsoft.Xna.Framework.Input.Keys.N)))
+        public void SpawnEnemies()
+        {
+            Random rand = new Random();
+
+            if (wave % 5 == 0)
             {
-                Random rand = new Random();
-                wave++;
-
-                if (wave % 5 == 0)
+                for (int i = 0; i < 2 + (wave); i++)
                 {
-                    for (int i = 0; i < 2 + (wave); i++)
-                    {
-                        Entities.Add(new Enemy(new Vector2((float)((Width * 5) * rand.NextDouble()), (float)((Height * 5) + Height * 5 * rand.NextDouble())), 1.6f, Vector2.Zero, 0, 0,  1000, 20, 40, 60 + (wave * 4)));
-                        Entities.Add(new Enemy(new Vector2((float)((Width * 5) + (Width * 5) * rand.NextDouble()), (float)(Height * 5 * rand.NextDouble())), 1.6f, Vector2.Zero, 0, 0, 1000, 20, 40, 60 + (wave * 4)));
-                    }
-                } 
-                else if ((wave + 2) % 5 == 0)
-                {
-                    for (int i = 0; i < 10 + (7 * wave); i++)
-                    {
-                        Entities.Add(new Enemy(new Vector2((float)((Width * 5) + (Width * 5) * rand.NextDouble()), (float)(Height * 10 * rand.NextDouble())), 1 + (wave * 0.5f), Vector2.Zero, 0, 1, 100, 20, 8, 15));
-                        Entities.Add(new Enemy(new Vector2((float)((Width * 5) * rand.NextDouble()), (float)(Height * 10 * rand.NextDouble())), 1 + (wave * 0.5f), Vector2.Zero, 0, 1, 100, 20, 8, 15));
-                    }
-                }
-                else if ((wave + 3) % 5 == 0)
-                {
-                    for (int i = 0; i < 10 + (4 * wave); i++)
-                    {
-                        Entities.Add(new Enemy(new Vector2((float)(Width * 10 * rand.NextDouble()), (float)((Height * 5) * rand.NextDouble())), 1 + (wave * 0.3f), Vector2.Zero, 0, 1, 100, 20, 8, 30));
-                        Entities.Add(new Enemy(new Vector2((float)((Width * 5) + (Width * 5) * rand.NextDouble()), (float)(Height * 10 * rand.NextDouble())), 5, Vector2.Zero, 0, 1, 50, 20, 2, 2));
-                    }
-                }
-                else
-                {
-                    for (int i = 0; i < (3 * wave); i++)
-                    {
-                        Entities.Add(new Enemy(new Vector2((float)(Width * 10 * rand.NextDouble()), (float)((Height * 5) * rand.NextDouble())), 1 + (wave * 0.3f), Vector2.Zero, 0, 1, 100, 20, 800, 30));
-                    }
-                    for (int i = 0; i < (3 * (wave - 1)); i++)
-                    {
-                        Entities.Add(new Enemy(new Vector2((float)(Width * 10 * rand.NextDouble()), (Height * 5) + (float)(2f * Height * rand.NextDouble())), 1 + (wave * 0.3f), Vector2.Zero, 0, 1, 100, 20, 8, 30));
-                    }
-                }
-
-                if (wave != 1)
-                {
-                    StateManager.CurrentPlayer.MaxHealth += 100;
+                    Entities.Add(new Enemy(Textures.Enemies[0], new Vector2((float)((Width * 5) * rand.NextDouble()), (float)((Height * 5) + Height * 5 * rand.NextDouble())), 1.6f, Vector2.Zero, 0, 0, 1000, 20, 40, 60 + (wave * 4)));
+                    Entities.Add(new Enemy(Textures.Enemies[0], new Vector2((float)((Width * 5) + (Width * 5) * rand.NextDouble()), (float)(Height * 5 * rand.NextDouble())), 1.6f, Vector2.Zero, 0, 0, 1000, 20, 40, 60 + (wave * 4)));
                 }
             }
+            else if ((wave + 2) % 5 == 0)
+            {
+                for (int i = 0; i < 10 + (7 * wave); i++)
+                {
+                    Entities.Add(new Enemy(Textures.Enemies[0], new Vector2((float)((Width * 5) + (Width * 5) * rand.NextDouble()), (float)(Height * 10 * rand.NextDouble())), 1 + (wave * 0.5f), Vector2.Zero, 0, 1, 100, 20, 8, 15));
+                    Entities.Add(new Enemy(Textures.Enemies[0], new Vector2((float)((Width * 5) * rand.NextDouble()), (float)(Height * 10 * rand.NextDouble())), 1 + (wave * 0.5f), Vector2.Zero, 0, 1, 100, 20, 8, 15));
+                }
+            }
+            else if ((wave + 3) % 5 == 0)
+            {
+                for (int i = 0; i < 10 + (4 * wave); i++)
+                {
+                    Entities.Add(new Enemy(Textures.Enemies[0], new Vector2((float)(Width * 10 * rand.NextDouble()), (float)((Height * 5) * rand.NextDouble())), 1 + (wave * 0.3f), Vector2.Zero, 0, 1, 100, 20, 8, 30));
+                    Entities.Add(new Enemy(Textures.Enemies[0], new Vector2((float)((Width * 5) + (Width * 5) * rand.NextDouble()), (float)(Height * 10 * rand.NextDouble())), 5, Vector2.Zero, 0, 1, 50, 20, 2, 2));
+                }
+            }
+            else
+            {
+                for (int i = 0; i < (3 * wave); i++)
+                {
+                    Entities.Add(new Enemy(Textures.Enemies[0], new Vector2((float)(Width * 10 * rand.NextDouble()), (float)((Height * 5) * rand.NextDouble())), 1 + (wave * 0.3f), Vector2.Zero, 0, 1, 100, 20, 800, 30));
+                }
+                for (int i = 0; i < (3 * (wave - 1)); i++)
+                {
+                    Entities.Add(new Enemy(Textures.Enemies[0], new Vector2((float)(Width * 10 * rand.NextDouble()), (Height * 5) + (float)(2f * Height * rand.NextDouble())), 1 + (wave * 0.3f), Vector2.Zero, 0, 1, 100, 20, 8, 30));
+                }
+            }
+
         }
 
         private void UpdateBlocks()
@@ -292,7 +287,7 @@ namespace TheOtherDarkWorld
             {
                 for (int j = 0; j < Height; j++)
                 {
-                    Tiles[i, j] = new Tile(i, j);
+                    Tiles[i, j] = new Tile(null, i, j);
                 }
             }
         }
@@ -445,8 +440,8 @@ namespace TheOtherDarkWorld
 
                 //Add in a light for the room
                 //AddLight(new Light(0.7f, Math.Max(roomWidth * Tile.WIDTH, roomHeight * Tile.HEIGHT),
-                 //   new Vector2((widthTaken + roomWidth / 2) * Tile.WIDTH, (heightTaken + roomHeight / 2) * Tile.HEIGHT), Vector2.UnitX,
-                 //   MathHelper.TwoPi, Color.Orange, Tiles));
+                //    new Vector2((widthTaken + roomWidth / 2) * Tile.WIDTH, (heightTaken + roomHeight / 2) * Tile.HEIGHT), Vector2.UnitX,
+                //    MathHelper.TwoPi, Color.Orange, Tiles));
                 
                 widthTaken += roomWidth;
             }

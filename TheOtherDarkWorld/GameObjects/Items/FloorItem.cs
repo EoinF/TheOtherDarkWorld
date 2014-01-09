@@ -13,7 +13,7 @@ namespace TheOtherDarkWorld.GameObjects
             public float Rotation { get; set; }
 
             public FloorItem(Item Item, Vector2 Position)
-                : base(Position, 0, Color.White, Vector2.Zero, Vector2.Zero, -1, 0, 0)
+                : base(Textures.Items, Position, 0, Color.White, Vector2.Zero, Vector2.Zero, -1, 0, 0)
             {
                 this.Item = Item;
 
@@ -53,8 +53,9 @@ namespace TheOtherDarkWorld.GameObjects
 
             public override void Draw(SpriteBatch spriteBatch)
             {
+                ApplyLighting();
                 if (IsVisible)
-                    spriteBatch.Draw(Textures.Items, Position - StateManager.Offset, Textures.GetItemRectangle(Item.Type), getLightColour(), Rotation, Vector2.One * 8, 0.7f, SpriteEffects.None, UI.FLOORITEM_DEPTH_DEFAULT);
+                    spriteBatch.Draw(Texture, Position - StateManager.Offset, Textures.GetItemRectangle(Item.Type), Colour, Rotation, Vector2.One * 8, 0.7f, SpriteEffects.None, UI.FLOORITEM_DEPTH_DEFAULT);
             }
         }
     }

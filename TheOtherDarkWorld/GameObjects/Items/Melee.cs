@@ -19,6 +19,7 @@ namespace TheOtherDarkWorld.GameObjects
             : base(Type, StartingDurability, Owner)
         {
             Melee characteristics = (Melee)GameData.GameItems[Type];
+            this.SwingLength = characteristics.SwingLength;
             this.Reach = characteristics.Reach;
             this.AttackType = characteristics.AttackType;
             this.Knockback = characteristics.Knockback;
@@ -29,14 +30,30 @@ namespace TheOtherDarkWorld.GameObjects
         {
         }
 
+        public override bool Consume(int ConsumeRate)
+        {
+            if (Amount > 0)
+            {
+                if (Owner is IEnergyBased)
+                {
+                    if ((Owner as IEnergyBased).Energy < ConsumeRate)
+                        return false; //Can't swing the weapon if the owner doesn't have the energy to do so
+                    (Owner as IEnergyBased).Energy -= ConsumeRate;
+                }
+                this.Amount--;
+                return true;
+            }
+            else
+                return false;
+        }
+
         protected override void ApplyActive()
         {
-            (Owner as IMelee).Swing = new Swing(Owner.Rotation, this.Reach, this.Power, this.BaseCooldown, Knockback, (int)Owner.Rect.Width, Owner);
-
+            (Owner as IMelee).Swing = new Swing(Owner.Rotation, this.Reach, this.Power, this.SwingLength, Knockback, (int)Owner.Rect.Width, Owner);
 
             //Melee items work differently than normal items. The time taken to swing the weapon is added
             //to the base cooldown
-            UseCooldown += SwingLength;
+            UseCooldown += BaseCooldown;
         }
     }
 

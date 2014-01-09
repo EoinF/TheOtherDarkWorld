@@ -9,6 +9,8 @@ namespace TheOtherDarkWorld
 {
     public class UISlider : UIContainer
     {
+        //TODO: Fix the slider position being wrong initially (i.e. before it is moved)
+
         public Action<object> OnSliderChanged;
         UIElement SliderPiece { get { return Children[0]; } }
         public int SliderPosition { get; private set; }

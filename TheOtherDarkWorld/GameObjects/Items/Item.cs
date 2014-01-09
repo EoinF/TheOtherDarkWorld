@@ -45,7 +45,8 @@ namespace TheOtherDarkWorld.GameObjects
         protected int ConsumeTicks { get; set; }
 
         public bool IsConsumable { get; set; } //If true, this item consumes itself based on the consume rate
-        public bool DestroyedWhenEmpty { get; set; } //The item is discarded when amount = 0
+        public int TypeWhenEmpty { get; set; } //The item's type is changed to this when amount = 0
+                                                //if it's -1 then the item is destroyed
 
         public ItemEffect[] ActiveEffects { get; set; }
         public ItemEffect[] PassiveEffects { get; set; }
@@ -118,7 +119,7 @@ namespace TheOtherDarkWorld.GameObjects
             }
         }
 
-        public bool Consume(int rate)
+        public virtual bool Consume(int rate)
         {
             if (Amount > 0)
             {
@@ -134,8 +135,28 @@ namespace TheOtherDarkWorld.GameObjects
                 return false; //Nothing left to consume
         }
 
+        public static Item Create(int type, int amount = -1, Entity owner = null)
+        {
+            Item newItem;
+            if (GameData.GameItems[type] is Gun)
+                newItem = new Gun(type, amount, owner);
+            else if (GameData.GameItems[type] is Melee)
+                newItem = new Melee(type, amount, owner);
+            else if (GameData.GameItems[type] is Goggles)
+                newItem = new Goggles(type, owner);
+            else if (GameData.GameItems[type] is Torch)
+                newItem = new Torch(type, owner);
+            else if (GameData.GameItems[type] is SmartPhone)
+                newItem = new SmartPhone(type, owner);
+            else if (GameData.GameItems[type] is Togglable)
+                newItem = new Togglable(type, owner);
+            else 
+                newItem = new Item(type, amount, owner);
 
-        public Item(int type, int amount = -1, Entity owner = null)
+            return newItem;
+        }
+
+        protected Item(int type, int amount = -1, Entity owner = null)
         {
             this.Type = type;
             this.Owner = owner;
@@ -159,7 +180,7 @@ namespace TheOtherDarkWorld.GameObjects
                 this.Power = characteristics.Power;
                 this.IsAutomatic = characteristics.IsAutomatic;
                 this.Description = characteristics.Description;
-                this.DestroyedWhenEmpty = characteristics.DestroyedWhenEmpty;
+                this.TypeWhenEmpty = characteristics.TypeWhenEmpty;
             }
 
 
@@ -188,7 +209,7 @@ namespace TheOtherDarkWorld.GameObjects
             Name = "";
             Description = DESCRIPTION_DEFAULT;
             MaxAmount = MAXAMOUNT_DEFAULT;
-            DestroyedWhenEmpty = DESTROYED_WHEN_EMPTY_DEFAULT;
+            TypeWhenEmpty = -1;
             PassiveEffects = new ItemEffect[0];
             ActiveEffects = new ItemEffect[0];
         }

@@ -40,6 +40,12 @@ namespace TheOtherDarkWorld
 
         }
 
+        /// <summary>
+        /// Converts an xml node to an instance of a class of type T
+        /// </summary>
+        /// <typeparam name="T">Class type</typeparam>
+        /// <param name="node"></param>
+        /// <returns>An instance of class T</returns>
         private static T ConvertNode<T>(XmlNode node) where T : class
         {
             MemoryStream stm = new MemoryStream();
@@ -49,7 +55,6 @@ namespace TheOtherDarkWorld
             stw.Flush();
 
             stm.Position = 0;
-
 
             XmlSerializer ser = new XmlSerializer(typeof(T));
             T result = (ser.Deserialize(stm) as T);
@@ -109,51 +114,5 @@ namespace TheOtherDarkWorld
                 GameBlocks[type] = ConvertNode<Block>(node.ChildNodes[i]);
             }
         }
-
-        private static Color GetColourFromName(string Name)
-        {
-            switch (Name)
-            {
-                case "White":
-                    return Color.White;
-                case "Cream":
-                    return Color.AntiqueWhite;
-                case "Grey":
-                case "Gray":
-                    return Color.Gray;
-                case "Black":
-                    return Color.Black;
-                case "Red":
-                    return Color.Red;
-                case "Orange":
-                    return Color.Orange;
-                default:
-                    return Color.White;
-            }
-        }
-
-        private static MeleeType getAttackTypeFromNameM(string name)
-        {
-            switch (name.ToLower())
-            {
-                case "swing":
-                    return MeleeType.Swing;
-                default:
-                    return MeleeType.Swing;
-            }
-        }
-        private static GunType getAttackTypeFromNameG(string name)
-        {
-            switch (name.ToLower())
-            {
-                case "single":
-                    return GunType.Single;
-                case "shotgun":
-                    return GunType.Shotgun;
-                default:
-                    return GunType.Single;
-            }
-        }
     }
-
 }

@@ -43,6 +43,8 @@ namespace TheOtherDarkWorld
         public static Texture2D[] Enemies { get; private set; }
         public static SpriteFont[] Fonts { get; private set; }
 
+        public static Effect LightingShader { get; private set; }
+
         public static void LoadTextures(ContentManager Content, GraphicsDevice device)
         {
             Crosshair = Content.Load<Texture2D>("Crosshair");
@@ -77,6 +79,8 @@ namespace TheOtherDarkWorld
             {
                 Enemies[i] = Content.Load<Texture2D>("Enemies/" + i);
             }
+
+            LightingShader = Content.Load<Effect>("LightingShader");  
         }
 
         public static Rectangle GetItemRectangle(int Type)

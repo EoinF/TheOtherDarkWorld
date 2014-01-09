@@ -11,10 +11,13 @@ namespace TheOtherDarkWorld
 {
     public class Player : Entity, IMelee, IItemHolder, IEnergyBased
     {
-        public override Texture2D Texture { get { return Textures.Player; } }
+        public const float VELOCITY_EXPEND_ENERGY_MINIMUM = 0.5f;
         private bool ObserverMode { get; set; }
         public Swing Swing { get; set; }
         public Item[] Inventory { get; set; }
+
+        public const int ID_EXAUSTION_SLOW = 0;
+        public const int ID_EXAUSTION_EXHAUST = 1;
 
         public StatusEffect exhaustionExhaust { get; set; }
         public StatusEffect exhaustionSlow { get; set; }
@@ -40,8 +43,9 @@ namespace TheOtherDarkWorld
                 {
                     if (value == true) //The player is now exhausted
                     {
-                        StatusEffects.Add(exhaustionExhaust);
-                        StatusEffects.Add(exhaustionSlow);
+                        UI.QueueMessage("You are completely exhausted!");
+                        AddStatusEffect(exhaustionExhaust);
+                        AddStatusEffect(exhaustionSlow);
                     }
                 }
                 _isExhaustedCompletely = value;
@@ -88,15 +92,16 @@ namespace TheOtherDarkWorld
             }
         }
 
-        public Player(Vector2 startPosition, int MaxHealth, int MaxEnergy, float walkSpeed, int inventorySize, Vector2 startVelocity, int ID, int Resistance)
-            : base(MaxHealth, startPosition, walkSpeed, Color.White, startVelocity, new Vector2(Textures.Player.Width / 2, Textures.Player.Height / 2), Resistance, (int)Textures.Player.Height, (int)Textures.Player.Width)
+        public Player(Texture2D Texture, Vector2 startPosition, int MaxHealth, int MaxEnergy, float walkSpeed, int inventorySize, Vector2 startVelocity, int ID, int Resistance)
+            : base(Texture, MaxHealth, startPosition, walkSpeed, Color.White, startVelocity, new Vector2(Texture.Width / 2, Texture.Height / 2), Resistance, Texture.Height, Texture.Width)
         {
             this.Energy = MaxEnergy;
             this.MaxEnergy = MaxEnergy;
             Inventory = new Item[inventorySize];
             Weight = 5;
-            exhaustionSlow = new StatusEffect(StatusType.Slowed, 0.5f, -1, "Out of energy!");
-            exhaustionExhaust = new StatusEffect(StatusType.Exhausted, 0.5f, -1, "Out of energy!");
+            exhaustionSlow = new StatusEffect(StatusType.Slowed, 0.5f, -1, "Out of energy!", ID_EXAUSTION_SLOW);
+            exhaustionExhaust = new StatusEffect(StatusType.Exhausted, 0.5f, -1, "Out of energy!", ID_EXAUSTION_EXHAUST);
+            this.LightColour = Color.White;
         }
 
         public static Vector2 CrosshairOrigin
@@ -139,12 +144,9 @@ namespace TheOtherDarkWorld
 
         public void UpdateEnergy()
         {
-            if (Swing != null)
-                Energy -= 2;
-
-            if (Velocity != Vector2.Zero)
+            if (Velocity.Length() > VELOCITY_EXPEND_ENERGY_MINIMUM)
             {
-                Energy -= 0.5f;
+                Energy -= 0.3f;
             }
             else
             {
@@ -165,8 +167,11 @@ namespace TheOtherDarkWorld
                 }
             }
 
-            Level.PlayerVision.Update(Position + (Origin / 2), Direction);
-            Level.PlayerVision.CastAll();
+            if (!IsBlinded)
+            {
+                Level.PlayerVision.Update(Position + (Origin / 2), Direction);
+                Level.PlayerVision.CastAll();
+            }
 
             if (UI.CursorMode == CursorType.Crosshair 
                 && !ObserverMode) //Make sure the user is clicking on the actual map and not the ui
@@ -305,8 +310,17 @@ namespace TheOtherDarkWorld
                     Inventory[i].Update();
                     if (Inventory[i].Amount == 0)
                     {
-                        if (Inventory[i].DestroyedWhenEmpty)
+                        if (Inventory[i].TypeWhenEmpty == -1)
                             TrashItem(i);
+                        else if (Inventory[i].TypeWhenEmpty == Inventory[i].Type)
+                            ; //Leave it as it is
+                        else
+                        {
+                            Inventory[i] = Item.Create(Inventory[i].TypeWhenEmpty, owner: this);
+                            UIContainer con = UI.Inventory_UI[i] as UIContainer; //First get the container that holds the inventory
+                            (con[0] as InventoryElement).Item = Inventory[i];
+                        }
+
                     }
                 }
             }
@@ -345,7 +359,9 @@ namespace TheOtherDarkWorld
 
         public override void Draw(SpriteBatch spriteBatch)
         {
-            spriteBatch.Draw(Textures.Player, Position + Origin - StateManager.Offset, null, StatusColour, Rotation, Origin, 1, SpriteEffects.None, UI.PLAYER_DEPTH_DEFAULT);
+            ApplyLighting();
+
+            spriteBatch.Draw(Texture, Position + Origin - StateManager.Offset, null, StatusColour, Rotation, Origin, 1, SpriteEffects.None, UI.PLAYER_DEPTH_DEFAULT);
             if (Swing != null)
                 Swing.Draw(spriteBatch, StateManager.Offset);
         }

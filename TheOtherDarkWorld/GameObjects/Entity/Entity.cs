@@ -9,6 +9,9 @@ namespace TheOtherDarkWorld.GameObjects
 {
     public abstract class Entity : GameObject
     {
+        private const float SPEED_BONUS_MAX = 3;
+        private const float SPEED_BONUS_MIN = -1;
+
         private static Random statusGen;
 
         //public int ID;
@@ -32,7 +35,7 @@ namespace TheOtherDarkWorld.GameObjects
 
 
         public Light AuraLight { get; protected set; }
-        public List<StatusEffect> StatusEffects;
+        protected List<StatusEffect> StatusEffects { get; set; }
         public bool IsBlinded { get; protected set; }
         public bool IsStunned { get; protected set; }
         public bool IsConfused { get; protected set; }
@@ -44,11 +47,27 @@ namespace TheOtherDarkWorld.GameObjects
         public bool IsBinded { get; protected set; }
         public bool IsProtected { get; protected set; }
         public bool IsBleeding { get; protected set; }
-        public float SpeedBonus { get; protected set; }
+        private float _speedBonus;
+        public float SpeedBonus
+        {
+            get
+            {
+                return _speedBonus;
+            }
+            protected set
+            {
+                if (value > SPEED_BONUS_MAX)
+                    _speedBonus = SPEED_BONUS_MAX;
+                else if (value < SPEED_BONUS_MIN)
+                    _speedBonus = SPEED_BONUS_MIN;
+                else
+                    _speedBonus = value;
+            }
+        }
         public override float Speed 
         {
-            get { return base.Speed * (1 + SpeedBonus); } 
-            set { base.Speed = value; } 
+            get { return base.Speed * (1 + SpeedBonus); }
+            set { base.Speed = value; }
         }
 
         private static Color COLOUR_PROTECTED = Color.WhiteSmoke;
@@ -66,13 +85,7 @@ namespace TheOtherDarkWorld.GameObjects
             }
         }
 
-        public Color StatusColour
-        {
-            get;
-            set;
-        }
-
-        public abstract Texture2D Texture { get; }
+        public Color StatusColour { get; set; }
 
         /// <summary>
         /// This is the velocity that is added to the standard velocity of the entity. e.g. When pushed by a bullet or other entity
@@ -80,6 +93,23 @@ namespace TheOtherDarkWorld.GameObjects
         public Vector2 HitVelocity { get; set; }
 
         protected virtual Vector2 Target { get; set; }
+
+        public void AddStatusEffect(StatusEffect effect)
+        {
+            if (effect.ID != -1) //-1 indicates a non-unique status effect
+            {
+                for (int i = 0; i < StatusEffects.Count; i++)
+                {
+                    if (StatusEffects[i].ID == effect.ID) //Prevents unique effects from being added multiple times
+                    {
+                        //Increase the duration of the effect instead of just stacking
+                        StatusEffects[i].RemainingTicks += effect.RemainingTicks;
+                        return;
+                    }
+                }
+            }
+            StatusEffects.Add(effect);
+        }
 
         public Vector2 Direction
         {
@@ -98,8 +128,8 @@ namespace TheOtherDarkWorld.GameObjects
             protected set { throw new NotImplementedException("This method exists so that the Projectile class can derive its own Rotation setter method"); }
         }
 
-        public Entity(int MaxHealth, Vector2 startPosition, float speed, Color colour, Vector2 startVelocity, Vector2 Origin, int Resistance, int width, int height)
-            : base(startPosition, speed, colour, startVelocity, Origin, Resistance, width, height)
+        public Entity(Texture2D Texture, int MaxHealth, Vector2 startPosition, float speed, Color colour, Vector2 startVelocity, Vector2 Origin, int Resistance, int width, int height)
+            : base(Texture, startPosition, speed, colour, startVelocity, Origin, Resistance, width, height)
         {
             this.MaxHealth = MaxHealth;
             this.Health = this.MaxHealth;
@@ -295,7 +325,6 @@ namespace TheOtherDarkWorld.GameObjects
             {
                 StatusColour = Color.Lerp(StatusColour, COLOUR_INVISIBLE, 0.5f);
             }
-
         }
 
         protected abstract void Intelligence();
