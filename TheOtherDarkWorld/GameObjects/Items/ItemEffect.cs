@@ -62,8 +62,8 @@ namespace TheOtherDarkWorld.GameObjects
                 case EffectType.Curse:
                     Owner.AddStatusEffect(new StatusEffect(StatusType.Cursed, Potency, Duration, Description, ID));
                     break;
-                case EffectType.FastHands:
-                    Owner.AddStatusEffect(new StatusEffect(StatusType.FastHands, Potency, Duration, Description, ID));
+                case EffectType.Dexterity:
+                    Owner.AddStatusEffect(new StatusEffect(StatusType.Dexterity, Potency, Duration, Description, ID));
                     break;
                 case EffectType.Freeze:
                     Owner.AddStatusEffect(new StatusEffect(StatusType.Frozen, Potency, Duration, Description, ID));
@@ -80,7 +80,7 @@ namespace TheOtherDarkWorld.GameObjects
                 case EffectType.Invincible:
                     Owner.AddStatusEffect(new StatusEffect(StatusType.Invincible, Potency, Duration, Description, ID));
                     break;
-                case EffectType.Invisbile:
+                case EffectType.Invisible:
                     Owner.AddStatusEffect(new StatusEffect(StatusType.Invisible, Potency, Duration, Description, ID));
                     break;
                 case EffectType.Perceptive:
@@ -154,7 +154,7 @@ namespace TheOtherDarkWorld.GameObjects
         Burn, //Set on fire
         Poison,
         Freeze,
-        Invisbile,
+        Invisible,
         Bind,
         Slow,
         Curse,
@@ -166,7 +166,7 @@ namespace TheOtherDarkWorld.GameObjects
         Ghost,
         Harden,
         Protect,
-        FastHands,
+        Dexterity,
         Exhaust,
     }
 }

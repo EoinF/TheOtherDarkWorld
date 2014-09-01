@@ -39,7 +39,10 @@ namespace TheOtherDarkWorld.GameObjects
 
             UIGrid flashlightControls = new UIGrid(Width: SmartPhone.SCREEN_RECT.Width, GridColumns: 1, CursorType: CursorType.Cursor, MarginBottom: 20);
             UISlider brightnessSlider = new UISlider(Color.Aqua, Color.Aqua, Textures.SmartPhoneSliderPiece, Textures.SmartPhoneSlider, CursorType: CursorType.Cursor, MarginBottom: 10);
-            brightnessSlider.OnSliderChanged += o => { light.Brightness = brightnessSlider.SliderPosition / 100f; };
+            brightnessSlider.OnSliderChanged += o => 
+            { 
+                light.Brightness = brightnessSlider.SliderPosition / 100f; 
+            };
 
             flashlightControls.AddElement(new TextSprite("Brightness", 1, Color.GhostWhite, CursorType.Cursor));
             flashlightControls.AddElement(brightnessSlider);

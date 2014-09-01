@@ -291,19 +291,19 @@ namespace TheOtherDarkWorld.GameObjects
             StatusColour = Color.White;
             if (IsPoisoned)
             {
-                StatusColour = Color.Lerp(StatusColour, COLOUR_POISON, 0.5f);
+                StatusColour = Color.Lerp(StatusColour, StatusEffect.COLOUR_POISON, 0.5f);
             }
             if (IsProtected)
             {
-                StatusColour = Color.Lerp(StatusColour, COLOUR_PROTECTED, 0.5f);
-                AuraLight.Colour = COLOUR_PROTECTED;
+                StatusColour = Color.Lerp(StatusColour, StatusEffect.COLOUR_PROTECTED, 0.5f);
+                AuraLight.Colour = StatusEffect.COLOUR_PROTECTED;
                 AuraLight.IsActive = true;
                 AuraLight.Update(Position + (Origin / 2), Vector2.UnitX);
             }
             else if (IsBurning)
             {
-                StatusColour = Color.Lerp(StatusColour, COLOUR_BURNING, 0.5f);
-                AuraLight.Colour = COLOUR_BURNING;
+                StatusColour = Color.Lerp(StatusColour, StatusEffect.COLOUR_BURNING, 0.5f);
+                AuraLight.Colour = StatusEffect.COLOUR_BURNING;
                 AuraLight.IsActive = true;
                 AuraLight.Update(Position + (Origin / 2), Vector2.UnitX);
             }
@@ -312,11 +312,11 @@ namespace TheOtherDarkWorld.GameObjects
 
             if (IsFrozen)
             {
-                StatusColour = Color.Lerp(StatusColour, COLOUR_FROZEN, 0.5f);
+                StatusColour = Color.Lerp(StatusColour, StatusEffect.COLOUR_FROZEN, 0.5f);
             }
             if (IsInvisible)
             {
-                StatusColour = Color.Lerp(StatusColour, COLOUR_INVISIBLE, 0.5f);
+                StatusColour = Color.Lerp(StatusColour, StatusEffect.COLOUR_INVISIBLE, 0.5f);
             }
         }
 

@@ -16,11 +16,8 @@ namespace TheOtherDarkWorld
         public Swing Swing { get; set; }
         public Item[] Inventory { get; set; }
 
-        public const int ID_EXAUSTION_SLOW = 0;
-        public const int ID_EXAUSTION_EXHAUST = 1;
-
-        public StatusEffect exhaustionExhaust { get; set; }
-        public StatusEffect exhaustionSlow { get; set; }
+        public StatusEffect exhaustionExhaust { get; set; } //Applies the exhaust effect
+        public StatusEffect exhaustionSlow { get; set; } //Applies the slow effect
 
         private bool _isExhaustedCompletely;
         public bool IsExhaustedCompletely //This is set when the player completely runs out of energy and unset when energy is fully regained
@@ -99,8 +96,8 @@ namespace TheOtherDarkWorld
             this.MaxEnergy = MaxEnergy;
             Inventory = new Item[inventorySize];
             Weight = 5;
-            exhaustionSlow = new StatusEffect(StatusType.Slowed, 0.5f, -1, "Out of energy!", ID_EXAUSTION_SLOW);
-            exhaustionExhaust = new StatusEffect(StatusType.Exhausted, 0.5f, -1, "Out of energy!", ID_EXAUSTION_EXHAUST);
+            exhaustionSlow = new StatusEffect(StatusType.Slowed, 0.5f, -1, "Out of energy!", StatusEffect.ID_EXAUSTION_SLOW);
+            exhaustionExhaust = new StatusEffect(StatusType.Exhausted, 0.5f, -1, "Out of energy!", StatusEffect.ID_EXAUSTION_EXHAUST);
             this.LightColour = Color.White;
         }
 
@@ -159,6 +156,7 @@ namespace TheOtherDarkWorld
             if (IsStunned || IsFrozen)
                 return;
 
+
             if (InputManager.keyboardState[0].IsKeyDown(Keys.R))
             {
                 if (Inventory[0].GetType() == typeof(Gun))
@@ -173,7 +171,7 @@ namespace TheOtherDarkWorld
                 Level.PlayerVision.CastAll();
             }
 
-            if (UI.CursorMode == CursorType.Crosshair 
+            if (UI.CursorMode == CursorType.Crosshair
                 && !ObserverMode) //Make sure the user is clicking on the actual map and not the ui
             {
                 Item itemP = Inventory[0];
@@ -201,7 +199,7 @@ namespace TheOtherDarkWorld
 
         private void CheckInput()
         {
-            if (!CommandManager.IsActive) //Only accept player keyboard input when the command box isn't active
+            if (!IsStunned && !IsFrozen)
             {
                 ObserverMode = InputManager.keyboardState[0].IsKeyDown(Keys.Space);
 
@@ -312,9 +310,7 @@ namespace TheOtherDarkWorld
                     {
                         if (Inventory[i].TypeWhenEmpty == -1)
                             TrashItem(i);
-                        else if (Inventory[i].TypeWhenEmpty == Inventory[i].Type)
-                            ; //Leave it as it is
-                        else
+                        else if (Inventory[i].TypeWhenEmpty != Inventory[i].Type)
                         {
                             Inventory[i] = Item.Create(Inventory[i].TypeWhenEmpty, owner: this);
                             UIContainer con = UI.Inventory_UI[i] as UIContainer; //First get the container that holds the inventory

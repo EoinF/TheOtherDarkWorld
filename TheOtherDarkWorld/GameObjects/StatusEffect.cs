@@ -8,11 +8,14 @@ namespace TheOtherDarkWorld.GameObjects
 {
     public class StatusEffect
     {
-        private static Color COLOUR_PROTECTED = Color.WhiteSmoke;
-        private static Color COLOUR_POISON = Color.Green;
-        private static Color COLOUR_BURNING = Color.PaleVioletRed;
-        private static Color COLOUR_FROZEN = Color.Aqua;
-        private static Color COLOUR_INVISIBLE = Color.Transparent;
+        public const int ID_EXAUSTION_SLOW = 0;
+        public const int ID_EXAUSTION_EXHAUST = 1;
+
+        public static Color COLOUR_PROTECTED = Color.WhiteSmoke;
+        public static Color COLOUR_POISON = Color.Green;
+        public static Color COLOUR_BURNING = Color.PaleVioletRed;
+        public static Color COLOUR_FROZEN = Color.Aqua;
+        public static Color COLOUR_INVISIBLE = Color.Transparent;
 
         public StatusType Type { get; set; }
         public int ID { get; set; }
@@ -64,7 +67,7 @@ namespace TheOtherDarkWorld.GameObjects
         Ghost, //Can walk through walls and enemies
         Hardened, //Reduces damage received
         Benediction, //Health cannot fall below 1 (Costs -1 potency each time the entity is prevented from falling below 1 health)
-        FastHands, //Reduces item usage cooldowns
+        Dexterity, //Reduces item usage cooldowns
         Exhausted //Reduces energy recovery rate
     }
 }
