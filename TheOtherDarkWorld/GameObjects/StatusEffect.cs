@@ -2,11 +2,18 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Microsoft.Xna.Framework;
 
 namespace TheOtherDarkWorld.GameObjects
 {
     public class StatusEffect
     {
+        private static Color COLOUR_PROTECTED = Color.WhiteSmoke;
+        private static Color COLOUR_POISON = Color.Green;
+        private static Color COLOUR_BURNING = Color.PaleVioletRed;
+        private static Color COLOUR_FROZEN = Color.Aqua;
+        private static Color COLOUR_INVISIBLE = Color.Transparent;
+
         public StatusType Type { get; set; }
         public int ID { get; set; }
         public float Potency { get; set; }

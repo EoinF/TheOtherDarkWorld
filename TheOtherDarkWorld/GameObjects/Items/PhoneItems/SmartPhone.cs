@@ -14,23 +14,16 @@ namespace TheOtherDarkWorld.GameObjects
         public static Rectangle SCREEN_RECT =
             new Rectangle(SMARTPHONE_EDGE_WIDTH, SMARTPHONE_EDGE_HEIGHT, Textures.SmartPhoneExterior.Width - (SMARTPHONE_EDGE_WIDTH * 2), Textures.SmartPhoneExterior.Height - (SMARTPHONE_EDGE_HEIGHT * 2));
             
-        public Color Colour { get; set; }
         public static Color DEFAULT_COLOUR = Color.MidnightBlue;
 
-        private UIContainer HUD;
-        private UIContainer Phone;
+        public Color Colour { get; set; }
+        private UIContainer _hud;
+        private UIContainer _phone;
 
-        public override int ConsumeRate
+        private MainMenuApp _mainMenu;
+        public MainMenuApp GetMainMenu()
         {
-            get 
-            {
-                if (SelectedApp != null)
-                {
-                    return SelectedApp.ConsumeRate + base.ConsumeRate;
-                }
-                else 
-                    return base.ConsumeRate;
-            }
+            return _mainMenu;
         }
 
         /// <summary>
@@ -40,6 +33,19 @@ namespace TheOtherDarkWorld.GameObjects
         private List<PhoneApp> InstalledApps { get; set; }
 
         protected PhoneApp SelectedApp { get; set; }
+
+        public override int ConsumeRate
+        {
+            get
+            {
+                if (SelectedApp != null)
+                {
+                    return SelectedApp.ConsumeRate + base.ConsumeRate;
+                }
+                else
+                    return base.ConsumeRate;
+            }
+        }
 
         public PhoneApp GetApp(int type)
         {
@@ -58,19 +64,22 @@ namespace TheOtherDarkWorld.GameObjects
             this.InstalledApps = new List<PhoneApp>();
             this.Colour = characteristics.Colour;
 
-            Phone = new UIContainer(Colour, Colour, null, new Vector2((UI.ScreenX - SCREEN_RECT.Width) / 2, (UI.ScreenY - SCREEN_RECT.Height) / 2), Width: Textures.SmartPhoneExterior.Width, Height: SMARTPHONE_EDGE_HEIGHT, IsActive: false, IsDraggable: true, CursorType: CursorType.Cursor, opacity: 0.5f);
+            _phone = new UIContainer(Colour, Colour, null, new Vector2((UI.ScreenX - SCREEN_RECT.Width) / 2, (UI.ScreenY - SCREEN_RECT.Height) / 2), Width: Textures.SmartPhoneExterior.Width, Height: SMARTPHONE_EDGE_HEIGHT, IsActive: false, IsDraggable: true, CursorType: CursorType.Cursor, opacity: 0.5f);
             UIContainer Exterior = new UIContainer(Colour, Colour, Textures.SmartPhoneExterior, CursorType: CursorType.Cursor);
-            Exterior.OnMouseEnter += (x) => { Phone.Opacity = 1; };
-            Exterior.OnMouseLeave += (x) => { Phone.Opacity = 0.5f; };
+            
+            //Make the phone transparent when not mousing over it so it doesn't get in the way!
+            Exterior.OnMouseEnter += (x) => { _phone.Opacity = 1; };
+            Exterior.OnMouseLeave += (x) => { _phone.Opacity = 0.5f; };
 
-            HUD = new UIContainer(null, new Vector2(SCREEN_RECT.Left, SCREEN_RECT.Top), null, SCREEN_RECT.Width, SCREEN_RECT.Height, CursorType: CursorType.Cursor);
+            _hud = new UIContainer(null, new Vector2(SCREEN_RECT.Left, SCREEN_RECT.Top), null, SCREEN_RECT.Width, SCREEN_RECT.Height, CursorType: CursorType.Cursor);
 
-            Phone.AddElement(Exterior);
-            Phone.AddElement(HUD);
-            UI.UIControls.AddElement(Phone);
+            _phone.AddElement(Exterior);
+            _phone.AddElement(_hud);
+            UI.UIControls.AddElement(_phone);
 
             InstallApp(PhoneApp.APP_MAINMENU, MAINMENU_CONSUMERATE_DEFAULT);
-            SelectedApp = GetApp(PhoneApp.APP_MAINMENU);
+            _mainMenu = (MainMenuApp)GetApp(PhoneApp.APP_MAINMENU);
+            SelectedApp = _mainMenu;
         }
 
         public SmartPhone() //Parameterless constructor for xml deserialization
@@ -81,42 +90,42 @@ namespace TheOtherDarkWorld.GameObjects
 
         ~SmartPhone()
         {
-            if (Phone != null)
-                UI.UIControls.RemoveElement(Phone);
+            if (_phone != null)
+                UI.UIControls.RemoveElement(_phone);
         }
 
         public override void Deactivate()
         {
             IsActive = false;
-            Phone.IsActive = false;
+            _phone.IsActive = false;
             SelectedApp.Deactivate();
-            HUD.ClearElements();
+            _hud.ClearElements();
         }
 
         protected override void Toggle()
         {
             IsActive = !IsActive;
-            Phone.IsActive = IsActive;
+            _phone.IsActive = IsActive;
 
             if (IsActive)
             {
                 SelectedApp.Activate();
-                this.HUD.AddElement(SelectedApp.HUD);
+                this._hud.AddElement(SelectedApp.HUD);
             }
             else
             {
                 SelectedApp.Deactivate();
-                this.HUD.ClearElements();
+                this._hud.ClearElements();
             }
         }
 
-        public void SwitchTo(int apptype)
+        public void SwitchTo(PhoneApp app)
         {
             SelectedApp.Deactivate();
-            SelectedApp = GetApp(apptype);
+            SelectedApp = app;
             SelectedApp.Activate();
-            this.HUD.ClearElements();
-            this.HUD.AddElement(SelectedApp.HUD);
+            this._hud.ClearElements();
+            this._hud.AddElement(SelectedApp.HUD);
         }
 
         protected override void ApplyToggledPassive()
@@ -124,7 +133,13 @@ namespace TheOtherDarkWorld.GameObjects
             SelectedApp.Update();
         }
 
-        public bool InstallApp(int type, int ConsumeRate)
+        /// <summary>
+        /// Installs an app to the smart phone based on the given type
+        /// </summary>
+        /// <param name="type">The type of the class</param>
+        /// <param name="ConsumeRate">The rate at which the app consumes fuel</param>
+        /// <returns>The installed app</returns>
+        public PhoneApp InstallApp(int type, int ConsumeRate)
         {
             switch (type)
             {
@@ -134,10 +149,13 @@ namespace TheOtherDarkWorld.GameObjects
                 case PhoneApp.APP_FLASHLIGHT:
                     InstalledApps.Add(new FlashlightApp(type, this, ConsumeRate, Owner));
                     break;
+                case PhoneApp.APP_MEDIC:
+                    InstalledApps.Add(new MedicApp(type, this, ConsumeRate, Owner));
+                    break;
                 default:
-                    return false;
+                    return null;
             }
-            return true;
+            return InstalledApps[InstalledApps.Count - 1];
         }
 
         public bool IsInstalled(int type)

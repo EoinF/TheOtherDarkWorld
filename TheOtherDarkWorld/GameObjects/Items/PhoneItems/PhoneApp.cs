@@ -42,15 +42,20 @@ namespace TheOtherDarkWorld.GameObjects
 
         }
 
-        protected UIContainer CreateSwitchAppButton(string appname, int apptype)
+        protected UIContainer CreateSwitchAppButton(string appname, PhoneApp app)
         {
+            if (app.phone != this.phone)
+            {
+                throw new Exception("Can't create a switch app button between two different phones!");
+            }
+
             UIContainer btncontainer = new UIContainer(CursorType: CursorType.Cursor, Width: SmartPhone.SCREEN_RECT.Width, CentreHorizontal: true);
             Button button = new Button(Color.LightBlue, Color.LightBlue, Color.LightCyan, Color.Turquoise, Textures.SmartPhoneButton, CursorType: CursorType.Cursor, Text: appname);
             btncontainer.AddElement(button);
 
             button.OnPressed += obj =>
             {
-                phone.SwitchTo(apptype);
+                phone.SwitchTo(app);
             };
             return btncontainer;
         }

@@ -119,6 +119,7 @@
     <Compile Include="GameObjects\Items\ItemEffect.cs" />
     <Compile Include="GameObjects\Items\PhoneItems\FlashlightApp.cs" />
     <Compile Include="GameObjects\Items\PhoneItems\MainMenuApp.cs" />
+    <Compile Include="GameObjects\Items\PhoneItems\MedicApp.cs" />
     <Compile Include="GameObjects\Items\PhoneItems\PhoneApp.cs" />
     <Compile Include="GameObjects\Items\PhoneItems\SmartPhone.cs" />
     <Compile Include="GameObjects\Items\Togglable.cs" />

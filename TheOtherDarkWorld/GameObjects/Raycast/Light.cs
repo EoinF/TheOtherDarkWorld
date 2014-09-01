@@ -159,17 +159,19 @@ namespace TheOtherDarkWorld.GameObjects
             {
                 if (_tiles[tileX, tileY].Block != null) // We hit a wall
                 {
-                    bool HitsTop, HitsBottom, HitsLeft, HitsRight;
-                    HitsTop = !(HitsBottom = currentRayDirection.Y < 0);
-                    HitsLeft = !(HitsRight = currentRayDirection.X < 0);
+                    bool HitsBottom = currentRayDirection.Y < 0;
+                    bool HitsTop = !HitsBottom;
+                    bool HitsRight = currentRayDirection.X < 0;
+                    bool HitsLeft = !HitsRight;
 
-                    HitsLeft &= (tileX <= 0) || _tiles[tileX - 1, tileY].Block == null; //Make sure there is no block to the left blocking the light
+                    HitsLeft &= (tileX <= 0) || _tiles[tileX - 1, tileY].Block == null; //Check if the light can actually reach the left side of the block
                     HitsRight &= (tileX + 1 >= _tiles.GetLength(0)) || _tiles[tileX + 1, tileY].Block == null; //''
                     HitsTop &= (tileY <= 0) || _tiles[tileX, tileY - 1].Block == null; //''
                     HitsBottom &= (tileY + 1 >= _tiles.GetLength(1)) || _tiles[tileX, tileY + 1].Block == null; //''
 
                     //
                     //Check if any of the sides are being blocked by neighbouring tiles
+                    //And set the bit that corresponds to the corner
                     //
                     if (HitsLeft || HitsTop)
                         _lightmap[tileX - startX, tileY - startY] |= Corners.TopLeft;

@@ -55,6 +55,7 @@ namespace TheOtherDarkWorld.GameObjects
             Owner = owner;
             Rotation = rotation;
             this.OnBlockHit = OnBlockHit;
+            this.LightColour = Color.White;
         }
 
         public void Update(Tile[,] Tiles)

@@ -88,6 +88,9 @@ namespace TheOtherDarkWorld
             {
                 int type = int.Parse(node.ChildNodes[i].SelectSingleNode("Type").InnerText);
 
+                //
+                //Go through all the sub classes of the Item type (except for weapons)
+                //
                 switch (node.ChildNodes[i].Name)
                 {
                     case "Torch":

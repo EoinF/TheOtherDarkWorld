@@ -14,7 +14,6 @@ namespace TheOtherDarkWorld.GameObjects
 
         private static Random statusGen;
 
-        //public int ID;
         public int Health
         {
             get 
@@ -69,12 +68,6 @@ namespace TheOtherDarkWorld.GameObjects
             get { return base.Speed * (1 + SpeedBonus); }
             set { base.Speed = value; }
         }
-
-        private static Color COLOUR_PROTECTED = Color.WhiteSmoke;
-        private static Color COLOUR_POISON = Color.Green;
-        private static Color COLOUR_BURNING = Color.PaleVioletRed;
-        private static Color COLOUR_FROZEN = Color.Aqua;
-        private static Color COLOUR_INVISIBLE = Color.Transparent;
 
 
         public override Color Colour

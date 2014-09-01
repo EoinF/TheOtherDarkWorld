@@ -21,6 +21,7 @@ namespace TheOtherDarkWorld.GameObjects
         {
             get
             {
+                //This should also be based on the colour! Because the colour can be black - No Light!
                 return Math.Max(1, (int)(base.ConsumeRate * light.Brightness)); //Math.Max ensures that it's at least 1
             }
         }
@@ -65,7 +66,7 @@ namespace TheOtherDarkWorld.GameObjects
             
             PageContent.AddElement(flashlightControls);
 
-            PageContent.AddElement(CreateSwitchAppButton("Main Menu", APP_MAINMENU));
+            PageContent.AddElement(CreateSwitchAppButton("Main Menu", phone.GetMainMenu()));
         }
         
         ~FlashlightApp()

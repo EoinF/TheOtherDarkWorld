@@ -112,7 +112,7 @@ namespace TheOtherDarkWorld
 
             /*
              * An idea for later on:
-             *      When the player starts, pick 3 random weapons in the game. The player gets to choose one of them
+             *      When the player starts, take 3 random weapons in the game. The player gets to choose one of them
              *      to start with. Then give 3 random utility items(like medic packs) and then 3 other random items
              *      
              *      Could also include classes. Like bonus health tank. Or ability to carry more items. Or being able
@@ -130,11 +130,10 @@ namespace TheOtherDarkWorld
         public static Projectile CreateProjectile(float damage, int penetration, float speed, Color colour, GameObject owner, Vector2 startVelocity, Vector2 startPosition, float rotation)
         {
             Projectile newP = new Projectile(Textures.Bullet, damage, penetration, speed, colour, owner, startVelocity, startPosition, rotation,
-                (p, col) //Collision
+                (p, col) //Collision handler
                 =>
                 {
                     Block BlkHit = CurrentLevel.Tiles[col.location.X, col.location.Y].Block;
-                    //Position += Velocity / 2; //There are two collisions per frame, so it adds half the velocity twice.
                     BlkHit.Health -= p.Damage;
                     p.ApplyDamage(BlkHit.Resistance);
                 });

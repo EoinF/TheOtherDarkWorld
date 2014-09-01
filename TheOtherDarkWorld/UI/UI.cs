@@ -27,7 +27,7 @@ namespace TheOtherDarkWorld
         public const float UIELEMENT_DEPTH_DEFAULT = 0.8f;
         public const float MELEE_DEPTH_DEFAULT = 0.17f;
         public const float FLOORITEM_DEPTH_DEFAULT = 0.14f;
-        public const float PROJECTILE_DEPTH_DEFAULT = 0.13f;
+        public const float PROJECTILE_DEPTH_DEFAULT = 0.11f;
         public const float ENEMY_DEPTH_DEFAULT = 0.12f;
         public const float PLAYER_DEPTH_DEFAULT = 0.11f;
         public const float GAMEOBJECT_DEPTH_DEFAULT = 0.1f;

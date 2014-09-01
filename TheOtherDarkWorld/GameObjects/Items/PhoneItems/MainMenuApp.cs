@@ -80,7 +80,9 @@ namespace TheOtherDarkWorld.GameObjects
             //Start with 1, to skip over the main menu app
             for (int i = 1; i < InstalledApps.Count; i++)
             {
-                PageContent.AddElement(CreateSwitchAppButton(InstalledApps[i].Name, InstalledApps[i].Type));
+                string appname = InstalledApps[i].Name.Split('(')[1].Split(')')[0]; //App items come in the form "SD Card(app_name)"
+
+                PageContent.AddElement(CreateSwitchAppButton(appname, InstalledApps[i]));
             }
 
             Item[] Inventory = (Owner as IItemHolder).Inventory;
@@ -128,8 +130,8 @@ namespace TheOtherDarkWorld.GameObjects
                     (button.Parent as UIContainer).RemoveElement(button);
 
                     //Also create the button for launching the new app
-                    phone.InstallApp(apptype, consumeRate);
-                    PageContent.AddElement(CreateSwitchAppButton(appname, apptype));
+                    PhoneApp newApp = phone.InstallApp(apptype, consumeRate);
+                    PageContent.AddElement(CreateSwitchAppButton(appname, newApp));
                 }
             };
             btncontainer.AddElement(button);
